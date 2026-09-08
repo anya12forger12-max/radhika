@@ -5,8 +5,6 @@ import 'package:radhika/services/auth_service.dart';
 import 'package:radhika/services/storage_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
-final storageServiceProvider =
-    Provider<StorageService>((ref) => StorageService.instance);
 
 class AuthState {
   final AsyncValue<User?> user;

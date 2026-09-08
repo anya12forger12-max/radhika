@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
 import 'package:radhika/models/user_profile.dart';
+
+final storageServiceProvider =
+    Provider<StorageService>((ref) => StorageService.instance);
 
 class StorageService {
   static const String _profileBox = 'profile_box';

@@ -17,7 +17,7 @@ class _EducationScreenState extends State<EducationScreen> {
   final _topics = <_EducationTopic>[
     _EducationTopic(
       title: 'Understanding Menstruation',
-      icon: Icons.cycle,
+      icon: Icons.loop,
       content: '''
 Menstruation is the monthly shedding of the uterine lining (endometrium) that occurs as part of the menstrual cycle. This natural biological process typically begins between ages 11 and 14 and continues until menopause, usually around age 45-55.
 

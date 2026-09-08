@@ -59,7 +59,7 @@ class CycleEntry extends HiveObject {
 
   int get duration {
     if (endDate == null) return 0;
-    return endDate!.difference(startDate).days + 1;
+    return endDate!.difference(startDate).inDays + 1;
   }
 
   Map<String, dynamic> toMap() {

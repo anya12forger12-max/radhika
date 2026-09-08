@@ -56,3 +56,9 @@ macos/Runner/GoogleService-Info.plist
 # IDE
 .vscode/
 .idea/
+
+# Generated iOS (Flutter tooling)
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Runner/GeneratedPluginRegistrant.*

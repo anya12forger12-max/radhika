@@ -414,7 +414,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isOnPeriod ? Icons.water_drop : Icons.cycle,
+                  isOnPeriod ? Icons.water_drop : Icons.loop,
                   color: isOnPeriod
                       ? colorScheme.onPrimaryContainer
                       : colorScheme.onSecondaryContainer,

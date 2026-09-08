@@ -458,7 +458,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                       final selected = _selectedSymptoms.contains(symptom);
                       return Semantics(
                         label:
-                            'Symptom: ${_symptomLabels[symptom]}$selected ? , selected' : ''}',
+                            'Symptom: ${_symptomLabels[symptom]}, selected: $selected',
                         child: FilterChip(
                           selected: selected,
                           label: Text(_symptomLabels[symptom]!),

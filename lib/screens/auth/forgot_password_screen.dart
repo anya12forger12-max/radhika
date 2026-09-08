@@ -42,8 +42,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            semanticLabel: 'Error: ${next.error}',
-          ),
+            ),
         );
       }
     });

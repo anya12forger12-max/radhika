@@ -51,8 +51,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            semanticLabel: 'Error: ${next.error}',
-          ),
+            ),
         );
       }
     });
@@ -147,7 +146,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           onPressed: () =>
                               setState(() => _obscurePassword = !_obscurePassword),
-                          semanticLabel:
+                          tooltip:
                               _obscurePassword ? 'Show password' : 'Hide password',
                         ),
                       ),
@@ -186,7 +185,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           onPressed: () => setState(
                               () => _obscureConfirmPassword = !_obscureConfirmPassword),
-                          semanticLabel: _obscureConfirmPassword
+                          tooltip: _obscureConfirmPassword
                               ? 'Show confirm password'
                               : 'Hide confirm password',
                         ),

@@ -212,10 +212,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         headerStyle: HeaderStyle(
           formatButtonVisible: true,
           titleCentered: true,
-          formatButtonSemanticLabel: 'Change calendar view',
-          titleTextStyle: theme.textTheme.titleMedium?.copyWith(
+          titleTextStyle: (theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
-          ),
+          )) ?? const TextStyle(fontWeight: FontWeight.w600),
           leftChevronIcon: Semantics(
             label: 'Previous month',
             button: true,
@@ -237,13 +236,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             color: colorScheme.primaryContainer,
             shape: BoxShape.circle,
           ),
-          todayTextStyle: theme.textTheme.bodyMedium?.copyWith(
+          todayTextStyle: (theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
-          ),
-          selectedTextStyle: theme.textTheme.bodyMedium?.copyWith(
+          )) ?? const TextStyle(fontWeight: FontWeight.bold),
+          selectedTextStyle: (theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onPrimaryContainer,
-          ),
+          )) ?? const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     ).animate().fadeIn(duration: 400.ms);

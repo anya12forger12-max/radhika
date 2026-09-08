@@ -47,8 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            semanticLabel: 'Error: ${next.error}',
-          ),
+            ),
         );
       }
     });
@@ -129,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           onPressed: () =>
                               setState(() => _obscurePassword = !_obscurePassword),
-                          semanticLabel:
+                          tooltip:
                               _obscurePassword ? 'Show password' : 'Hide password',
                         ),
                       ),

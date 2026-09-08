@@ -34,14 +34,14 @@ dependencies:
   shimmer: ^3.0.0
   animate_do: ^4.2.0
   flutter_animate: ^4.5.2
-  flex_color_scheme: ^10.1.0
+  flex_color_scheme: ^8.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   hive_generator: ^2.0.1
-  build_runner: ^2.4.14
+  build_runner: ^2.4.13
 
 flutter:
   uses-material-design: true
