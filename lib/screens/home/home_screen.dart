@@ -6,6 +6,7 @@ import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/screens/calendar/calendar_screen.dart';
+import 'package:radhika/widgets/ad_banner.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -64,6 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 

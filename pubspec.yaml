@@ -1,7 +1,7 @@
 name: radhika
 description: "Radhika - Cross-platform menstrual health tracking application"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.12.2
@@ -35,6 +35,7 @@ dependencies:
   animate_do: ^4.2.0
   flutter_animate: ^4.5.2
   flex_color_scheme: ^8.4.0
+  google_mobile_ads: ^9.1.0
 
 dev_dependencies:
   flutter_test:
