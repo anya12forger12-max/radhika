@@ -3,7 +3,9 @@ class AppConstants {
 
   static const String appName = 'Radhika';
   static const String appVersion = '1.0.0';
-  static const String privacyPolicyVersion = '1.0.0';
+  static const String privacyPolicyUrl =
+      'https://raw.githubusercontent.com/anya12forger12-max/radhika/main/PRIVACY.md';
+  static const String privacyPolicyVersion = '1.1.0';
 
   static const int minPasswordLength = 8;
   static const int minAge = 10;
@@ -21,7 +23,7 @@ class AppConstants {
   static const String privacyPolicyText = '''
 PRIVACY POLICY
 
-Last updated: July 2026
+Last updated: September 2026
 
 1. Introduction
 Radhika ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information.
@@ -33,6 +35,7 @@ We collect only the minimum information necessary for menstrual cycle tracking a
 - Height and weight (optional)
 - Cycle-related data (period dates, symptoms, flow intensity)
 - Optional medical information you choose to share
+We do not sell your personal information to anyone, including advertisers.
 
 3. How We Use Your Information
 - To provide accurate cycle predictions
@@ -59,14 +62,24 @@ We retain your data only as long as necessary to provide our services. You may r
 - Withdraw consent at any time
 - Delete your account permanently
 
-7. Third-Party Services
-We use Firebase (Google) for authentication and secure data storage. Firebase complies with GDPR and other privacy regulations.
+7. Advertising and Advertising IDs
+Radhika is a free app supported by advertising served by Google AdMob. AdMob may use your device advertising identifier (Advertising ID) to display and measure ads and to prevent fraud.
+- We do not sell your personal or health data to advertisers.
+- You may see personalized or non-personalized ads. You can opt out of personalized advertising at any time in your device settings (Android: Settings > Privacy > Ads > "Delete advertising ID") and in Google Ads Settings (adssettings.google.com).
+- Google's data practices are governed by Google's Privacy Policy (policies.google.com/privacy).
+- Where required by law, a consent dialog is shown before personalized ads are served.
 
-8. Changes to This Policy
+8. Third-Party Services
+We use Google Firebase for authentication and secure data storage, and Google AdMob for advertising. These services comply with GDPR and other applicable privacy regulations and have their own privacy policies.
+
+9. Children's Privacy
+Radhika is not intended for children under 13 and we do not knowingly collect information from anyone under 13. If you believe a child has provided us personal information, contact us and we will delete it.
+
+10. Changes to This Policy
 We may update this policy. Users will be notified of material changes and must accept the updated policy to continue using the application.
 
-9. Contact
-For questions about this policy, contact the application administrator.
+11. Contact
+For questions about this policy, open an issue at github.com/anya12forger12-max/radhika/issues or contact the application administrator.
 ''';
 
   static const String medicalDisclaimer =
