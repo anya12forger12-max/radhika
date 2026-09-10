@@ -36,7 +36,7 @@
             android:value="high_importance_channel" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-7692188087567714~1232177806" />
     </application>
     <queries>
         <intent>
