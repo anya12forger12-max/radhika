@@ -6,6 +6,7 @@ import 'package:radhika/screens/auth/forgot_password_screen.dart';
 import 'package:radhika/screens/auth/login_screen.dart';
 import 'package:radhika/screens/auth/register_screen.dart';
 import 'package:radhika/screens/calendar/calendar_screen.dart';
+import 'package:radhika/screens/calendar/cycle_detail_screen.dart';
 import 'package:radhika/screens/education/education_screen.dart';
 import 'package:radhika/screens/education/product_guides/cup_guide_screen.dart';
 import 'package:radhika/screens/education/product_guides/pad_guide_screen.dart';
@@ -49,6 +50,8 @@ class RadhikaApp extends ConsumerWidget {
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const HomeScreen(),
         '/calendar': (context) => const CalendarScreen(),
+        '/cycle-detail': (context) => CycleDetailScreen(
+            entryId: ModalRoute.of(context)!.settings.arguments as String),
         '/log-period': (context) => const LogPeriodScreen(),
         '/log-symptom': (context) => const LogSymptomScreen(),
         '/education': (context) => const EducationScreen(),
@@ -58,6 +61,8 @@ class RadhikaApp extends ConsumerWidget {
         '/reports': (context) => const ReportsScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/privacy-policy': (context) => const PrivacyPolicyScreen(),
+        '/privacy-policy-required': (context) =>
+            const PrivacyPolicyScreen(isRequired: true),
         '/profile': (context) => const ProfileScreen(),
       },
     );

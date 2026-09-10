@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/user_profile.dart';
 import 'package:radhika/services/auth_service.dart';
 import 'package:radhika/services/storage_service.dart';
@@ -160,7 +161,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     var profile = state.profile ?? UserProfile(id: user.uid);
     profile = profile.copyWith(
       privacyPolicyAccepted: true,
-      privacyPolicyAcceptedVersion: '1.0.0',
+      privacyPolicyAcceptedVersion: AppConstants.privacyPolicyVersion,
       privacyPolicyAcceptedDate: DateTime.now(),
     );
     await _storageService.saveProfile(profile);

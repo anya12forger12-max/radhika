@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/providers/auth_provider.dart';
@@ -14,6 +15,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
+  late final StreamSubscription<User?> _authSub;
   var _navigated = false;
 
   @override
@@ -28,6 +30,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       curve: Curves.easeIn,
     );
     _animationController.forward();
+    _authSub = ref.read(authServiceProvider).authStateChanges.listen((user) {
+      if (user == null || !mounted || _navigated) return;
+      _navigateBasedOnAuth();
+    });
     _navigateAfterDelay();
   }
 
@@ -42,7 +48,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     if (authState.isAuthenticated) {
       if (authState.needsPrivacyPolicy) {
-        Navigator.pushReplacementNamed(context, '/privacy-policy');
+        Navigator.pushReplacementNamed(context, '/privacy-policy-required');
       } else {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -53,6 +59,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   void dispose() {
+    _authSub.cancel();
     _animationController.dispose();
     super.dispose();
   }

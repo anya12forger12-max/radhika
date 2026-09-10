@@ -17,6 +17,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   var _obscurePassword = true;
+  var _navigating = false;
+
+  void _routeAfterAuth() {
+    if (_navigating || !mounted) return;
+    final authState = ref.read(authProvider);
+    if (!authState.isAuthenticated) return;
+    _navigating = true;
+    final route = authState.needsPrivacyPolicy
+        ? '/privacy-policy-required'
+        : '/home';
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      route,
+      (currentRoute) => currentRoute.isFirst,
+    );
+  }
 
   @override
   void dispose() {
@@ -31,6 +46,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _emailController.text.trim(),
       _passwordController.text,
     );
+    if (!mounted) return;
+    _routeAfterAuth();
   }
 
   Future<void> _signInWithGoogle() async {
@@ -49,6 +66,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             content: Text(next.error!),
             ),
         );
+      }
+      if (next.isAuthenticated && !(prev?.isAuthenticated ?? false)) {
+        _routeAfterAuth();
       }
     });
 

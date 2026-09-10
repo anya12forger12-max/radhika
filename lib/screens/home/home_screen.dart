@@ -261,7 +261,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _QuickAction(
         icon: Icons.add,
         label: 'Log Symptoms',
-        route: '/log-symptoms',
+        route: '/log-symptom',
         semanticLabel: 'Log symptoms',
       ),
       _QuickAction(

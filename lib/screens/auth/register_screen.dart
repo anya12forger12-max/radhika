@@ -39,6 +39,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       name: _nameController.text.trim(),
       age: age,
     );
+    if (!mounted) return;
+    final authState = ref.read(authProvider);
+    if (authState.error == null && authState.profile != null) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home',
+        (currentRoute) => currentRoute.isFirst,
+      );
+    }
   }
 
   @override

@@ -78,7 +78,10 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
                               ? () async {
                                   await ref.read(authProvider.notifier).acceptPrivacyPolicy();
                                   if (context.mounted) {
-                                    Navigator.pop(context);
+                                    Navigator.of(context).pushNamedAndRemoveUntil(
+                                      '/home',
+                                      (route) => route.isFirst,
+                                    );
                                   }
                                 }
                               : null,

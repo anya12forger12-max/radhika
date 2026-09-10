@@ -160,6 +160,11 @@ final cycleProvider =
 
   final notifier = CycleNotifier(storageService, predictionService);
 
+  final currentUser = ref.read(authProvider).user.value;
+  if (currentUser != null) {
+    notifier.setUserId(currentUser.uid);
+  }
+
   ref.listen(authProvider, (prev, next) {
     final user = next.user.value;
     if (user != null) {
