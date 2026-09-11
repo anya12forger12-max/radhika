@@ -29,10 +29,10 @@ We do not sell your personal information to anyone, including advertisers.
 
 - Your data belongs solely to you
 - No user can view another user's personal information
-- Your health information is private and encrypted
+- Health data is stored locally on your device in app-private storage and is never uploaded to our servers
 - Only the application administrator may access stored data when required for maintenance, legal compliance, security, or user-requested support
 - Data will never be shared with other users
-- All data is encrypted during transmission and storage
+- All network communication (authentication, ads) uses industry-standard TLS encryption
 - Industry-standard security measures protect your information
 
 ## 5. Data Retention

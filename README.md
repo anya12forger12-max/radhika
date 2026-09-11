@@ -43,7 +43,7 @@ Radhika is a cross-platform menstrual health tracking application built with Flu
 - Full WCAG 2.1 AA accessibility compliance
 
 ### 🔒 Privacy & Security
-- End-to-end encrypted data storage
+- Health data stays on your device in app-private storage (never uploaded)
 - Secure Firebase Authentication
 - Mandatory privacy policy acceptance
 - User data belongs solely to the user
