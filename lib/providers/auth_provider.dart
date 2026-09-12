@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/user_profile.dart';
+import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/services/auth_service.dart';
 import 'package:radhika/services/storage_service.dart';
 
@@ -43,8 +44,9 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _authService;
   final StorageService _storageService;
+  final Ref _ref;
 
-  AuthNotifier(this._authService, this._storageService)
+  AuthNotifier(this._authService, this._storageService, this._ref)
       : super(const AuthState()) {
     _authService.authStateChanges.listen(_onAuthChange);
   }
@@ -193,6 +195,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> updateProfile(UserProfile profile) async {
     await _storageService.saveProfile(profile);
     state = state.copyWith(profile: profile);
+    _ref.read(cycleProvider.notifier).recomputePrediction();
+  }
+
+  void updateProfileState(UserProfile profile) {
+    state = state.copyWith(profile: profile);
   }
 
   Future<void> refreshProfile() async {
@@ -233,5 +240,5 @@ final authProvider =
     StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authService = ref.read(authServiceProvider);
   final storageService = ref.read(storageServiceProvider);
-  return AuthNotifier(authService, storageService);
+  return AuthNotifier(authService, storageService, ref);
 });

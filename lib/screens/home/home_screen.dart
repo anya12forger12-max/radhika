@@ -384,7 +384,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     bool isOnPeriod = false;
     if (entries.isNotEmpty) {
       final latest = entries.first as dynamic;
-      if (latest.endDate != null) {
+      if (latest.endDate != null && latest.isSymptomOnly != true) {
         final end = latest.endDate as DateTime;
         isOnPeriod = latest.startDate.isBefore(now) && end.isAfter(now.subtract(const Duration(days: 1)));
       }

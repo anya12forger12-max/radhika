@@ -31,10 +31,10 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       medications: (fields[11] as List).cast<String>(),
       createdAt: fields[12] as DateTime?,
       updatedAt: fields[13] as DateTime?,
-      privacyPolicyAccepted: fields[14] as bool,
+      privacyPolicyAccepted: (fields[14] as bool?) ?? false,
       privacyPolicyAcceptedVersion: fields[15] as String?,
       privacyPolicyAcceptedDate: fields[16] as DateTime?,
-      email: fields[17] as String,
+      email: (fields[17] as String?) ?? '',
     );
   }
 

@@ -77,6 +77,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
 
     for (final entry in entries) {
+      if (entry.isSymptomOnly) continue;
       if (entry.endDate == null) continue;
       var day = DateTime(entry.startDate.year, entry.startDate.month, entry.startDate.day);
       final end = DateTime(entry.endDate!.year, entry.endDate!.month, entry.endDate!.day);
@@ -340,6 +341,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   CycleEntry? _entryForDay(List<CycleEntry> entries, DateTime day) {
     for (final entry in entries) {
+      if (entry.isSymptomOnly) continue;
       if (entry.endDate != null && _isInRange(entry, day)) return entry;
     }
     return null;
@@ -468,7 +470,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildStatisticsBar(ThemeData theme, ColorScheme colorScheme, List<CycleEntry> entries) {
-    final completed = entries.where((e) => e.endDate != null).toList();
+    final completed = entries
+        .where((e) => e.endDate != null && !e.isSymptomOnly)
+        .toList();
     final sorted = List<CycleEntry>.from(completed)
       ..sort((a, b) => a.startDate.compareTo(b.startDate));
 

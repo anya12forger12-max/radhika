@@ -44,9 +44,10 @@ class CycleState {
 class CycleNotifier extends StateNotifier<CycleState> {
   final StorageService _storageService;
   final CyclePredictionService _predictionService;
+  final Ref _ref;
   String? _userId;
 
-  CycleNotifier(this._storageService, this._predictionService)
+  CycleNotifier(this._storageService, this._predictionService, this._ref)
       : super(const CycleState());
 
   void setUserId(String userId) {
@@ -77,6 +78,7 @@ class CycleNotifier extends StateNotifier<CycleState> {
     int waterIntake = 4,
     List<Symptom> symptoms = const [],
     String notes = '',
+    bool isSymptomOnly = false,
   }) async {
     if (_userId == null) return;
 
@@ -95,23 +97,59 @@ class CycleNotifier extends StateNotifier<CycleState> {
       waterIntake: waterIntake,
       symptoms: symptoms,
       notes: notes,
+      isSymptomOnly: isSymptomOnly,
     );
 
     await _storageService.saveCycleEntry(entry);
     _loadCycles();
-    _updatePrediction();
+    if (!entry.isSymptomOnly) {
+      await _syncLastPeriodStart();
+    }
+    await _updatePrediction();
   }
 
   Future<void> updateCycleEntry(String entryId, CycleEntry updatedEntry) async {
     await _storageService.saveCycleEntry(updatedEntry);
     _loadCycles();
-    _updatePrediction();
+    if (!updatedEntry.isSymptomOnly) {
+      await _syncLastPeriodStart();
+    }
+    await _updatePrediction();
   }
 
   Future<void> deleteCycleEntry(String entryId) async {
     await _storageService.deleteCycleEntry(entryId);
     _loadCycles();
-    _updatePrediction();
+    await _syncLastPeriodStart();
+    await _updatePrediction();
+  }
+
+  Future<void> recomputePrediction() => _updatePrediction();
+
+  Future<void> _syncLastPeriodStart() async {
+    if (_userId == null) return;
+    final profile = _storageService.getProfile(_userId!);
+    if (profile == null) return;
+
+    DateTime? newestStart;
+    for (final entry in state.cycleHistory) {
+      if (entry.isSymptomOnly) continue;
+      if (newestStart == null || entry.startDate.isAfter(newestStart)) {
+        newestStart = entry.startDate;
+      }
+    }
+    if (newestStart == null) return;
+
+    final last = profile.lastPeriodStart;
+    final isSame = last != null &&
+        last.year == newestStart.year &&
+        last.month == newestStart.month &&
+        last.day == newestStart.day;
+    if (isSame) return;
+
+    final updated = profile.copyWith(lastPeriodStart: newestStart);
+    await _storageService.saveProfile(updated);
+    _ref.read(authProvider.notifier).updateProfileState(updated);
   }
 
   Future<void> _updatePrediction() async {
@@ -158,7 +196,7 @@ final cycleProvider =
   final storageService = ref.read(storageServiceProvider);
   final predictionService = ref.read(cyclePredictionServiceProvider);
 
-  final notifier = CycleNotifier(storageService, predictionService);
+  final notifier = CycleNotifier(storageService, predictionService, ref);
 
   final currentUser = ref.read(authProvider).user.value;
   if (currentUser != null) {

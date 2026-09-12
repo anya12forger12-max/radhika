@@ -144,6 +144,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
       await ref.read(cycleProvider.notifier).addCycleEntry(
             startDate: _selectedDate,
             endDate: _selectedDate,
+            isSymptomOnly: true,
             painLevel: _painLevel.round(),
             mood: _mood,
             symptoms: _selectedSymptoms.toList(),

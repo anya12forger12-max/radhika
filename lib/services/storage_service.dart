@@ -40,11 +40,25 @@ class StorageService {
     Hive.registerAdapter(ReminderAdapter());
     Hive.registerAdapter(ReminderTypeAdapter());
 
-    await Hive.openBox<UserProfile>(_profileBox);
-    await Hive.openBox<CycleEntry>(_cyclesBox);
-    await Hive.openBox<CyclePrediction>(_predictionsBox);
-    await Hive.openBox<Reminder>(_remindersBox);
-    await Hive.openBox<String>(_settingsBox);
+    await _openBoxSafely<UserProfile>(_profileBox);
+    await _openBoxSafely<CycleEntry>(_cyclesBox);
+    await _openBoxSafely<CyclePrediction>(_predictionsBox);
+    await _openBoxSafely<Reminder>(_remindersBox);
+    await _openBoxSafely<String>(_settingsBox);
+  }
+
+  Future<Box<T>> _openBoxSafely<T>(String name) async {
+    try {
+      return await Hive.openBox<T>(name);
+    } catch (e) {
+      debugPrint('Failed to open Hive box "$name": $e');
+      try {
+        await Hive.deleteBoxFromDisk(name);
+      } catch (deleteError) {
+        debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
+      }
+      return Hive.openBox<T>(name);
+    }
   }
 
   Box<UserProfile> get _profile => Hive.box<UserProfile>(_profileBox);
@@ -175,6 +189,7 @@ class StorageService {
           waterIntake: cycle.waterIntake,
           symptoms: cycle.symptoms,
           notes: cycle.notes,
+          isSymptomOnly: cycle.isSymptomOnly,
           createdAt: cycle.createdAt,
           updatedAt: cycle.updatedAt,
         );

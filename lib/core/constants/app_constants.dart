@@ -17,8 +17,8 @@ class AppConstants {
   static const int minPeriodLength = 2;
   static const int maxPeriodLength = 10;
   static const int ovulationDayOffset = 14;
-  static const int fertileWindowStart = 10;
-  static const int fertileWindowEnd = 17;
+  static const int fertileWindowOffsetNear = 10;
+  static const int fertileWindowOffsetFar = 17;
 
   static const String privacyPolicyText = '''
 PRIVACY POLICY

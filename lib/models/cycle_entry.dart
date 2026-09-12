@@ -36,6 +36,8 @@ class CycleEntry extends HiveObject {
   DateTime createdAt;
   @HiveField(15)
   DateTime updatedAt;
+  @HiveField(16)
+  bool isSymptomOnly;
 
   CycleEntry({
     required this.id,
@@ -54,6 +56,7 @@ class CycleEntry extends HiveObject {
     this.notes = '',
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.isSymptomOnly = false,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
@@ -80,6 +83,7 @@ class CycleEntry extends HiveObject {
       'notes': notes,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
+      'isSymptomOnly': isSymptomOnly,
     };
   }
 
@@ -107,6 +111,7 @@ class CycleEntry extends HiveObject {
           map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(
           map['updatedAt'] ?? DateTime.now().millisecondsSinceEpoch),
+      isSymptomOnly: map['isSymptomOnly'] ?? false,
     );
   }
 
@@ -123,6 +128,7 @@ class CycleEntry extends HiveObject {
     int? waterIntake,
     List<Symptom>? symptoms,
     String? notes,
+    bool? isSymptomOnly,
   }) {
     return CycleEntry(
       id: id,
@@ -139,6 +145,7 @@ class CycleEntry extends HiveObject {
       waterIntake: waterIntake ?? this.waterIntake,
       symptoms: symptoms ?? this.symptoms,
       notes: notes ?? this.notes,
+      isSymptomOnly: isSymptomOnly ?? this.isSymptomOnly,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );

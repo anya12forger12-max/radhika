@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
@@ -31,10 +33,10 @@ class CyclePredictionService {
         predictedStart.add(Duration(days: averagePeriodLength));
     final ovulationDate =
         predictedStart.subtract(Duration(days: AppConstants.ovulationDayOffset));
-    final fertileStart =
-        predictedStart.subtract(Duration(days: AppConstants.fertileWindowStart));
-    final fertileEnd =
-        predictedStart.subtract(Duration(days: AppConstants.fertileWindowEnd));
+    final fertileStart = predictedStart.subtract(
+        Duration(days: AppConstants.fertileWindowOffsetFar));
+    final fertileEnd = predictedStart.subtract(
+        Duration(days: AppConstants.fertileWindowOffsetNear));
 
     final confidence = _calculateConfidence(cycleHistory, averageCycleLength);
     final isDelayed = predictedStart.isBefore(DateTime.now()) &&
@@ -72,7 +74,7 @@ class CyclePredictionService {
       variance += diff * diff;
     }
     variance /= history.length - 1;
-    final stdDev = variance;
+    final stdDev = math.sqrt(variance);
 
     if (stdDev <= 2) return 0.9;
     if (stdDev <= 4) return 0.8;
@@ -122,7 +124,9 @@ class CyclePredictionService {
 
   List<Map<String, dynamic>> getCycleStatistics(
       List<CycleEntry> cycleHistory) {
-    final completed = cycleHistory.where((e) => e.endDate != null).toList();
+    final completed = cycleHistory
+        .where((e) => e.endDate != null && !e.isSymptomOnly)
+        .toList();
     if (completed.isEmpty) return [];
 
     final sorted = List<CycleEntry>.from(completed)
