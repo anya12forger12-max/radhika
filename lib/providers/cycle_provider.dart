@@ -55,6 +55,11 @@ class CycleNotifier extends StateNotifier<CycleState> {
     _loadCycles();
   }
 
+  void resetForSignOut() {
+    _userId = null;
+    state = const CycleState();
+  }
+
   void _loadCycles() {
     if (_userId == null) return;
     final history = _storageService.getCycleEntries(_userId!);
@@ -167,6 +172,14 @@ class CycleNotifier extends StateNotifier<CycleState> {
 
     await _storageService.savePrediction(prediction);
 
+    final allPredictions = _storageService.getPredictions(_userId!);
+    const maxPredictions = 10;
+    if (allPredictions.length > maxPredictions) {
+      for (final old in allPredictions.skip(maxPredictions)) {
+        await _storageService.deletePrediction(old.id);
+      }
+    }
+
     final delaySuggestions = prediction.isDelayed
         ? _predictionService.generateDelayAnalysis(
             state.cycleHistory.take(5).toList())
@@ -207,6 +220,8 @@ final cycleProvider =
     final user = next.user.value;
     if (user != null) {
       notifier.setUserId(user.uid);
+    } else {
+      notifier.resetForSignOut();
     }
   });
 

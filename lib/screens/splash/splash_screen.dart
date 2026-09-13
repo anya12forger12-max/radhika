@@ -16,11 +16,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
   late final StreamSubscription<User?> _authSub;
+  Timer? _navigationTimer;
+  late final DateTime _splashStart;
+  var _authDelivered = false;
   var _navigated = false;
 
   @override
   void initState() {
     super.initState();
+    _splashStart = DateTime.now();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -31,19 +35,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
     _animationController.forward();
     _authSub = ref.read(authServiceProvider).authStateChanges.listen((user) {
-      if (user == null || !mounted || _navigated) return;
+      if (!mounted || _navigated) return;
+      _authDelivered = true;
       _navigateBasedOnAuth();
     });
-    _navigateAfterDelay();
+    _scheduleNavigation();
   }
 
-  void _navigateAfterDelay() {
-    Timer(const Duration(milliseconds: 1500), _navigateBasedOnAuth);
+  void _scheduleNavigation() {
+    _navigationTimer?.cancel();
+    _navigationTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) _navigateBasedOnAuth();
+    });
   }
 
   void _navigateBasedOnAuth() {
     if (!mounted || _navigated) return;
+    if (!_authDelivered) return;
+
+    final elapsed = DateTime.now().difference(_splashStart);
+    if (elapsed < const Duration(milliseconds: 1000)) {
+      _scheduleNavigation();
+      return;
+    }
+
     final authState = ref.read(authProvider);
+    if (!authState.user.hasValue) return;
     _navigated = true;
 
     if (authState.isAuthenticated) {
@@ -59,6 +76,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   void dispose() {
+    _navigationTimer?.cancel();
     _authSub.cancel();
     _animationController.dispose();
     super.dispose();
@@ -67,6 +85,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authProvider);
+    if (!_navigated && _authDelivered && authState.user.hasValue) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _navigateBasedOnAuth();
+      });
+    }
 
     return Scaffold(
       body: Center(

@@ -57,7 +57,13 @@ class StorageService {
       } catch (deleteError) {
         debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
       }
-      return Hive.openBox<T>(name);
+      try {
+        return await Hive.openBox<T>(name);
+      } catch (retryError) {
+        debugPrint(
+            'Failed to reopen Hive box "$name" after recovery: $retryError');
+        return Hive.openBox<T>(name, bytes: Uint8List(0));
+      }
     }
   }
 
@@ -114,6 +120,10 @@ class StorageService {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
+  Future<void> deletePrediction(String predictionId) async {
+    await _predictions.delete(predictionId);
+  }
+
   Future<void> saveReminder(Reminder reminder) async {
     await _reminders.put(reminder.id, reminder);
   }
@@ -164,37 +174,62 @@ class StorageService {
   }
 
   Future<void> importData(String userId, String jsonString) async {
-    final data = jsonDecode(jsonString) as Map<String, dynamic>;
-    if (data['profile'] != null) {
-      final profile = UserProfile.fromMap(
-          data['profile'] as Map<String, dynamic>, userId);
-      await saveProfile(profile);
-    }
-    if (data['cycles'] != null) {
-      for (final cycleMap in data['cycles'] as List) {
-        final cycle =
-            CycleEntry.fromMap(cycleMap as Map<String, dynamic>, '');
-        final importCycle = CycleEntry(
-          id: cycle.id,
-          userId: userId,
-          startDate: cycle.startDate,
-          endDate: cycle.endDate,
-          flowIntensity: cycle.flowIntensity,
-          spotting: cycle.spotting,
-          painLevel: cycle.painLevel,
-          mood: cycle.mood,
-          energyLevel: cycle.energyLevel,
-          sleepHours: cycle.sleepHours,
-          exercise: cycle.exercise,
-          waterIntake: cycle.waterIntake,
-          symptoms: cycle.symptoms,
-          notes: cycle.notes,
-          isSymptomOnly: cycle.isSymptomOnly,
-          createdAt: cycle.createdAt,
-          updatedAt: cycle.updatedAt,
-        );
-        await saveCycleEntry(importCycle);
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! Map<String, dynamic>) {
+        debugPrint(
+            'Failed to import data: unexpected top-level type ${decoded.runtimeType}');
+        return;
       }
+      final data = decoded;
+
+      final profileData = data['profile'];
+      if (profileData is Map<String, dynamic>) {
+        try {
+          final profile = UserProfile.fromMap(profileData, userId);
+          await saveProfile(profile);
+        } catch (e) {
+          debugPrint('Failed to import profile: $e');
+        }
+      }
+
+      final cyclesData = data['cycles'];
+      if (cyclesData is List) {
+        for (final cycleMap in cyclesData) {
+          if (cycleMap is! Map<String, dynamic>) {
+            debugPrint(
+                'Skipping cycle entry with unexpected type ${cycleMap.runtimeType}');
+            continue;
+          }
+          try {
+            final cycle = CycleEntry.fromMap(cycleMap, '');
+            final importCycle = CycleEntry(
+              id: cycle.id,
+              userId: userId,
+              startDate: cycle.startDate,
+              endDate: cycle.endDate,
+              flowIntensity: cycle.flowIntensity,
+              spotting: cycle.spotting,
+              painLevel: cycle.painLevel,
+              mood: cycle.mood,
+              energyLevel: cycle.energyLevel,
+              sleepHours: cycle.sleepHours,
+              exercise: cycle.exercise,
+              waterIntake: cycle.waterIntake,
+              symptoms: cycle.symptoms,
+              notes: cycle.notes,
+              isSymptomOnly: cycle.isSymptomOnly,
+              createdAt: cycle.createdAt,
+              updatedAt: cycle.updatedAt,
+            );
+            await saveCycleEntry(importCycle);
+          } catch (e) {
+            debugPrint('Failed to import cycle entry: $e');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to import data: $e');
     }
   }
 

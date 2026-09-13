@@ -44,7 +44,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         'Symptoms: ${entry.symptoms.map((s) => s.name).join(', ')}',
       );
     }
-    await Share.share(buffer.toString(), subject: 'Radhika Cycle Data');
+    try {
+      await Share.share(buffer.toString(), subject: 'Radhika Cycle Data');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to share')),
+        );
+      }
+    }
   }
 
   Future<void> _deleteEntry(CycleEntry entry) async {
@@ -69,7 +77,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       ),
     );
     if (confirmed == true) {
-      await ref.read(cycleProvider.notifier).deleteCycleEntry(entry.id);
+      try {
+        await ref.read(cycleProvider.notifier).deleteCycleEntry(entry.id);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to delete entry')),
+          );
+        }
+      }
     }
   }
 

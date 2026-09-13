@@ -49,12 +49,21 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   void _loadSettings() {
     final themeStr = _storageService.getSetting('theme_mode');
     final fontSizeStr = _storageService.getSetting('font_size');
-    state = ThemeState(
-      setting: themeStr != null
-          ? ThemeModeSetting.values[int.parse(themeStr)]
-          : ThemeModeSetting.system,
-      fontSize: fontSizeStr != null ? double.parse(fontSizeStr) : 1.0,
-    );
+
+    final themeIndex = themeStr != null ? int.tryParse(themeStr) : null;
+    final setting = themeIndex != null &&
+            themeIndex >= 0 &&
+            themeIndex < ThemeModeSetting.values.length
+        ? ThemeModeSetting.values[themeIndex]
+        : ThemeModeSetting.system;
+
+    final fontSizeValue =
+        fontSizeStr != null ? double.tryParse(fontSizeStr) : null;
+    final fontSize = fontSizeValue != null
+        ? fontSizeValue.clamp(0.8, 1.5)
+        : 1.0;
+
+    state = ThemeState(setting: setting, fontSize: fontSize.toDouble());
   }
 
   Future<void> setThemeMode(ThemeModeSetting setting) async {

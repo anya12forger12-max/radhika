@@ -28,7 +28,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final storageService = ref.read(storageServiceProvider);
     final json = await storageService.exportData(user.uid);
-    await Share.share(json, subject: 'Radhika Data Export');
+    try {
+      await Share.share(json, subject: 'Radhika Data Export');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to share')),
+        );
+      }
+    }
   }
 
   Future<void> _deleteAllData() async {
@@ -90,6 +98,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     if (confirmed == true) {
       await ref.read(authProvider.notifier).deleteAccount();
+      if (!mounted) return;
+      final error = ref.read(authProvider).error;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
     }
   }
 

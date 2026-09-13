@@ -379,7 +379,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     final now = DateTime.now();
-    final cycleDay = now.difference(lastPeriodStart).inDays + 1;
+    final rawCycleDay = now.difference(lastPeriodStart).inDays + 1;
+    final cycleDay = rawCycleDay.clamp(1, 90);
 
     bool isOnPeriod = false;
     if (entries.isNotEmpty) {

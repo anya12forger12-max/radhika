@@ -25,7 +25,15 @@ class _AdBannerState extends State<AdBanner> {
   }
 
   Future<void> _loadBanner() async {
-    await MobileAds.instance.initialize();
+    try {
+      await MobileAds.instance.initialize();
+    } catch (e) {
+      debugPrint('Failed to initialize MobileAds: $e');
+      if (mounted) {
+        setState(() => _loaded = false);
+      }
+      return;
+    }
 
     final adapter = BannerAd(
       adUnitId: AdBanner.adUnitId,
@@ -53,7 +61,14 @@ class _AdBannerState extends State<AdBanner> {
       ),
     );
 
-    await adapter.load();
+    try {
+      await adapter.load();
+    } catch (e) {
+      debugPrint('Failed to load banner ad: $e');
+      if (mounted) {
+        setState(() => _loaded = false);
+      }
+    }
   }
 
   @override

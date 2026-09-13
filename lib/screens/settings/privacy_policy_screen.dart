@@ -75,16 +75,28 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
                         height: 48,
                         child: FilledButton(
                           onPressed: _accepted
-                              ? () async {
-                                  await ref.read(authProvider.notifier).acceptPrivacyPolicy();
-                                  if (context.mounted) {
-                                    Navigator.of(context).pushNamedAndRemoveUntil(
-                                      '/home',
-                                      (route) => route.isFirst,
-                                    );
-                                  }
+                          ? () async {
+                              try {
+                                await ref.read(authProvider.notifier).acceptPrivacyPolicy();
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content:
+                                          Text('Failed to accept privacy policy'),
+                                    ),
+                                  );
                                 }
-                              : null,
+                                return;
+                              }
+                              if (context.mounted) {
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/home',
+                                  (route) => route.isFirst,
+                                );
+                              }
+                            }
+                          : null,
                           child: const Text('Accept & Continue'),
                         ),
                       ),

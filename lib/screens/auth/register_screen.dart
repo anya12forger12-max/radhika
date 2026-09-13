@@ -42,8 +42,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!mounted) return;
     final authState = ref.read(authProvider);
     if (authState.error == null && authState.profile != null) {
+      final route = authState.needsPrivacyPolicy
+          ? '/privacy-policy-required'
+          : '/home';
       Navigator.of(context).pushNamedAndRemoveUntil(
-        '/home',
+        route,
         (currentRoute) => currentRoute.isFirst,
       );
     }

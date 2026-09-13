@@ -50,8 +50,12 @@ class RadhikaApp extends ConsumerWidget {
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const HomeScreen(),
         '/calendar': (context) => const CalendarScreen(),
-        '/cycle-detail': (context) => CycleDetailScreen(
-            entryId: ModalRoute.of(context)!.settings.arguments as String),
+        '/cycle-detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          return CycleDetailScreen(
+            entryId: args is String ? args : null,
+          );
+        },
         '/log-period': (context) => const LogPeriodScreen(),
         '/log-symptom': (context) => const LogSymptomScreen(),
         '/education': (context) => const EducationScreen(),

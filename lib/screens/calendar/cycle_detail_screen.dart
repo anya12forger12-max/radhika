@@ -5,7 +5,7 @@ import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 
 class CycleDetailScreen extends ConsumerWidget {
-  final String entryId;
+  final String? entryId;
 
   const CycleDetailScreen({super.key, required this.entryId});
 
