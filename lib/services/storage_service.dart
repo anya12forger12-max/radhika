@@ -12,12 +12,41 @@ import 'package:radhika/models/user_profile.dart';
 final storageServiceProvider =
     Provider<StorageService>((ref) => StorageService.instance);
 
+class ReminderPreferences {
+  final bool remind3DaysBefore;
+  final bool remind2DaysBefore;
+  final bool remindDayOf;
+
+  const ReminderPreferences({
+    this.remind3DaysBefore = false,
+    this.remind2DaysBefore = false,
+    this.remindDayOf = false,
+  });
+
+  bool get anyEnabled => remind3DaysBefore || remind2DaysBefore || remindDayOf;
+
+  ReminderPreferences copyWith({
+    bool? remind3DaysBefore,
+    bool? remind2DaysBefore,
+    bool? remindDayOf,
+  }) {
+    return ReminderPreferences(
+      remind3DaysBefore: remind3DaysBefore ?? this.remind3DaysBefore,
+      remind2DaysBefore: remind2DaysBefore ?? this.remind2DaysBefore,
+      remindDayOf: remindDayOf ?? this.remindDayOf,
+    );
+  }
+}
+
 class StorageService {
   static const String _profileBox = 'profile_box';
   static const String _cyclesBox = 'cycles_box';
   static const String _predictionsBox = 'predictions_box';
   static const String _remindersBox = 'reminders_box';
   static const String _settingsBox = 'settings_box';
+  static const String _reminder3DaysKey = 'reminder_3_days_before';
+  static const String _reminder2DaysKey = 'reminder_2_days_before';
+  static const String _reminderDayOfKey = 'reminder_day_of';
 
   static StorageService? _instance;
   static StorageService get instance {
@@ -142,6 +171,25 @@ class StorageService {
 
   String? getSetting(String key) {
     return _settings.get(key);
+  }
+
+  Future<void> saveReminderPreferences(ReminderPreferences prefs) async {
+    await _settings.put(_reminder3DaysKey, '${prefs.remind3DaysBefore}');
+    await _settings.put(_reminder2DaysKey, '${prefs.remind2DaysBefore}');
+    await _settings.put(_reminderDayOfKey, '${prefs.remindDayOf}');
+  }
+
+  ReminderPreferences getReminderPreferences() {
+    bool readBool(String key) {
+      final value = _settings.get(key);
+      return value == 'true';
+    }
+
+    return ReminderPreferences(
+      remind3DaysBefore: readBool(_reminder3DaysKey),
+      remind2DaysBefore: readBool(_reminder2DaysKey),
+      remindDayOf: readBool(_reminderDayOfKey),
+    );
   }
 
   Future<void> clearUserData(String userId) async {

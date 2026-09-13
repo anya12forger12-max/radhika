@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/providers/auth_provider.dart';
+import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/providers/theme_provider.dart';
+import 'package:radhika/services/notification_service.dart';
 import 'package:radhika/services/storage_service.dart';
 import 'package:radhika/screens/settings/privacy_policy_screen.dart';
 
@@ -16,10 +18,19 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   TimeOfDay _notificationTime = const TimeOfDay(hour: 9, minute: 0);
-  bool _reminder3Days = true;
-  bool _reminder2Days = true;
+  bool _reminder3Days = false;
+  bool _reminder2Days = false;
   bool _reminder1Day = true;
-  bool _reminderToday = true;
+  bool _reminderToday = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final prefs = ref.read(storageServiceProvider).getReminderPreferences();
+    _reminder3Days = prefs.remind3DaysBefore;
+    _reminder2Days = prefs.remind2DaysBefore;
+    _reminderToday = prefs.remindDayOf;
+  }
 
   Future<void> _exportData() async {
     final authState = ref.read(authProvider);
@@ -146,6 +157,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _syncReminders() async {
+    final prefs = ReminderPreferences(
+      remind3DaysBefore: _reminder3Days,
+      remind2DaysBefore: _reminder2Days,
+      remindDayOf: _reminderToday,
+    );
+    try {
+      await ref.read(storageServiceProvider).saveReminderPreferences(prefs);
+    } catch (e) {
+      debugPrint('Failed to persist reminder preferences: $e');
+    }
+    if (prefs.anyEnabled) {
+      try {
+        await NotificationService.instance.requestPermissions();
+      } catch (e) {
+        debugPrint('Failed to request notification permissions: $e');
+      }
+    }
+    final prediction = ref.read(cycleProvider).currentPrediction;
+    if (prediction == null) return;
+    try {
+      await NotificationService.instance.reschedulePeriodReminders(
+        prefs: prefs,
+        predictedDate: prediction.predictedStartDate,
+      );
+    } catch (e) {
+      debugPrint('Failed to reschedule reminders: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -230,7 +271,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: SwitchListTile(
                       title: const Text('3 days before'),
                       value: _reminder3Days,
-                      onChanged: (v) => setState(() => _reminder3Days = v),
+                      onChanged: (v) {
+                        setState(() => _reminder3Days = v);
+                        _syncReminders();
+                      },
                     ),
                   ),
                   const Divider(height: 1),
@@ -239,7 +283,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: SwitchListTile(
                       title: const Text('2 days before'),
                       value: _reminder2Days,
-                      onChanged: (v) => setState(() => _reminder2Days = v),
+                      onChanged: (v) {
+                        setState(() => _reminder2Days = v);
+                        _syncReminders();
+                      },
                     ),
                   ),
                   const Divider(height: 1),
@@ -257,7 +304,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: SwitchListTile(
                       title: const Text('Day of period'),
                       value: _reminderToday,
-                      onChanged: (v) => setState(() => _reminderToday = v),
+                      onChanged: (v) {
+                        setState(() => _reminderToday = v);
+                        _syncReminders();
+                      },
                     ),
                   ),
                   const Divider(height: 1),

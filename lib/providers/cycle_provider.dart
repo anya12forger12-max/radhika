@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/services/cycle_prediction_service.dart';
+import 'package:radhika/services/notification_service.dart';
 import 'package:radhika/services/storage_service.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -53,6 +55,7 @@ class CycleNotifier extends StateNotifier<CycleState> {
   void setUserId(String userId) {
     _userId = userId;
     _loadCycles();
+    _rescheduleFromLoadedPrediction();
   }
 
   void resetForSignOut() {
@@ -189,6 +192,38 @@ class CycleNotifier extends StateNotifier<CycleState> {
       currentPrediction: prediction,
       delaySuggestions: delaySuggestions,
     );
+
+    await _rescheduleReminders(prediction);
+  }
+
+  Future<void> _rescheduleReminders(CyclePrediction prediction) async {
+    try {
+      if (!NotificationService.instance.isInitialized) return;
+      final prefs = _storageService.getReminderPreferences();
+      if (!prefs.anyEnabled) return;
+      await NotificationService.instance.reschedulePeriodReminders(
+        prefs: prefs,
+        predictedDate: prediction.predictedStartDate,
+      );
+    } catch (e) {
+      debugPrint('Failed to reschedule reminders: $e');
+    }
+  }
+
+  Future<void> _rescheduleFromLoadedPrediction() async {
+    try {
+      if (!NotificationService.instance.isInitialized) return;
+      final prediction = state.currentPrediction;
+      if (prediction == null) return;
+      final prefs = _storageService.getReminderPreferences();
+      if (!prefs.anyEnabled) return;
+      await NotificationService.instance.reschedulePeriodReminders(
+        prefs: prefs,
+        predictedDate: prediction.predictedStartDate,
+      );
+    } catch (e) {
+      debugPrint('Failed to reschedule reminders: $e');
+    }
   }
 
   void refresh() {

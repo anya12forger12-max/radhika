@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:radhika/models/reminder.dart';
+import 'package:radhika/services/storage_service.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
@@ -8,6 +9,8 @@ class NotificationService {
 
   static final NotificationService instance = NotificationService._();
   NotificationService._();
+
+  bool get isInitialized => _initialized;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -114,6 +117,28 @@ class NotificationService {
 
   Future<void> cancelAll() async {
     await _plugin.cancelAll();
+  }
+
+  Future<void> reschedulePeriodReminders({
+    required ReminderPreferences prefs,
+    required DateTime predictedDate,
+  }) async {
+    if (!_initialized) return;
+    try {
+      await cancelAll();
+      if (!prefs.anyEnabled) return;
+      if (prefs.remind3DaysBefore) {
+        await schedulePeriodReminder(daysBefore: 3, predictedDate: predictedDate);
+      }
+      if (prefs.remind2DaysBefore) {
+        await schedulePeriodReminder(daysBefore: 2, predictedDate: predictedDate);
+      }
+      if (prefs.remindDayOf) {
+        await schedulePeriodReminder(daysBefore: 0, predictedDate: predictedDate);
+      }
+    } catch (e) {
+      debugPrint('Failed to reschedule period reminders: $e');
+    }
   }
 
   Future<bool> requestPermissions() async {

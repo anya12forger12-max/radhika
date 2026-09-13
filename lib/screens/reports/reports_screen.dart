@@ -230,7 +230,9 @@ class _MonthlyTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final completed = entries.where((e) => e.endDate != null).toList();
+    final completed = entries
+        .where((e) => e.endDate != null && !e.isSymptomOnly)
+        .toList();
 
     if (completed.isEmpty) {
       return Center(
@@ -549,7 +551,9 @@ class _YearlyTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final completed = entries.where((e) => e.endDate != null).toList();
+    final completed = entries
+        .where((e) => e.endDate != null && !e.isSymptomOnly)
+        .toList();
 
     if (completed.isEmpty) {
       return Center(
