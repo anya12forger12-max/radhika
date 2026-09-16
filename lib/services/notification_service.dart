@@ -1,11 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:radhika/services/storage_service.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+
+  static const int _id3DaysBefore = 1001;
+  static const int _id2DaysBefore = 1002;
+  static const int _idDayOf = 1003;
 
   static final NotificationService instance = NotificationService._();
   NotificationService._();
@@ -14,6 +21,15 @@ class NotificationService {
 
   Future<void> init() async {
     if (_initialized) return;
+
+    tzdata.initializeTimeZones();
+    try {
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
+    } catch (e) {
+      debugPrint('Failed to load local timezone, using UTC: $e');
+      tz.setLocalLocation(tz.UTC);
+    }
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -99,16 +115,58 @@ class NotificationService {
 
     if (reminderDate.isBefore(now)) return;
 
-    final delay = reminderDate.difference(now);
-    await Future.delayed(delay, () async {
-      await showPeriodReminder(
-        id: daysBefore,
-        title: 'Period Reminder',
-        body: daysBefore == 0
-            ? 'Your period is expected to start today.'
-            : 'Your period is expected in $daysBefore day${daysBefore > 1 ? 's' : ''}.',
-      );
-    });
+    final title = 'Period Reminder';
+    final body = daysBefore == 0
+        ? 'Your period is expected to start today.'
+        : 'Your period is expected in $daysBefore day'
+            '${daysBefore > 1 ? 's' : ''}.';
+
+    const androidDetails = AndroidNotificationDetails(
+      'radhika_reminders',
+      'Period Reminders',
+      channelDescription: 'Notifications for period predictions and reminders',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+      macOS: iosDetails,
+    );
+
+    await _plugin.zonedSchedule(
+      _idFor(daysBefore),
+      title,
+      body,
+      tz.TZDateTime.from(reminderDate, tz.local),
+      details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  int _idFor(int daysBefore) {
+    switch (daysBefore) {
+      case 3:
+        return _id3DaysBefore;
+      case 2:
+        return _id2DaysBefore;
+      default:
+        return _idDayOf;
+    }
+  }
+
+  Future<void> cancelPeriodReminders() async {
+    await _plugin.cancel(_id3DaysBefore);
+    await _plugin.cancel(_id2DaysBefore);
+    await _plugin.cancel(_idDayOf);
   }
 
   Future<void> cancelNotification(int id) async {
@@ -125,16 +183,19 @@ class NotificationService {
   }) async {
     if (!_initialized) return;
     try {
-      await cancelAll();
+      await cancelPeriodReminders();
       if (!prefs.anyEnabled) return;
       if (prefs.remind3DaysBefore) {
-        await schedulePeriodReminder(daysBefore: 3, predictedDate: predictedDate);
+        await schedulePeriodReminder(
+            daysBefore: 3, predictedDate: predictedDate);
       }
       if (prefs.remind2DaysBefore) {
-        await schedulePeriodReminder(daysBefore: 2, predictedDate: predictedDate);
+        await schedulePeriodReminder(
+            daysBefore: 2, predictedDate: predictedDate);
       }
       if (prefs.remindDayOf) {
-        await schedulePeriodReminder(daysBefore: 0, predictedDate: predictedDate);
+        await schedulePeriodReminder(
+            daysBefore: 0, predictedDate: predictedDate);
       }
     } catch (e) {
       debugPrint('Failed to reschedule period reminders: $e');
