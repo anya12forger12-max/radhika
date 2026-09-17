@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:radhika/services/ad_consent_service.dart';
 
 /// Adaptive banner ad shown at the bottom of the home screen.
 ///
@@ -26,6 +27,11 @@ class _AdBannerState extends State<AdBanner> {
 
   Future<void> _loadBanner() async {
     try {
+      final canServe = await AdConsentService.instance.ensureConsent();
+      if (!canServe) {
+        debugPrint('AdBanner: consent not obtained, skipping ad');
+        return;
+      }
       await MobileAds.instance.initialize();
     } catch (e) {
       debugPrint('Failed to initialize MobileAds: $e');
