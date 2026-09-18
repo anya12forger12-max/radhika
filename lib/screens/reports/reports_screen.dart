@@ -182,7 +182,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   @override
   Widget build(BuildContext context) {
     final cycleState = ref.watch(cycleProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(

@@ -19,7 +19,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
   DateTime _selectedDate = DateTime.now();
   double _painLevel = 0;
   Mood _mood = Mood.neutral;
-  Set<Symptom> _selectedSymptoms = {};
+  final Set<Symptom> _selectedSymptoms = {};
   bool _isLoading = false;
 
   final _symptomLabels = {

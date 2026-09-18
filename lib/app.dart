@@ -36,9 +36,9 @@ class RadhikaApp extends ConsumerWidget {
       themeMode: themeState.themeMode,
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
-        final scale = mediaQueryData.textScaleFactor * fontSize;
+        final scale = mediaQueryData.textScaler.scale(fontSize);
         return MediaQuery(
-          data: mediaQueryData.copyWith(textScaleFactor: scale),
+          data: mediaQueryData.copyWith(textScaler: TextScaler.linear(scale)),
           child: child!,
         );
       },

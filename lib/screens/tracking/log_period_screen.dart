@@ -26,7 +26,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
   int _sleepHours = 7;
   bool _exercise = false;
   double _waterIntake = 4;
-  Set<Symptom> _selectedSymptoms = {};
+  final Set<Symptom> _selectedSymptoms = {};
   bool _isLoading = false;
   bool _isOngoing = true;
 
@@ -227,7 +227,6 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -380,7 +379,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   Semantics(
                     label: 'Sleep hours: $_sleepHours hours',
                     child: DropdownButtonFormField<int>(
-                      value: _sleepHours,
+                      initialValue: _sleepHours,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding:
