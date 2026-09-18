@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/providers/auth_provider.dart';
@@ -22,14 +23,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _reminder2Days = false;
   bool _reminder1Day = true;
   bool _reminderToday = false;
+  late Future<String> _versionFuture;
 
   @override
   void initState() {
     super.initState();
+    _versionFuture = _loadVersion();
     final prefs = ref.read(storageServiceProvider).getReminderPreferences();
     _reminder3Days = prefs.remind3DaysBefore;
     _reminder2Days = prefs.remind2DaysBefore;
     _reminderToday = prefs.remindDayOf;
+  }
+
+  Future<String> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final version = info.version.trim();
+      final buildNumber = info.buildNumber.trim();
+      if (version.isEmpty) {
+        return AppConstants.appVersion;
+      }
+      return buildNumber.isEmpty ? version : '$version+$buildNumber';
+    } on Object {
+      return AppConstants.appVersion;
+    }
   }
 
   Future<void> _exportData() async {
@@ -407,7 +424,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.tag),
                   title: const Text('Version'),
-                  trailing: const Text(AppConstants.appVersion),
+                  trailing: FutureBuilder<String>(
+                    future: _versionFuture,
+                    builder: (context, snapshot) {
+                      return Text(snapshot.data ?? AppConstants.appVersion);
+                    },
+                  ),
                 ),
               ],
             ),
