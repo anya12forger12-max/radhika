@@ -159,6 +159,18 @@ flutter build macos --release
 # Output: build/macos/Build/Products/Release/
 ```
 
+## Supported Android Versions
+
+- Android 7.0 (API 24) and later.
+- Built and tested on Android 14 (API 34) / Android 15 (API 36).
+- Ships as a signed release APK (and AAB) via [GitHub Releases](https://github.com/anya12forger12-max/radhika/releases).
+
+## Known Limitations
+
+- Health information is offered for personal tracking and education only. It is not a substitute for professional medical advice (see the Medical Disclaimer).
+- Reminders fire while the app (or device) allows scheduled alarms and require notification permission on Android 13+ (API 33+).
+- Account sign-in and cloud-backed features require a network connection; offline access is limited to locally stored data.
+
 ## Firebase Setup
 
 1. Create a Firebase project
