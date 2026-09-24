@@ -32,16 +32,19 @@ void main() async {
   } catch (e) {
     debugPrint('Failed to initialize Firebase: $e');
   }
+
   try {
     await StorageService.instance.init();
   } catch (e) {
     debugPrint('Failed to initialize storage: $e');
   }
+
   try {
     await NotificationService.instance.init();
   } catch (e) {
     debugPrint('Failed to initialize notifications: $e');
   }
+
   await _rescheduleStartupReminders();
 
   runApp(
