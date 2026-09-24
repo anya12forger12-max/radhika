@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/user_profile.dart';
@@ -74,9 +76,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
+      debugPrint('Email sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'An unexpected error occurred',
+        error: 'Something went wrong. Please try again.',
       );
     }
   }
@@ -102,9 +105,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
+      debugPrint('Registration error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'An unexpected error occurred',
+        error: 'Something went wrong. Please try again.',
       );
     }
   }
@@ -113,7 +117,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final credential = await _authService.signInWithGoogle();
-      final user = credential.user!;
+      final user = credential.user;
+      if (user == null) {
+        throw Exception('Google sign-in returned no user');
+      }
       var profile = _storageService.getProfile(user.uid);
       if (profile == null) {
         profile = UserProfile(
@@ -130,10 +137,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         error: _mapFirebaseError(e.code),
       );
-    } catch (e) {
+    } on PlatformException catch (e) {
+      final cancelled = e.code == 'sign_in_canceled' ||
+          e.code == 'sign_in_aborted' ||
+          e.code == 'canceled';
       state = state.copyWith(
         isLoading: false,
-        error: 'An unexpected error occurred',
+        error: cancelled
+            ? 'Google sign-in was cancelled.'
+            : 'Could not complete Google sign-in. Please try again.',
+      );
+    } catch (e) {
+      debugPrint('Google sign-in error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString().contains('cancelled')
+            ? 'Google sign-in was cancelled.'
+            : 'Could not complete Google sign-in. Please try again.',
       );
     }
   }
@@ -149,9 +169,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
+      debugPrint('Password reset error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'An unexpected error occurred',
+        error: 'Something went wrong. Please try again.',
       );
     }
   }
@@ -216,6 +237,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return 'No account found with this email';
       case 'wrong-password':
         return 'Incorrect password';
+      case 'invalid-credential':
+        return 'Incorrect email or password';
+      case 'network-request-failed':
+        return 'No internet connection. Check your connection and try again';
       case 'invalid-email':
         return 'Invalid email address';
       case 'user-disabled':
@@ -228,6 +253,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return 'Too many attempts. Please try again later';
       case 'weak-password':
         return 'Password is too weak';
+      case 'user-token-expired':
+        return 'Session expired. Please sign in again';
+      case 'internal-error':
+        return 'Sign-in failed. Please try again';
       case 'account-exists-with-different-credential':
         return 'An account already exists with a different sign-in method';
       default:
