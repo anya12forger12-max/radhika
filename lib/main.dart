@@ -24,7 +24,7 @@ Future<void> _rescheduleStartupReminders() async {
   }
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
