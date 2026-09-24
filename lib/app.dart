@@ -9,6 +9,7 @@ import 'package:radhika/screens/calendar/calendar_screen.dart';
 import 'package:radhika/screens/calendar/cycle_detail_screen.dart';
 import 'package:radhika/screens/education/education_screen.dart';
 import 'package:radhika/screens/education/product_guides/cup_guide_screen.dart';
+import 'package:radhika/screens/education/recommendations_screen.dart';
 import 'package:radhika/screens/education/product_guides/pad_guide_screen.dart';
 import 'package:radhika/screens/education/product_guides/tampon_guide_screen.dart';
 import 'package:radhika/screens/home/home_screen.dart';
@@ -59,6 +60,7 @@ class RadhikaApp extends ConsumerWidget {
         '/log-period': (context) => const LogPeriodScreen(),
         '/log-symptom': (context) => const LogSymptomScreen(),
         '/education': (context) => const EducationScreen(),
+        '/recommendations': (context) => const RecommendationsScreen(),
         '/pad-guide': (context) => const PadGuideScreen(),
         '/tampon-guide': (context) => const TamponGuideScreen(),
         '/cup-guide': (context) => const CupGuideScreen(),

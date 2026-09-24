@@ -278,6 +278,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         semanticLabel: 'Educational resources',
       ),
       _QuickAction(
+        icon: Icons.tips_and_updates,
+        label: 'Recommendations',
+        route: '/recommendations',
+        semanticLabel: 'Personalized symptom recommendations',
+      ),
+      _QuickAction(
         icon: Icons.bar_chart,
         label: 'Reports',
         route: '/reports',
