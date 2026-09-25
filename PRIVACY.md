@@ -29,8 +29,8 @@ We do not sell your personal information to anyone, including advertisers.
 
 - Your data belongs solely to you
 - No user can view another user's personal information
-- Health data is stored locally on your device in app-private storage and is never uploaded to our servers
-- Only the application administrator may access stored data when required for maintenance, legal compliance, security, or user-requested support
+- Health data (cycle dates, symptoms, flow, predictions, preferences) is stored locally on your device in app-private storage and is never uploaded to our servers
+- Firebase is used for authentication (sign-in) only; no health data is transmitted to or stored in Firebase
 - Data will never be shared with other users
 - All network communication (authentication, ads) uses industry-standard TLS encryption
 - Industry-standard security measures protect your information
@@ -58,7 +58,7 @@ Radhika is a free app supported by advertising served by Google AdMob. AdMob may
 
 ## 8. Third-Party Services
 
-We use Google Firebase for authentication and secure data storage, and Google AdMob for advertising. These services comply with GDPR and other applicable privacy regulations and have their own privacy policies.
+We use Google Firebase for authentication (sign-in) only and Google AdMob for advertising. Firebase is not used to store or process your health data. These services comply with GDPR and other applicable privacy regulations and have their own privacy policies.
 
 ## 9. Children's Privacy
 

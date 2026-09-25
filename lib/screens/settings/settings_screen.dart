@@ -187,7 +187,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
     if (prefs.anyEnabled) {
       try {
-        await NotificationService.instance.requestPermissions();
+        final granted =
+            await NotificationService.instance.requestPermissions();
+        if (!granted && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Notification permission is denied. Reminders will not be '
+                'delivered until you enable notifications for Radhika.',
+              ),
+            ),
+          );
+        }
       } catch (e) {
         debugPrint('Failed to request notification permissions: $e');
       }

@@ -77,8 +77,8 @@ lib/
 
 **Pattern**: Clean Architecture with Repository Pattern
 **State Management**: Riverpod
-**Backend**: Firebase (Auth, Firestore, Storage)
-**Local Storage**: Hive
+**Backend**: Firebase (Authentication only — no health data is stored in or synced to Firebase)
+**Local Storage**: Hive (all cycle, symptom, prediction and reminder data stays on-device)
 
 ## Installation
 
@@ -90,7 +90,7 @@ lib/
 ### Android
 ```bash
 # Clone the repository
-git clone https://github.com/anyaforger123456/radhika.git
+git clone https://github.com/anya12forger12-max/radhika.git
 cd radhika
 
 # Install dependencies

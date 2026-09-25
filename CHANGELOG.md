@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.23] - 2026-09-25
+
+### Added
+- Firebase Security Rules test suite (`firebase/rules-testing`, runs against the Firebase Emulator) covering authorization isolation, admin-role escalation, and prediction write protection
+
+### Fixed
+- Firestore/Storage authorization no longer trusts a client-writable `role` field; admin access is granted only via server-issued Authentication custom claims, and the reserved `role` field is rejected from any user-document write
+- Prediction documents are now read-only for clients
+- Reminder scheduling no longer reports success when notification permission is denied; users are warned that reminders will not be delivered
+- README clone URL corrected to the actual repository
+
 ## [1.0.0] - 2026-07-08
 
 ### Added
