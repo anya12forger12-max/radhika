@@ -1,7 +1,7 @@
 name: radhika
 description: "Radhika - Cross-platform menstrual health tracking application"
 publish_to: 'none'
-version: 1.2.22+27
+version: 1.2.23+28
 
 environment:
   sdk: ^3.12.2
