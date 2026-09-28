@@ -18,6 +18,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   var _obscurePassword = true;
   var _navigating = false;
+  var _privacyAccepted = false;
 
   void _routeAfterAuth() {
     if (_navigating || !mounted) return;
@@ -42,6 +43,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_privacyAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must explicitly accept the Privacy Policy to proceed.'),
+        ),
+      );
+      return;
+    }
     await ref.read(authProvider.notifier).signInWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
@@ -51,6 +60,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
+    if (!_privacyAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must explicitly accept the Privacy Policy to proceed.'),
+        ),
+      );
+      return;
+    }
     await ref.read(authProvider.notifier).signInWithGoogle();
   }
 
@@ -156,7 +173,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onFieldSubmitted: (_) => _signIn(),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: 'Privacy policy consent checkbox',
+                    child: CheckboxListTile(
+                      title: const Text(
+                        'I explicitly accept the Privacy Policy to use Radhika.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      value: _privacyAccepted,
+                      onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Semantics(
                     label: 'Sign in button',
                     child: SizedBox(

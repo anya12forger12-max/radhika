@@ -19,6 +19,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _ageController = TextEditingController();
   var _obscurePassword = true;
   var _obscureConfirmPassword = true;
+  var _privacyAccepted = false;
 
   @override
   void dispose() {
@@ -32,6 +33,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_privacyAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must explicitly accept the Privacy Policy to proceed.'),
+        ),
+      );
+      return;
+    }
     final age = int.tryParse(_ageController.text.trim()) ?? 25;
     await ref.read(authProvider.notifier).registerWithEmail(
       _emailController.text.trim(),
@@ -228,7 +237,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       onFieldSubmitted: (_) => _register(),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: 'Privacy policy consent checkbox',
+                    child: CheckboxListTile(
+                      title: const Text(
+                        'I explicitly accept the Privacy Policy to use Radhika.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      value: _privacyAccepted,
+                      onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Semantics(
                     label: 'Create account button',
                     child: SizedBox(
