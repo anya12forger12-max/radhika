@@ -65,3 +65,4 @@ macos/Runner/GoogleService-Info.plist
 
 # Local signing keystore (never commit)
 my-release-key.jks
+.aider*
