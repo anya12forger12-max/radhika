@@ -1,6 +1,6 @@
 # PRIVACY POLICY FOR RADHIKA
 **Effective Date: September 2026**
-**Last Updated: September 2026**
+**Last Updated: October 2026**
 
 Welcome to **Radhika** (the "Application"), a menstrual cycle tracking and health companion app.
 
@@ -33,7 +33,7 @@ To provide the features of Radhika, we collect the following categories of infor
 * **App Preferences:** Theme selection, font size, and display options.
 
 ### D. Usage Analytics and Telemetry
-* **Interaction Logs:** Features accessed, button clicks, time spent on screens, system performance, error logs, and loading durations.
+Radhika does **not** collect usage analytics or telemetry. The Application contains no analytics SDK and does not track features accessed, button clicks, time spent on screens, or similar interaction data. All activity data is confined to your device.
 
 ---
 
@@ -51,35 +51,37 @@ We use the collected information for the following purposes:
 
 The Application requires specific device permissions to operate. You will be prompted to grant these permissions during use:
 * **Notification Permission:** Essential for sending period reminders, symptom logging reminders, and cycle predictions.
-* **Storage Permission (scoped):** Used only for exporting your data backups. Health data is never stored in shared external storage.
+
+No storage permission is requested. All health data is stored in app-private storage on your device, and exports are shared through the operating system's share sheet without any storage permission.
 
 ---
 
 ## 4. ADMINISTRATOR ACCESS AND DATA SECURITY
 
 ### A. Special Administrative Access
-**You acknowledge and explicitly agree that authorized system administrators of Radhika may access, view, or process stored user data (including cycle logs, profile details, and usage logs) for the following critical purposes:**
-1. **System Maintenance & Support:** To diagnose technical bugs, resolve database failures, and troubleshoot customer service issues.
+**Because all health data, cycle logs, personal profile details, and preferences are stored locally on your device and are never uploaded to our servers, Radhika and its administrators have no technical ability to access, view, or process that data.** Administrative access is limited to the server-side account records held by Firebase Authentication (email address and authentication tokens):
+
+1. **System Maintenance & Support:** To diagnose technical bugs and resolve account-level service issues (e.g., sign-in problems).
 2. **Legal Compliance:** To comply with applicable laws, court orders, subpoenas, or governmental regulatory requests.
 3. **Abuse Prevention:** To detect, investigate, and prevent hacking attempts, unauthorized account creation, spamming, harassment, or other violations of our Terms of Service.
 4. **Security and Integrity:** To protect the security, assets, and safety of our systems, users, and the public.
 
 ### B. Ownership of Content
-You retain full intellectual property ownership of all health data, cycle logs, and content you create. Radhika does not claim ownership of your data. You grant Radhika a limited, non-exclusive, royalty-free, worldwide license to host, process, and display your content solely for the purpose of delivering the Service to you.
+You retain full intellectual property ownership of all health data, cycle logs, and content you create. Radhika does not claim ownership of your data. Because your data is stored locally on your device and never transmitted to our servers, no license to host, process, or display your content is required, and none is granted.
 
 ### C. Data Protection and Security Controls
-* **Communication Security:** All traffic between the mobile application and our servers is encrypted using Transport Layer Security (TLS) over HTTPS.
-* **Local Storage:** Health data (cycle dates, symptoms, flow, predictions, preferences) is stored locally on your device in app-private storage and is never uploaded to our servers.
+* **Communication Security:** The only data transmitted between the Application and our servers is authentication traffic to Firebase Authentication, which is encrypted using Transport Layer Security (TLS) over HTTPS.
+* **Local Storage:** Health data (cycle dates, symptoms, flow, predictions, preferences) is stored locally on your device in app-private, encrypted storage and is never uploaded to our servers.
 * **Firebase Authentication:** Firebase is used for authentication (sign-in) only; no health data is transmitted to or stored in Firebase.
-* **Access Isolation:** All API endpoints and Firestore rules perform strict authorization checks to ensure that users can only access, modify, or delete their own data.
+* **Access Isolation:** Because no health data is stored server-side, there are no application API endpoints or Firestore collections containing user health data. Authentication isolation is enforced by Firebase, so users can only access their own account.
 * **Session Management:** Sessions automatically expire after inactivity, and users can terminate their session at any time by signing out.
 
 ---
 
 ## 5. DATA RETENTION AND DELETION
 
-* **Retention:** We retain your account data for as long as your account is active.
-* **Deletion:** You may request account deletion at any time in the Settings menu. Upon deletion, all personal data will be permanently purged from our primary databases within thirty (30) days, except where retention is required for legal, regulatory, or system security purposes.
+* **Retention:** We retain your account data for as long as your account is active. Health data is retained on your device until you delete it or delete your account; it is never stored on our servers.
+* **Deletion:** You may request account deletion at any time in the Settings menu. Upon deletion, your local health data is removed from your device and your Firebase Authentication account is deleted; any server-side records are permanently purged within thirty (30) days, except where retention is required for legal, regulatory, or system security purposes.
 
 ---
 
@@ -101,7 +103,7 @@ Depending on your jurisdiction, you possess specific statutory rights regarding 
 * **Right to Rectification:** Correct incomplete or inaccurate information.
 * **Right to Erasure (Right to be Forgotten):** Request deletion of your records.
 * **Right to Restrict or Object:** Halt specific data processing procedures, such as automatic prediction generation.
-* **Right to Portability:** Request your data in a machine-readable format (CSV export available in Settings).
+* **Right to Portability:** Request your data in a machine-readable format (JSON export available in Settings; cycle report export available in Reports).
 * **Right to Withdraw Consent:** You may withdraw your consent at any time, which will result in data deletion and account closure.
 
 To exercise any of these rights, contact us at the details below.
