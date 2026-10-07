@@ -3,6 +3,8 @@ class AppConstants {
 
   static const String appName = 'Radhika';
   static const String appVersion = '1.2.29';
+  static const String privacyPolicyUrl =
+      'https://raw.githubusercontent.com/anya12forger12-max/radhika/main/PRIVACY_POLICY.md';
   static const String privacyPolicyVersion = '1.2.0';
 
   static const int minPasswordLength = 8;
@@ -72,20 +74,3 @@ We use Google Firebase for authentication only (no health data is transmitted to
 
 9. Children's Privacy
 Radhika is not intended for children under 13 and we do not knowingly collect information from anyone under 13. If you believe a child has provided us personal information, contact us and we will delete it.
-
-10. Changes to This Policy
-We may update this policy. Users will be notified of material changes and must accept the updated policy to continue using the application.
-
-11. Contact
-For questions about this policy, open an issue at github.com/anya12forger12-max/radhika/issues or contact the application administrator.
-''';
-
-  static const String medicalDisclaimer =
-      'This application provides educational information only and is not a substitute for professional medical advice. Always consult a qualified healthcare provider for medical concerns.';
-
-  static const String predictionDisclaimer =
-      'Predictions are estimates based on your logged data. Individual cycles may vary. This information should not be used as a sole method of contraception or fertility planning without medical supervision.';
-
-  static const String cycleDelayMessage =
-      'Your cycle appears later than expected. Many factors such as stress, illness, travel, or lifestyle changes may affect menstrual timing. If your period is significantly delayed, unusually heavy, very painful, or if you have concerns, please consult a qualified healthcare professional.';
-}
