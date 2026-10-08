@@ -56,12 +56,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _onAuthChange(User? user) {
     if (user != null) {
       final profile = _storageService.getProfile(user.uid);
+      // Carry isLoading through: auth events fire mid-operation (signup /
+      // sign-in / delete) and resetting isLoading here re-enables submit
+      // buttons while profile save is still in flight, allowing a
+      // double-submit that ends in "email already in use".
       state = AuthState(
         user: AsyncData(user),
         profile: profile,
+        isLoading: state.isLoading,
       );
     } else {
-      state = const AuthState();
+      state = AuthState(isLoading: state.isLoading);
     }
   }
 

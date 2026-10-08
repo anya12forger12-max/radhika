@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:radhika/models/user_profile.dart';
 
@@ -17,7 +18,21 @@ class AuthService {
       String email, String password) async {
     final credential = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
-    await credential.user?.sendEmailVerification();
+    // The account exists from this point on. A verification-email failure
+    // (too-many-requests / network-request-failed) must not abort signup:
+    // the app has no emailVerified gate, so retrying after this throw would
+    // surface "email already in use" for an account the user just created.
+    try {
+      await credential.user?.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      debugPrint(
+          'Verification email not sent after signup (code: ${e.code}); '
+          'account ${credential.user?.uid} was created and is usable.');
+    } catch (e) {
+      debugPrint(
+          'Verification email not sent after signup ($e); '
+          'account ${credential.user?.uid} was created and is usable.');
+    }
     return credential;
   }
 

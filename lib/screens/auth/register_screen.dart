@@ -32,6 +32,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _register() async {
+    // The keyboard action (onFieldSubmitted on the Age field) bypasses the
+    // button's isLoading disable; the notifier sets isLoading synchronously
+    // before its first await, so a re-entrant submit during an in-flight
+    // registration is dropped here instead of racing into
+    // "email already in use".
+    if (ref.read(authProvider).isLoading) return;
     if (!_formKey.currentState!.validate()) return;
     if (!_privacyAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
