@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Radhika';
-  static const String appVersion = '1.2.27';
+  static const String appVersion = '1.2.28';
   static const String privacyPolicyUrl =
       'https://raw.githubusercontent.com/anya12forger12-max/radhika/main/PRIVACY_POLICY.md';
   static const String privacyPolicyVersion = '1.2.0';
