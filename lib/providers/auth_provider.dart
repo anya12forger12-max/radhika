@@ -107,7 +107,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } on FirebaseAuthException catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: _mapFirebaseError(e.code),
+        error: _mapFirebaseError(e.code, isRegistration: true),
       );
     } catch (e) {
       debugPrint('Registration error: $e');
@@ -236,37 +236,54 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  String _mapFirebaseError(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'No account found with this email';
-      case 'wrong-password':
-        return 'Incorrect password';
-      case 'invalid-credential':
-        return 'Incorrect email or password';
-      case 'network-request-failed':
-        return 'No internet connection. Check your connection and try again';
-      case 'invalid-email':
-        return 'Invalid email address';
-      case 'user-disabled':
-        return 'This account has been disabled';
-      case 'email-already-in-use':
-        return 'An account with this email already exists';
-      case 'operation-not-allowed':
-        return 'This sign-in method is not enabled';
-      case 'too-many-requests':
-        return 'Too many attempts. Please try again later';
-      case 'weak-password':
-        return 'Password is too weak';
-      case 'user-token-expired':
-        return 'Session expired. Please sign in again';
-      case 'internal-error':
-        return 'Sign-in failed. Please try again';
-      case 'account-exists-with-different-credential':
-        return 'An account already exists with a different sign-in method';
-      default:
-        return 'Authentication failed. Please try again';
-    }
+  String _mapFirebaseError(String code, {bool isRegistration = false}) =>
+      mapAuthErrorCode(code, isRegistration: isRegistration);
+}
+
+/// Maps a Firebase auth error [code] to a user-facing message.
+///
+/// On sign-in paths the account-sensitive codes (`user-not-found`,
+/// `wrong-password`, `invalid-credential`, `email-already-in-use`) are
+/// deliberately collapsed into one message so an unauthenticated caller
+/// cannot use the error text to probe which emails are registered.
+///
+/// Registration is the exception: there the user has already proven intent
+/// to create an account, so `email-already-in-use` discloses the real reason
+/// (otherwise the user sees "Invalid email or password" on a sign-up form,
+/// which is misleading and gives no actionable next step).
+///
+/// `account-exists-with-different-credential` is always disclosed because it
+/// tells the user which alternative sign-in method to use.
+String mapAuthErrorCode(String code, {bool isRegistration = false}) {
+  switch (code) {
+    case 'user-not-found':
+    case 'wrong-password':
+    case 'invalid-credential':
+      return 'Invalid email or password';
+    case 'email-already-in-use':
+      return isRegistration
+          ? 'An account with this email already exists. Please sign in instead'
+          : 'Invalid email or password';
+    case 'account-exists-with-different-credential':
+      return 'This email is already registered with a different sign-in method';
+    case 'invalid-email':
+      return 'Invalid email address';
+    case 'user-disabled':
+      return 'This account has been disabled';
+    case 'operation-not-allowed':
+      return 'This sign-in method is not enabled';
+    case 'too-many-requests':
+      return 'Too many attempts. Please try again later';
+    case 'weak-password':
+      return 'Password is too weak';
+    case 'user-token-expired':
+      return 'Session expired. Please sign in again';
+    case 'internal-error':
+      return 'Sign-in failed. Please try again';
+    case 'network-request-failed':
+      return 'No internet connection. Check your connection and try again';
+    default:
+      return 'Authentication failed. Please try again';
   }
 }
 
