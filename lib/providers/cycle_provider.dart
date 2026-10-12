@@ -199,7 +199,9 @@ class CycleNotifier extends StateNotifier<CycleState> {
   Future<void> _rescheduleReminders(CyclePrediction prediction) async {
     try {
       if (!NotificationService.instance.isInitialized) return;
-      final prefs = _storageService.getReminderPreferences();
+      final userId = _userId;
+      if (userId == null) return;
+      final prefs = _storageService.getReminderPreferences(userId);
       if (!prefs.anyEnabled) return;
       await NotificationService.instance.reschedulePeriodReminders(
         prefs: prefs,
@@ -215,7 +217,9 @@ class CycleNotifier extends StateNotifier<CycleState> {
       if (!NotificationService.instance.isInitialized) return;
       final prediction = state.currentPrediction;
       if (prediction == null) return;
-      final prefs = _storageService.getReminderPreferences();
+      final userId = _userId;
+      if (userId == null) return;
+      final prefs = _storageService.getReminderPreferences(userId);
       if (!prefs.anyEnabled) return;
       await NotificationService.instance.reschedulePeriodReminders(
         prefs: prefs,

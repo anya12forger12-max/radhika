@@ -29,10 +29,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void initState() {
     super.initState();
     _versionFuture = _loadVersion();
-    final prefs = ref.read(storageServiceProvider).getReminderPreferences();
-    _reminder3Days = prefs.remind3DaysBefore;
-    _reminder2Days = prefs.remind2DaysBefore;
-    _reminderToday = prefs.remindDayOf;
+    final userId = ref.read(authProvider).user.value?.uid;
+    if (userId != null) {
+      final prefs =
+          ref.read(storageServiceProvider).getReminderPreferences(userId);
+      _reminder3Days = prefs.remind3DaysBefore;
+      _reminder2Days = prefs.remind2DaysBefore;
+      _reminderToday = prefs.remindDayOf;
+    }
   }
 
   Future<String> _loadVersion() async {
@@ -180,8 +184,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       remind2DaysBefore: _reminder2Days,
       remindDayOf: _reminderToday,
     );
+    final userId = ref.read(authProvider).user.value?.uid;
     try {
-      await ref.read(storageServiceProvider).saveReminderPreferences(prefs);
+      if (userId != null) {
+        await ref
+            .read(storageServiceProvider)
+            .saveReminderPreferences(userId, prefs);
+      }
     } catch (e) {
       debugPrint('Failed to persist reminder preferences: $e');
     }

@@ -11,7 +11,7 @@ Future<void> _rescheduleStartupReminders() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final storage = StorageService.instance;
-    final prefs = storage.getReminderPreferences();
+    final prefs = storage.getReminderPreferences(user.uid);
     if (!prefs.anyEnabled) return;
     final prediction = storage.getLatestPrediction(user.uid);
     if (prediction == null) return;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:radhika/models/cycle_entry.dart';
@@ -47,6 +48,17 @@ class StorageService {
   static const String _reminder2DaysKey = 'reminder_2_days_before';
   static const String _reminderDayOfKey = 'reminder_day_of';
 
+  // Encryption key material lives in the platform keystore, never in Hive.
+  static const String _secureKeyName = 'hive_encryption_key';
+  static const String _migrationFlagPrefix = 'hive_migrated_';
+  static const String _encryptedSuffix = '_enc';
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+  HiveAesCipher? _cipher;
+
+  static String _encryptedName(String base) => '$base$_encryptedSuffix';
+
   static StorageService? _instance;
   static StorageService get instance {
     _instance ??= StorageService._();
@@ -68,16 +80,23 @@ class StorageService {
     Hive.registerAdapter(ReminderAdapter());
     Hive.registerAdapter(ReminderTypeAdapter());
 
-    await _openBoxSafely<UserProfile>(_profileBox);
-    await _openBoxSafely<CycleEntry>(_cyclesBox);
-    await _openBoxSafely<CyclePrediction>(_predictionsBox);
-    await _openBoxSafely<Reminder>(_remindersBox);
-    await _openBoxSafely<String>(_settingsBox);
+    final cipher = await _getOrCreateCipher();
+    await _openBoxSafely<UserProfile>(_profileBox, cipher);
+    await _openBoxSafely<CycleEntry>(_cyclesBox, cipher);
+    await _openBoxSafely<CyclePrediction>(_predictionsBox, cipher);
+    await _openBoxSafely<Reminder>(_remindersBox, cipher);
+    await _openBoxSafely<String>(_settingsBox, cipher);
   }
 
-  Future<Box<T>> _openBoxSafely<T>(String name) async {
+  Future<Box<T>> _openBoxSafely<T>(String base, HiveAesCipher cipher) async {
+    final name = _encryptedName(base);
     try {
-      return await Hive.openBox<T>(name);
+      await _migrateToEncrypted<T>(base, name, cipher);
+    } catch (e) {
+      debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+    }
+    try {
+      return await Hive.openBox<T>(name, encryptionCipher: cipher);
     } catch (e) {
       debugPrint('Failed to open Hive box "$name": $e');
       try {
@@ -86,21 +105,137 @@ class StorageService {
         debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
       }
       try {
-        return await Hive.openBox<T>(name);
+        return await Hive.openBox<T>(name, encryptionCipher: cipher);
       } catch (retryError) {
         debugPrint(
             'Failed to reopen Hive box "$name" after recovery: $retryError');
-        return Hive.openBox<T>(name, bytes: Uint8List(0));
+        return Hive.openBox<T>(name,
+            bytes: Uint8List(0), encryptionCipher: cipher);
       }
     }
   }
 
-  Box<UserProfile> get _profile => Hive.box<UserProfile>(_profileBox);
-  Box<CycleEntry> get _cycles => Hive.box<CycleEntry>(_cyclesBox);
+  /// Reads the database key from the platform keystore, generating and
+  /// persisting a fresh 256-bit key on first launch. Fails closed: if the
+  /// stored key cannot be read, the error is rethrown rather than silently
+  /// re-keying (which would render existing data undecryptable).
+  Future<HiveAesCipher> _getOrCreateCipher() async {
+    if (_cipher != null) return _cipher!;
+
+    String? stored;
+    try {
+      stored = await _secureStorage.read(key: _secureKeyName);
+    } catch (e) {
+      debugPrint('Failed to read Hive encryption key from secure storage: $e');
+      rethrow;
+    }
+
+    if (stored == null || stored.isEmpty) {
+      final keyBytes = Hive.generateSecureKey();
+      final encoded = base64Encode(keyBytes);
+      try {
+        await _secureStorage.write(key: _secureKeyName, value: encoded);
+      } catch (e) {
+        debugPrint('Failed to persist Hive encryption key: $e');
+        rethrow;
+      }
+      final verify = await _secureStorage.read(key: _secureKeyName);
+      if (verify != encoded) {
+        throw StateError(
+            'Hive encryption key write could not be verified; refusing to '
+            'proceed without a durable key');
+      }
+      _cipher = HiveAesCipher(keyBytes);
+      return _cipher!;
+    }
+
+    final decoded = base64Decode(stored);
+    if (decoded.length != 32) {
+      throw StateError(
+          'Stored Hive encryption key has invalid length ${decoded.length}');
+    }
+    _cipher = HiveAesCipher(decoded);
+    return _cipher!;
+  }
+
+  /// One-time migration of a legacy plaintext box to its encrypted
+  /// counterpart. The migration marker prevents stale plaintext from being
+  /// re-copied over newer encrypted data on subsequent launches.
+  Future<void> _migrateToEncrypted<T>(
+      String base, String encName, HiveAesCipher cipher) async {
+    final flagKey = '$_migrationFlagPrefix$base';
+
+    String? flag;
+    try {
+      flag = await _secureStorage.read(key: flagKey);
+    } catch (e) {
+      debugPrint('Failed to read migration marker for "$base": $e');
+    }
+
+    if (flag == '1') {
+      await _deletePlaintextIfPresent(base);
+      return;
+    }
+
+    if (!await Hive.boxExists(base)) {
+      await _writeMigrationFlag(flagKey);
+      return;
+    }
+
+    Box<T>? legacy;
+    try {
+      legacy = await Hive.openBox<T>(base);
+      final entries = <dynamic, T>{};
+      for (final key in legacy.keys) {
+        final value = legacy.get(key);
+        if (value != null) {
+          entries[key] = value;
+        }
+      }
+      await legacy.close();
+      legacy = null;
+
+      final target = await Hive.openBox<T>(encName, encryptionCipher: cipher);
+      await target.putAll(entries);
+      await target.flush();
+
+      await _writeMigrationFlag(flagKey);
+      await _deletePlaintextIfPresent(base);
+    } catch (e) {
+      debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+      if (legacy != null && legacy.isOpen) {
+        await legacy.close();
+      }
+    }
+  }
+
+  Future<void> _deletePlaintextIfPresent(String base) async {
+    try {
+      if (await Hive.boxExists(base)) {
+        await Hive.deleteBoxFromDisk(base);
+      }
+    } catch (e) {
+      debugPrint('Failed to delete plaintext Hive box "$base": $e');
+    }
+  }
+
+  Future<void> _writeMigrationFlag(String flagKey) async {
+    try {
+      await _secureStorage.write(key: flagKey, value: '1');
+    } catch (e) {
+      debugPrint('Failed to persist migration marker "$flagKey": $e');
+    }
+  }
+
+  Box<UserProfile> get _profile =>
+      Hive.box<UserProfile>(_encryptedName(_profileBox));
+  Box<CycleEntry> get _cycles =>
+      Hive.box<CycleEntry>(_encryptedName(_cyclesBox));
   Box<CyclePrediction> get _predictions =>
-      Hive.box<CyclePrediction>(_predictionsBox);
-  Box<Reminder> get _reminders => Hive.box<Reminder>(_remindersBox);
-  Box<String> get _settings => Hive.box<String>(_settingsBox);
+      Hive.box<CyclePrediction>(_encryptedName(_predictionsBox));
+  Box<Reminder> get _reminders =>
+      Hive.box<Reminder>(_encryptedName(_remindersBox));
+  Box<String> get _settings => Hive.box<String>(_encryptedName(_settingsBox));
 
   Future<void> saveProfile(UserProfile profile) async {
     await _profile.put(profile.id, profile);
@@ -172,15 +307,20 @@ class StorageService {
     return _settings.get(key);
   }
 
-  Future<void> saveReminderPreferences(ReminderPreferences prefs) async {
-    await _settings.put(_reminder3DaysKey, '${prefs.remind3DaysBefore}');
-    await _settings.put(_reminder2DaysKey, '${prefs.remind2DaysBefore}');
-    await _settings.put(_reminderDayOfKey, '${prefs.remindDayOf}');
+  /// Reminder preferences are scoped per account (`userId`) so that two users
+  /// sharing a device never inherit each other's reminder settings.
+  Future<void> saveReminderPreferences(
+      String userId, ReminderPreferences prefs) async {
+    await _settings.put('${userId}_$_reminder3DaysKey',
+        '${prefs.remind3DaysBefore}');
+    await _settings.put('${userId}_$_reminder2DaysKey',
+        '${prefs.remind2DaysBefore}');
+    await _settings.put('${userId}_$_reminderDayOfKey', '${prefs.remindDayOf}');
   }
 
-  ReminderPreferences getReminderPreferences() {
+  ReminderPreferences getReminderPreferences(String userId) {
     bool readBool(String key) {
-      final value = _settings.get(key);
+      final value = _settings.get('${userId}_$key');
       return value == 'true';
     }
 
@@ -206,6 +346,9 @@ class StorageService {
     for (final reminder in reminders) {
       await _reminders.delete(reminder.id);
     }
+    await _settings.delete('${userId}_$_reminder3DaysKey');
+    await _settings.delete('${userId}_$_reminder2DaysKey');
+    await _settings.delete('${userId}_$_reminderDayOfKey');
     await _profile.delete(userId);
   }
 
