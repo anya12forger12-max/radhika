@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Radhika';
-  static const String appVersion = '1.2.28';
+  static const String appVersion = '1.2.29';
   static const String privacyPolicyVersion = '1.2.0';
 
   static const int minPasswordLength = 8;
