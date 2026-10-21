@@ -6,6 +6,27 @@ import 'package:share_plus/share_plus.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 
+// Prevent PDF structural injection via unsanitized dynamic text inputs.
+// Strips control characters, enforces length caps, and escapes layout symbols
+// that could alter PDF rendering or breach grid boundaries.
+class ReportSecuritySanitizer {
+  /// Returns [rawInput] trimmed, length-limited, and cleared of characters
+  /// that could break PDF layout parsing or enable text-injection attacks.
+  static String sanitize(String rawInput, {int maxCharacters = 120}) {
+    if (rawInput.isEmpty) return rawInput;
+    String processed = rawInput.trim();
+    if (processed.length > maxCharacters) {
+      processed = processed.substring(0, maxCharacters);
+    }
+    // Remove carriage returns, newlines, and control characters
+    processed = processed.replaceAll(RegExp(r'[\r\n\x00-\x1F\x7F]'), ' ');
+    // Escape backslashes and dollar signs that could conflict with
+    // PDF layout engines or string interpolation
+    processed = processed.replaceAll(r'\', r'\\').replaceAll(r'$', r'\$');
+    return processed;
+  }
+}
+
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
 
@@ -36,12 +57,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     buffer.writeln('Date: ${DateFormat.yMd().format(DateTime.now())}');
     buffer.writeln('---');
     for (final entry in state.cycleHistory) {
+      // Sanitize all dynamic text inputs before PDF/layout rendering
+      final secureSymptoms =
+          entry.symptoms
+              .map((s) => ReportSecuritySanitizer.sanitize(s.name))
+              .join(', ');
       buffer.writeln(
         'Start: ${DateFormat.yMd().format(entry.startDate)} | '
         'Duration: ${entry.duration}d | '
         'Flow: ${entry.flowIntensity.name} | '
         'Pain: ${entry.painLevel}/5 | '
-        'Symptoms: ${entry.symptoms.map((s) => s.name).join(', ')}',
+        'Symptoms: $secureSymptoms | '
+        'Notes: ${ReportSecuritySanitizer.sanitize(entry.notes)}',
       );
     }
     try {
