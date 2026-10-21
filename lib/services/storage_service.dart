@@ -264,6 +264,16 @@ class StorageService {
     await _cycles.delete(entryId);
   }
 
+  /// Reads a single cycle entry by id without requiring a user id.
+  CycleEntry? getCycleEntry(String entryId) => _cycles.get(entryId);
+
+  /// Toggles the favorite flag on an existing entry, persisting the result.
+  Future<void> toggleFavorite(String entryId) async {
+    final entry = _cycles.get(entryId);
+    if (entry == null) return;
+    await _cycles.put(entryId, entry.copyWith(isFavorite: !entry.isFavorite));
+  }
+
   Future<void> savePrediction(CyclePrediction prediction) async {
     await _predictions.put(prediction.id, prediction);
   }

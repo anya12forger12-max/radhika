@@ -6,6 +6,7 @@ import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/screens/calendar/calendar_screen.dart';
+import 'package:radhika/screens/history/history_screen.dart';
 import 'package:radhika/widgets/ad_banner.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -58,6 +59,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _buildQuickActions(theme, colorScheme),
             const SizedBox(height: 20),
             _buildCycleStatus(theme, colorScheme, profile, cycleState),
+            const SizedBox(height: 20),
+            _buildHistorySection(theme, colorScheme),
             if (prediction != null && prediction.isDelayed && cycleState.delaySuggestions.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildDelayWarning(theme, colorScheme, cycleState.delaySuggestions),
@@ -458,6 +461,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, duration: 400.ms);
   }
 
+  Widget _buildHistorySection(ThemeData theme, ColorScheme colorScheme) {
+    return Semantics(
+      label: 'Cycle history',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              'Cycle History',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _HistoryCard(
+                  icon: Icons.favorite,
+                  label: 'Favorites',
+                  semanticLabel: 'View favorited cycle entries',
+                  color: colorScheme.error,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HistoryPage(
+                        favoritesOnly: true,
+                        userId: ref.read(authProvider).profile?.id,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _HistoryCard(
+                  icon: Icons.history,
+                  label: 'Scan History',
+                  semanticLabel: 'View all cycle entries',
+                  color: colorScheme.primary,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HistoryPage(
+                        favoritesOnly: false,
+                        userId: ref.read(authProvider).profile?.id,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDelayWarning(ThemeData theme, ColorScheme colorScheme, List<String> suggestions) {
     return Semantics(
       label: 'Period delay warning',
@@ -590,6 +653,59 @@ class _QuickActionCard extends StatelessWidget {
       begin: 0.1,
       duration: 400.ms,
       delay: (50 * index).ms,
+    );
+  }
+}
+
+class _HistoryCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String semanticLabel;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _HistoryCard({
+    required this.icon,
+    required this.label,
+    required this.semanticLabel,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      child: SizedBox(
+        height: 72,
+        child: Card(
+          elevation: 0,
+          color: theme.colorScheme.surfaceContainerHigh,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Icon(icon, color: color, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

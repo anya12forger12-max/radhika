@@ -34,13 +34,14 @@ class CycleEntryAdapter extends TypeAdapter<CycleEntry> {
       createdAt: fields[14] as DateTime?,
       updatedAt: fields[15] as DateTime?,
       isSymptomOnly: (fields[16] as bool?) ?? false,
+      isFavorite: (fields[17] as bool?) ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, CycleEntry obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -74,7 +75,9 @@ class CycleEntryAdapter extends TypeAdapter<CycleEntry> {
       ..writeByte(15)
       ..write(obj.updatedAt)
       ..writeByte(16)
-      ..write(obj.isSymptomOnly);
+      ..write(obj.isSymptomOnly)
+      ..writeByte(17)
+      ..write(obj.isFavorite);
   }
 
   @override
