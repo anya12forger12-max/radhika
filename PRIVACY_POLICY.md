@@ -58,23 +58,30 @@ No storage permission is requested. All health data is stored in app-private sto
 
 ## 4. ADMINISTRATOR ACCESS AND DATA SECURITY
 
-### A. Special Administrative Access
-**Because all health data, cycle logs, personal profile details, and preferences are stored locally on your device and are never uploaded to our servers, Radhika and its administrators have no technical ability to access, view, or process that data.** Administrative access is limited to the server-side account records held by Firebase Authentication (email address and authentication tokens):
+### A. Local Data Access Model
+**All health data, cycle logs, personal profile details, and preferences are stored exclusively in app-private, encrypted local storage on the user's device. Nothing is ever uploaded to our servers.** Because the backend (Firebase Authentication only) has no access to health data, Radhika administrators have no server-side technical ability to view, process, or transmit user health data.
 
-1. **System Maintenance & Support:** To diagnose technical bugs and resolve account-level service issues (e.g., sign-in problems).
-2. **Legal Compliance:** To comply with applicable laws, court orders, subpoenas, or governmental regulatory requests.
-3. **Abuse Prevention:** To detect, investigate, and prevent hacking attempts, unauthorized account creation, spamming, harassment, or other violations of our Terms of Service.
-4. **Security and Integrity:** To protect the security, assets, and safety of our systems, users, and the public.
+### B. Support & Debug Workflow (Client-Side Only)
+When support investigation is required, the following client-side workflow is used — no backend administrative access is involved:
 
-### B. Ownership of Content
-You retain full intellectual property ownership of all health data, cycle logs, and content you create. Radhika does not claim ownership of your data. Because your data is stored locally on your device and never transmitted to our servers, no license to host, process, or display your content is required, and none is granted.
+1. **Export Debug Package:** From the Settings menu, the user can generate an encrypted debug package containing anonymized logs and configuration state. This package is shared directly with support via a secure channel (e.g., email, messaging app).
 
-### C. Data Protection and Security Controls
-* **Communication Security:** The only data transmitted between the Application and our servers is authentication traffic to Firebase Authentication, which is encrypted using Transport Layer Security (TLS) over HTTPS.
-* **Local Storage:** Health data (cycle dates, symptoms, flow, predictions, preferences) is stored locally on your device in app-private, encrypted storage and is never uploaded to our servers.
-* **Firebase Authentication:** Firebase is used for authentication (sign-in) only; no health data is transmitted to or stored in Firebase.
-* **Access Isolation:** Because no health data is stored server-side, there are no application API endpoints or Firestore collections containing user health data. Authentication isolation is enforced by Firebase, so users can only access their own account.
-* **Session Management:** Sessions automatically expire after inactivity, and users can terminate their session at any time by signing out.
+2. **User-Initiated Review:** The support team reviews the exported package on their development workstation. No server-side access or backend routes are used.
+
+3. **Transient Access:** Any examination of data is limited to the duration of the support session and is strictly bounded to the exported package contents.
+
+4. **No Persistent Backdoor:** There is no permanent administrative remote access route, no server-side debugging endpoint, and no backend pipeline that silently transmits local telemetry.
+
+### C. Legal Compliance & Law Enforcement
+Radhika cooperates with valid legal requests through the standard channels:
+* **Court orders / subpoenas** directed at Firebase Authentication for account-level records (email, authentication tokens).
+* **Governmental regulatory requests** processed through established legal protocols.
+* All such requests are handled by the legal team, not by administrators with backend access to health data.
+
+### D. Abuse Prevention
+Radhika's abuse prevention systems operate exclusively on metadata available through Firebase Authentication (e.g., sign-in patterns, failed attempt rates). No health data is processed or stored server-side for abuse detection.
+
+---
 
 ---
 

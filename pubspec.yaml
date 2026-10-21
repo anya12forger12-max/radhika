@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   # Unused deps removed in a dependency sweep: cupertino_icons, riverpod,
-  # cloud_firestore (the app is Firebase-Auth-only and ships no Firestore
+  cloud_firestore (the app is Firebase-Auth-only and ships no Firestore
   # SDK), permission_handler, flutter_svg, cached_network_image, pdf,
   # printing, csv, shimmer, animate_do -- verified as zero-import across
   # lib/ and test/; reports use share_plus and flutter_animate instead.
