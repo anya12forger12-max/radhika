@@ -27,7 +27,7 @@ class NotificationService {
       final info = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(info.identifier));
     } catch (e) {
-      debugPrint('Failed to load local timezone, using UTC: $e');
+      if (kDebugMode) debugPrint('Failed to load local timezone, using UTC: $e');
       tz.setLocalLocation(tz.UTC);
     }
 
@@ -198,7 +198,7 @@ class NotificationService {
             daysBefore: 0, predictedDate: predictedDate);
       }
     } catch (e) {
-      debugPrint('Failed to reschedule period reminders: $e');
+      if (kDebugMode) debugPrint('Failed to reschedule period reminders: $e');
     }
   }
 

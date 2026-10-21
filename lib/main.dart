@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/app.dart';
@@ -20,7 +21,7 @@ Future<void> _rescheduleStartupReminders() async {
       predictedDate: prediction.predictedStartDate,
     );
   } catch (e) {
-    debugPrint('Failed to reschedule reminders at startup: $e');
+    if (kDebugMode) debugPrint('Failed to reschedule reminders at startup: $e');
   }
 }
 
@@ -30,19 +31,19 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint('Failed to initialize Firebase: $e');
+    if (kDebugMode) debugPrint('Failed to initialize Firebase: $e');
   }
 
   try {
     await StorageService.instance.init();
   } catch (e) {
-    debugPrint('Failed to initialize storage: $e');
+    if (kDebugMode) debugPrint('Failed to initialize storage: $e');
   }
 
   try {
     await NotificationService.instance.init();
   } catch (e) {
-    debugPrint('Failed to initialize notifications: $e');
+    if (kDebugMode) debugPrint('Failed to initialize notifications: $e');
   }
 
   await _rescheduleStartupReminders();

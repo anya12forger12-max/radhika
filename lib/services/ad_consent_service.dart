@@ -106,7 +106,7 @@ class AdConsentService with WidgetsBindingObserver {
             break;
           }
         } catch (error, stackTrace) {
-          debugPrint(
+          if (kDebugMode) debugPrint(
               'AdConsentService: consent flow failed on attempt $attempt: '
               '$error\n$stackTrace');
         }
@@ -121,7 +121,7 @@ class AdConsentService with WidgetsBindingObserver {
       }
       completer.complete(allowed);
     } catch (error, stackTrace) {
-      debugPrint(
+      if (kDebugMode) debugPrint(
           'AdConsentService: consent flow failed, keeping ads off: '
           '$error\n$stackTrace');
       completer.complete(false);
@@ -245,7 +245,7 @@ class AdConsentService with WidgetsBindingObserver {
       // No widget binding (e.g. headless analysis or a non-application
       // entry): the cooldown then never accrues suspension credit, which is
       // fail-safe — ads can only stay off, never on.
-      debugPrint('AdConsentService: no widget binding, ignoring: $error');
+      if (kDebugMode) debugPrint('AdConsentService: no widget binding, ignoring: $error');
     }
   }
 

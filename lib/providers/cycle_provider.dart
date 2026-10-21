@@ -208,7 +208,7 @@ class CycleNotifier extends StateNotifier<CycleState> {
         predictedDate: prediction.predictedStartDate,
       );
     } catch (e) {
-      debugPrint('Failed to reschedule reminders: $e');
+      if (kDebugMode) debugPrint('Failed to reschedule reminders: $e');
     }
   }
 
@@ -226,7 +226,7 @@ class CycleNotifier extends StateNotifier<CycleState> {
         predictedDate: prediction.predictedStartDate,
       );
     } catch (e) {
-      debugPrint('Failed to reschedule reminders: $e');
+      if (kDebugMode) debugPrint('Failed to reschedule reminders: $e');
     }
   }
 

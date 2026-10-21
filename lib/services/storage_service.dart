@@ -93,21 +93,21 @@ class StorageService {
     try {
       await _migrateToEncrypted<T>(base, name, cipher);
     } catch (e) {
-      debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+      if (kDebugMode) debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
     }
     try {
       return await Hive.openBox<T>(name, encryptionCipher: cipher);
     } catch (e) {
-      debugPrint('Failed to open Hive box "$name": $e');
+      if (kDebugMode) debugPrint('Failed to open Hive box "$name": $e');
       try {
         await Hive.deleteBoxFromDisk(name);
       } catch (deleteError) {
-        debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
+        if (kDebugMode) debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
       }
       try {
         return await Hive.openBox<T>(name, encryptionCipher: cipher);
       } catch (retryError) {
-        debugPrint(
+        if (kDebugMode) debugPrint(
             'Failed to reopen Hive box "$name" after recovery: $retryError');
         return Hive.openBox<T>(name,
             bytes: Uint8List(0), encryptionCipher: cipher);
@@ -126,7 +126,7 @@ class StorageService {
     try {
       stored = await _secureStorage.read(key: _secureKeyName);
     } catch (e) {
-      debugPrint('Failed to read Hive encryption key from secure storage: $e');
+      if (kDebugMode) debugPrint('Failed to read Hive encryption key from secure storage: $e');
       rethrow;
     }
 
@@ -136,7 +136,7 @@ class StorageService {
       try {
         await _secureStorage.write(key: _secureKeyName, value: encoded);
       } catch (e) {
-        debugPrint('Failed to persist Hive encryption key: $e');
+        if (kDebugMode) debugPrint('Failed to persist Hive encryption key: $e');
         rethrow;
       }
       final verify = await _secureStorage.read(key: _secureKeyName);
@@ -169,7 +169,7 @@ class StorageService {
     try {
       flag = await _secureStorage.read(key: flagKey);
     } catch (e) {
-      debugPrint('Failed to read migration marker for "$base": $e');
+      if (kDebugMode) debugPrint('Failed to read migration marker for "$base": $e');
     }
 
     if (flag == '1') {
@@ -202,7 +202,7 @@ class StorageService {
       await _writeMigrationFlag(flagKey);
       await _deletePlaintextIfPresent(base);
     } catch (e) {
-      debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+      if (kDebugMode) debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
       if (legacy != null && legacy.isOpen) {
         await legacy.close();
       }
@@ -215,7 +215,7 @@ class StorageService {
         await Hive.deleteBoxFromDisk(base);
       }
     } catch (e) {
-      debugPrint('Failed to delete plaintext Hive box "$base": $e');
+      if (kDebugMode) debugPrint('Failed to delete plaintext Hive box "$base": $e');
     }
   }
 
@@ -223,7 +223,7 @@ class StorageService {
     try {
       await _secureStorage.write(key: flagKey, value: '1');
     } catch (e) {
-      debugPrint('Failed to persist migration marker "$flagKey": $e');
+      if (kDebugMode) debugPrint('Failed to persist migration marker "$flagKey": $e');
     }
   }
 
@@ -367,7 +367,7 @@ class StorageService {
     try {
       final decoded = jsonDecode(jsonString);
       if (decoded is! Map<String, dynamic>) {
-        debugPrint(
+        if (kDebugMode) debugPrint(
             'Failed to import data: unexpected top-level type ${decoded.runtimeType}');
         return;
       }
@@ -379,7 +379,7 @@ class StorageService {
           final profile = UserProfile.fromMap(profileData, userId);
           await saveProfile(profile);
         } catch (e) {
-          debugPrint('Failed to import profile: $e');
+          if (kDebugMode) debugPrint('Failed to import profile: $e');
         }
       }
 
@@ -387,7 +387,7 @@ class StorageService {
       if (cyclesData is List) {
         for (final cycleMap in cyclesData) {
           if (cycleMap is! Map<String, dynamic>) {
-            debugPrint(
+            if (kDebugMode) debugPrint(
                 'Skipping cycle entry with unexpected type ${cycleMap.runtimeType}');
             continue;
           }
@@ -414,12 +414,12 @@ class StorageService {
             );
             await saveCycleEntry(importCycle);
           } catch (e) {
-            debugPrint('Failed to import cycle entry: $e');
+            if (kDebugMode) debugPrint('Failed to import cycle entry: $e');
           }
         }
       }
     } catch (e) {
-      debugPrint('Failed to import data: $e');
+      if (kDebugMode) debugPrint('Failed to import data: $e');
     }
   }
 

@@ -81,7 +81,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
-      debugPrint('Email sign-in error: $e');
+      if (kDebugMode) debugPrint('Email sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Something went wrong. Please try again.',
@@ -110,7 +110,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code, isRegistration: true),
       );
     } catch (e) {
-      debugPrint('Registration error: $e');
+      if (kDebugMode) debugPrint('Registration error: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Something went wrong. Please try again.',
@@ -153,7 +153,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             : 'Could not complete Google sign-in. Please try again.',
       );
     } catch (e) {
-      debugPrint('Google sign-in error: $e');
+      if (kDebugMode) debugPrint('Google sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
         error: e.toString().contains('cancelled')
@@ -174,7 +174,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
-      debugPrint('Password reset error: $e');
+      if (kDebugMode) debugPrint('Password reset error: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Something went wrong. Please try again.',

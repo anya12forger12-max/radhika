@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:radhika/services/ad_consent_service.dart';
@@ -29,12 +30,12 @@ class _AdBannerState extends State<AdBanner> {
     try {
       final canServe = await AdConsentService.instance.ensureConsent();
       if (!canServe) {
-        debugPrint('AdBanner: consent not obtained, skipping ad');
+        if (kDebugMode) debugPrint('AdBanner: consent not obtained, skipping ad');
         return;
       }
       await MobileAds.instance.initialize();
     } catch (e) {
-      debugPrint('Failed to initialize MobileAds: $e');
+      if (kDebugMode) debugPrint('Failed to initialize MobileAds: $e');
       if (mounted) {
         setState(() => _loaded = false);
       }
@@ -70,7 +71,7 @@ class _AdBannerState extends State<AdBanner> {
     try {
       await adapter.load();
     } catch (e) {
-      debugPrint('Failed to load banner ad: $e');
+      if (kDebugMode) debugPrint('Failed to load banner ad: $e');
       if (mounted) {
         setState(() => _loaded = false);
       }

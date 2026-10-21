@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -192,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .saveReminderPreferences(userId, prefs);
       }
     } catch (e) {
-      debugPrint('Failed to persist reminder preferences: $e');
+      if (kDebugMode) debugPrint('Failed to persist reminder preferences: $e');
     }
     if (prefs.anyEnabled) {
       try {
@@ -209,7 +210,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           );
         }
       } catch (e) {
-        debugPrint('Failed to request notification permissions: $e');
+        if (kDebugMode) debugPrint('Failed to request notification permissions: $e');
       }
     }
     final prediction = ref.read(cycleProvider).currentPrediction;
@@ -220,7 +221,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         predictedDate: prediction.predictedStartDate,
       );
     } catch (e) {
-      debugPrint('Failed to reschedule reminders: $e');
+      if (kDebugMode) debugPrint('Failed to reschedule reminders: $e');
     }
   }
 
