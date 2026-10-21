@@ -198,6 +198,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> signOut() async {
     await _authService.signOut();
+    _ref.invalidate(cycleProvider);
     state = const AuthState();
   }
 
