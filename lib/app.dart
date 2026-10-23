@@ -22,19 +22,22 @@ import 'package:radhika/screens/tracking/log_period_screen.dart';
 import 'package:radhika/screens/tracking/log_symptom_screen.dart';
 
 class RadhikaApp extends ConsumerWidget {
-  const RadhikaApp({super.key});
+  const RadhikaApp({super.key, this.initialTheme = ThemeModeSetting.system});
+
+  final ThemeModeSetting initialTheme;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
     final fontSize = themeState.fontSize;
+    final themeMode = themeState.themeMode;
 
     return MaterialApp(
       title: 'Radhika',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: themeState.themeMode,
+      themeMode: themeMode,
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
         final scale = mediaQueryData.textScaler.scale(fontSize);

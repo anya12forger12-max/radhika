@@ -41,12 +41,22 @@ class ThemeState {
 
 class ThemeNotifier extends StateNotifier<ThemeState> {
   final StorageService _storageService;
+  final ThemeModeSetting _initialTheme;
 
-  ThemeNotifier(this._storageService) : super(const ThemeState()) {
+  ThemeNotifier(this._storageService, {ThemeModeSetting? initialTheme})
+      : _initialTheme = initialTheme ?? ThemeModeSetting.system,
+        super(const ThemeState()) {
     _loadSettings();
   }
 
   void _loadSettings() {
+    // If an initial theme was explicitly provided (from main.dart),
+    // use it and skip async storage read to prevent UI flicker.
+    if (_initialTheme != ThemeModeSetting.system) {
+      state = state.copyWith(setting: _initialTheme);
+      return;
+    }
+    // Normal async load from storage
     final themeStr = _storageService.getSetting('theme_mode');
     final fontSizeStr = _storageService.getSetting('font_size');
 
