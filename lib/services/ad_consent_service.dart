@@ -106,9 +106,11 @@ class AdConsentService with WidgetsBindingObserver {
             break;
           }
         } catch (error, stackTrace) {
-          if (kDebugMode) debugPrint(
-              'AdConsentService: consent flow failed on attempt $attempt: '
-              '$error\n$stackTrace');
+          if (kDebugMode) {
+            debugPrint(
+                'AdConsentService: consent flow failed on attempt $attempt: '
+                '$error\n$stackTrace');
+          }
         }
       }
       if (allowed) {
@@ -121,9 +123,11 @@ class AdConsentService with WidgetsBindingObserver {
       }
       completer.complete(allowed);
     } catch (error, stackTrace) {
-      if (kDebugMode) debugPrint(
-          'AdConsentService: consent flow failed, keeping ads off: '
-          '$error\n$stackTrace');
+      if (kDebugMode) {
+        debugPrint(
+            'AdConsentService: consent flow failed, keeping ads off: '
+            '$error\n$stackTrace');
+      }
       completer.complete(false);
     } finally {
       _inFlight = null;

@@ -107,8 +107,10 @@ class StorageService {
       try {
         return await Hive.openBox<T>(name, encryptionCipher: cipher);
       } catch (retryError) {
-        if (kDebugMode) debugPrint(
-            'Failed to reopen Hive box "$name" after recovery: $retryError');
+        if (kDebugMode) {
+          debugPrint(
+              'Failed to reopen Hive box "$name" after recovery: $retryError');
+        }
         return Hive.openBox<T>(name,
             bytes: Uint8List(0), encryptionCipher: cipher);
       }
@@ -377,8 +379,10 @@ class StorageService {
     try {
       final decoded = jsonDecode(jsonString);
       if (decoded is! Map<String, dynamic>) {
-        if (kDebugMode) debugPrint(
-            'Failed to import data: unexpected top-level type ${decoded.runtimeType}');
+        if (kDebugMode) {
+          debugPrint(
+              'Failed to import data: unexpected top-level type ${decoded.runtimeType}');
+        }
         return;
       }
       final data = decoded;
@@ -397,8 +401,10 @@ class StorageService {
       if (cyclesData is List) {
         for (final cycleMap in cyclesData) {
           if (cycleMap is! Map<String, dynamic>) {
-            if (kDebugMode) debugPrint(
-                'Skipping cycle entry with unexpected type ${cycleMap.runtimeType}');
+            if (kDebugMode) {
+              debugPrint(
+                  'Skipping cycle entry with unexpected type ${cycleMap.runtimeType}');
+            }
             continue;
           }
           try {

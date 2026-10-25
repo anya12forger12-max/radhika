@@ -25,13 +25,17 @@ class AuthService {
     try {
       await credential.user?.sendEmailVerification();
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) debugPrint(
-          'Verification email not sent after signup (code: ${e.code}); '
-          'account ${credential.user?.uid} was created and is usable.');
+      if (kDebugMode) {
+        debugPrint(
+            'Verification email not sent after signup (code: ${e.code}); '
+            'account ${credential.user?.uid} was created and is usable.');
+      }
     } catch (e) {
-      if (kDebugMode) debugPrint(
-          'Verification email not sent after signup ($e); '
-          'account ${credential.user?.uid} was created and is usable.');
+      if (kDebugMode) {
+        debugPrint(
+            'Verification email not sent after signup ($e); '
+            'account ${credential.user?.uid} was created and is usable.');
+      }
     }
     return credential;
   }
