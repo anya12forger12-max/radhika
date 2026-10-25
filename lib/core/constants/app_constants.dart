@@ -84,3 +84,4 @@ Radhika is not intended for children under 13 and we do not knowingly collect in
 
   static const String cycleDelayMessage =
       'Your cycle appears to be delayed compared to your usual pattern. If your period is significantly late, consider taking a pregnancy test or consulting a healthcare provider.';
+}
