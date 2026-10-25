@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,6 +9,7 @@ import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
 import 'package:radhika/models/user_profile.dart';
+import 'package:radhika/providers/theme_provider.dart';
 
 final storageServiceProvider =
     Provider<StorageService>((ref) => StorageService.instance);
@@ -23,7 +25,8 @@ class ReminderPreferences {
     this.remindDayOf = false,
   });
 
-  bool get anyEnabled => remind3DaysBefore || remind2DaysBefore || remindDayOf;
+  bool get anyEnabled =>
+      remind3DaysBefore || remind2DaysBefore || remindDayOf;
 
   ReminderPreferences copyWith({
     bool? remind3DaysBefore,
@@ -55,6 +58,7 @@ class StorageService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
+
   HiveAesCipher? _cipher;
 
   static String _encryptedName(String base) => '$base$_encryptedSuffix';
@@ -93,70 +97,54 @@ class StorageService {
     try {
       await _migrateToEncrypted<T>(base, name, cipher);
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
-    }
-    try {
-      return await Hive.openBox<T>(name, encryptionCipher: cipher);
-    } catch (e) {
-      if (kDebugMode) debugPrint('Failed to open Hive box "$name": $e');
-      try {
-        await Hive.deleteBoxFromDisk(name);
-      } catch (deleteError) {
-        if (kDebugMode) debugPrint('Failed to delete corrupt Hive box "$name": $deleteError');
-      }
-      try {
-        return await Hive.openBox<T>(name, encryptionCipher: cipher);
-      } catch (retryError) {
-        if (kDebugMode) {
-          debugPrint(
-              'Failed to reopen Hive box "$name" after recovery: $retryError');
-        }
-        return Hive.openBox<T>(name,
-            bytes: Uint8List(0), encryptionCipher: cipher);
+      if (kDebugMode) {
+        debugPrint('Failed to migrate plaintext box "$base": $e');
       }
     }
+
+    return await Hive.openBox<T>(name, encryptionCipher: cipher);
   }
 
-  /// Reads the database key from the platform keystore, generating and
-  /// persisting a fresh 256-bit key on first launch. Fails closed: if the
-  /// stored key cannot be read, the error is rethrown rather than silently
-  /// re-keying (which would render existing data undecryptable).
   Future<HiveAesCipher> _getOrCreateCipher() async {
     if (_cipher != null) return _cipher!;
 
-    String? stored;
+    String? storedKey;
     try {
-      stored = await _secureStorage.read(key: _secureKeyName);
+      storedKey = await _secureStorage.read(key: _secureKeyName);
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to read Hive encryption key from secure storage: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to read Hive encryption key: $e');
+      }
       rethrow;
     }
 
-    if (stored == null || stored.isEmpty) {
-      final keyBytes = Hive.generateSecureKey();
+    Uint8List keyBytes;
+    if (storedKey == null || storedKey.isEmpty) {
+      keyBytes = Uint8List.fromList(Hive.generateSecureKey());
       final encoded = base64Encode(keyBytes);
       try {
         await _secureStorage.write(key: _secureKeyName, value: encoded);
+        final verify = await _secureStorage.read(key: _secureKeyName);
+        if (verify != encoded) {
+          throw StateError(
+              'Hive encryption key write could not be verified');
+        }
       } catch (e) {
         if (kDebugMode) debugPrint('Failed to persist Hive encryption key: $e');
         rethrow;
-      }
-      final verify = await _secureStorage.read(key: _secureKeyName);
-      if (verify != encoded) {
-        throw StateError(
-            'Hive encryption key write could not be verified; refusing to '
-            'proceed without a durable key');
       }
       _cipher = HiveAesCipher(keyBytes);
       return _cipher!;
     }
 
-    final decoded = base64Decode(stored);
+    final decoded = base64Decode(storedKey);
     if (decoded.length != 32) {
       throw StateError(
           'Stored Hive encryption key has invalid length ${decoded.length}');
     }
-    _cipher = HiveAesCipher(decoded);
+    keyBytes = decoded;
+
+    _cipher = HiveAesCipher(keyBytes);
     return _cipher!;
   }
 
@@ -171,7 +159,9 @@ class StorageService {
     try {
       flag = await _secureStorage.read(key: flagKey);
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to read migration marker for "$base": $e');
+      if (kDebugMode) {
+        debugPrint('Failed to read migration marker for "$base": $e');
+      }
     }
 
     if (flag == '1') {
@@ -204,7 +194,9 @@ class StorageService {
       await _writeMigrationFlag(flagKey);
       await _deletePlaintextIfPresent(base);
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+      if (kDebugMode) {
+        debugPrint('Failed to migrate Hive box "$base" to encrypted storage: $e');
+      }
       if (legacy != null && legacy.isOpen) {
         await legacy.close();
       }
@@ -217,7 +209,9 @@ class StorageService {
         await Hive.deleteBoxFromDisk(base);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to delete plaintext Hive box "$base": $e');
+      if (kDebugMode) {
+        debugPrint('Failed to delete plaintext Hive box "$base": $e');
+      }
     }
   }
 
@@ -225,7 +219,9 @@ class StorageService {
     try {
       await _secureStorage.write(key: flagKey, value: '1');
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to persist migration marker "$flagKey": $e');
+      if (kDebugMode) {
+        debugPrint('Failed to persist migration marker "$flagKey": $e');
+      }
     }
   }
 
@@ -327,7 +323,8 @@ class StorageService {
         '${prefs.remind3DaysBefore}');
     await _settings.put('${userId}_$_reminder2DaysKey',
         '${prefs.remind2DaysBefore}');
-    await _settings.put('${userId}_$_reminderDayOfKey', '${prefs.remindDayOf}');
+    await _settings.put('${userId}_$_reminderDayOfKey',
+        '${prefs.remindDayOf}');
   }
 
   ReminderPreferences getReminderPreferences(String userId) {
@@ -439,6 +436,26 @@ class StorageService {
     }
   }
 
+  Future<AppPreferences> getAppPreferences() async {
+    final themeStr = getSetting('theme_mode');
+    final fontSizeStr = getSetting('font_size');
+
+    final themeIndex = themeStr != null ? int.tryParse(themeStr) : null;
+    final setting = themeIndex != null &&
+            themeIndex >= 0 &&
+            themeIndex < ThemeModeSetting.values.length
+        ? ThemeModeSetting.values[themeIndex]
+        : ThemeModeSetting.system;
+
+    final fontSizeValue =
+        fontSizeStr != null ? double.tryParse(fontSizeStr) : null;
+    final fontSize = fontSizeValue != null
+        ? fontSizeValue.clamp(0.8, 1.5)
+        : 1.0;
+
+    return AppPreferences(themeMode: setting, fontSize: fontSize);
+  }
+
   Future<void> clearAll() async {
     await _profile.clear();
     await _cycles.clear();
@@ -446,4 +463,14 @@ class StorageService {
     await _reminders.clear();
     await _settings.clear();
   }
+}
+
+class AppPreferences {
+  final ThemeModeSetting themeMode;
+  final double fontSize;
+
+  const AppPreferences({
+    required this.themeMode,
+    required this.fontSize,
+  });
 }
