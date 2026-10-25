@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/core/constants/app_constants.dart';
+import 'package:radhika/models/cycle_entry.dart';
+import 'package:radhika/models/cycle_prediction.dart';
+import 'package:radhika/models/user_profile.dart';
 import 'package:radhika/screens/calendar/calendar_screen.dart';
 import 'package:radhika/screens/history/history_screen.dart';
 import 'package:radhika/widgets/ad_banner.dart';
@@ -72,8 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildGreeting(ThemeData theme, ColorScheme colorScheme, dynamic profile) {
-    final name = profile?.name?.isNotEmpty == true ? profile.name : 'there';
+  Widget _buildGreeting(ThemeData theme, ColorScheme colorScheme, UserProfile? profile) {
+    final name = profile?.name?.isNotEmpty == true
+        ? profile!.name as String
+        : 'there';
     final hour = DateTime.now().hour;
     String greeting;
     if (hour < 12) {
@@ -114,8 +119,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildPredictionCard(
     ThemeData theme,
     ColorScheme colorScheme,
-    dynamic prediction,
-    dynamic profile,
+    CyclePrediction? prediction,
+    UserProfile? profile,
   ) {
     return Semantics(
       label: 'Next period prediction',
@@ -135,7 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildPredictionContent(
     ThemeData theme,
     ColorScheme colorScheme,
-    dynamic prediction,
+    CyclePrediction prediction,
   ) {
     final now = DateTime.now();
     final daysUntil = prediction.predictedStartDate.difference(now).inDays;
@@ -354,8 +359,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildCycleStatus(
     ThemeData theme,
     ColorScheme colorScheme,
-    dynamic profile,
-    dynamic cycleState,
+    UserProfile? profile,
+    CycleState cycleState,
   ) {
     final entries = cycleState.cycleHistory as List? ?? [];
     final lastPeriodStart = profile?.lastPeriodStart;
@@ -393,7 +398,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     bool isOnPeriod = false;
     if (entries.isNotEmpty) {
-      final latest = entries.first as dynamic;
+      final latest = entries.first as CycleEntry;
       if (latest.endDate != null && latest.isSymptomOnly != true) {
         final end = latest.endDate as DateTime;
         isOnPeriod = latest.startDate.isBefore(now) && end.isAfter(now.subtract(const Duration(days: 1)));

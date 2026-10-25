@@ -52,15 +52,17 @@ class Reminder extends HiveObject {
   factory Reminder.fromMap(Map<String, dynamic> map, String id) {
     return Reminder(
       id: id,
-      userId: map['userId'] ?? '',
-      type: ReminderType.values[map['type'] ?? 0],
-      enabled: map['enabled'] ?? true,
-      hoursBefore: map['hoursBefore'] ?? 24,
-      hour: map['hour'],
-      minute: map['minute'],
-      daysOfWeek: List<int>.from(map['daysOfWeek'] ?? []),
+      userId: map['userId'] as String? ?? '',
+      type: ReminderType.values[(map['type'] as int?) ?? 0],
+      enabled: map['enabled'] as bool? ?? true,
+      hoursBefore: map['hoursBefore'] as int? ?? 24,
+      hour: map['hour'] as int?,
+      minute: map['minute'] as int?,
+      daysOfWeek: List<int>.from(
+          (map['daysOfWeek'] as List?) ?? []),
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-          map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch),
+          map['createdAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
     );
   }
 

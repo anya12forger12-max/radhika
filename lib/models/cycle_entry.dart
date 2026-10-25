@@ -94,29 +94,35 @@ class CycleEntry extends HiveObject {
   factory CycleEntry.fromMap(Map<String, dynamic> map, String id) {
     return CycleEntry(
       id: id,
-      userId: map['userId'] ?? '',
-      startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate']),
+      userId: map['userId'] as String? ?? '',
+      startDate: DateTime.fromMillisecondsSinceEpoch(
+          map['startDate'] as int),
       endDate: map['endDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['endDate'])
+          ? DateTime.fromMillisecondsSinceEpoch(map['endDate'] as int)
           : null,
-      flowIntensity: FlowIntensity.values[map['flowIntensity'] ?? 1],
-      spotting: map['spotting'] ?? false,
-      painLevel: map['painLevel'] ?? 0,
-      mood: Mood.values[map['mood'] ?? 2],
-      energyLevel: map['energyLevel'] ?? 3,
-      sleepHours: map['sleepHours'] ?? 7,
-      exercise: map['exercise'] ?? false,
-      waterIntake: map['waterIntake'] ?? 4,
+      flowIntensity: FlowIntensity.values[
+          (map['flowIntensity'] as int?) ?? 1],
+      spotting: map['spotting'] as bool? ?? false,
+      painLevel: map['painLevel'] as int? ?? 0,
+      mood: Mood.values[(map['mood'] as int?) ?? 2],
+      energyLevel: map['energyLevel'] as int? ?? 3,
+      sleepHours: map['sleepHours'] as int? ?? 7,
+      exercise: map['exercise'] as bool? ?? false,
+      waterIntake: map['waterIntake'] as int? ?? 4,
       symptoms:
-          (map['symptoms'] as List?)?.map((s) => Symptom.values[s]).toList() ??
+          (map['symptoms'] as List?)
+              ?.map((s) => Symptom.values[s as int])
+              .toList() ??
               [],
-      notes: map['notes'] ?? '',
+      notes: map['notes'] as String? ?? '',
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-          map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch),
+          map['createdAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(
-          map['updatedAt'] ?? DateTime.now().millisecondsSinceEpoch),
-      isSymptomOnly: map['isSymptomOnly'] ?? false,
-      isFavorite: map['isFavorite'] ?? false,
+          map['updatedAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
+      isSymptomOnly: map['isSymptomOnly'] as bool? ?? false,
+      isFavorite: map['isFavorite'] as bool? ?? false,
     );
   }
 

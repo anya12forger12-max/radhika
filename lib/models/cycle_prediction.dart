@@ -60,25 +60,31 @@ class CyclePrediction extends HiveObject {
   factory CyclePrediction.fromMap(Map<String, dynamic> map, String id) {
     return CyclePrediction(
       id: id,
-      userId: map['userId'] ?? '',
+      userId: map['userId'] as String? ?? '',
       predictedStartDate:
-          DateTime.fromMillisecondsSinceEpoch(map['predictedStartDate']),
+          DateTime.fromMillisecondsSinceEpoch(
+              map['predictedStartDate'] as int),
       predictedEndDate:
-          DateTime.fromMillisecondsSinceEpoch(map['predictedEndDate']),
+          DateTime.fromMillisecondsSinceEpoch(
+              map['predictedEndDate'] as int),
       ovulationDate: map['ovulationDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['ovulationDate'])
+          ? DateTime.fromMillisecondsSinceEpoch(
+              map['ovulationDate'] as int)
           : null,
       fertileWindowStart: map['fertileWindowStart'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['fertileWindowStart'])
+          ? DateTime.fromMillisecondsSinceEpoch(
+              map['fertileWindowStart'] as int)
           : null,
       fertileWindowEnd: map['fertileWindowEnd'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['fertileWindowEnd'])
+          ? DateTime.fromMillisecondsSinceEpoch(
+              map['fertileWindowEnd'] as int)
           : null,
-      confidence: (map['confidence'] ?? 0.5).toDouble(),
-      predictedCycleLength: map['predictedCycleLength'] ?? 28,
-      isDelayed: map['isDelayed'] ?? false,
+      confidence: (map['confidence'] as num? ?? 0.5).toDouble(),
+      predictedCycleLength: map['predictedCycleLength'] as int? ?? 28,
+      isDelayed: map['isDelayed'] as bool? ?? false,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-          map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch),
+          map['createdAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
     );
   }
 }

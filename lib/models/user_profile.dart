@@ -90,30 +90,37 @@ class UserProfile extends HiveObject {
   factory UserProfile.fromMap(Map<String, dynamic> map, String id) {
     return UserProfile(
       id: id,
-      name: map['name'] ?? '',
-      age: map['age'] ?? 25,
-      height: map['height'],
-      weight: map['weight'],
-      averageCycleLength: map['averageCycleLength'] ?? 28,
-      averagePeriodLength: map['averagePeriodLength'] ?? 5,
+      name: map['name'] as String? ?? '',
+      age: map['age'] as int? ?? 25,
+      height: (map['height'] as num?)?.toDouble(),
+      weight: (map['weight'] as num?)?.toDouble(),
+      averageCycleLength: map['averageCycleLength'] as int? ?? 28,
+      averagePeriodLength: map['averagePeriodLength'] as int? ?? 5,
       lastPeriodStart: map['lastPeriodStart'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['lastPeriodStart'])
+          ? DateTime.fromMillisecondsSinceEpoch(
+              map['lastPeriodStart'] as int)
           : null,
-      isPregnant: map['isPregnant'] ?? false,
-      isMenopause: map['isMenopause'] ?? false,
-      medicalConditions: List<String>.from(map['medicalConditions'] ?? []),
-      medications: List<String>.from(map['medications'] ?? []),
+      isPregnant: map['isPregnant'] as bool? ?? false,
+      isMenopause: map['isMenopause'] as bool? ?? false,
+      medicalConditions: List<String>.from(
+          map['medicalConditions'] as List? ?? []),
+      medications: List<String>.from(
+          map['medications'] as List? ?? []),
       createdAt: DateTime.fromMillisecondsSinceEpoch(
-          map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch),
+          map['createdAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(
-          map['updatedAt'] ?? DateTime.now().millisecondsSinceEpoch),
-      privacyPolicyAccepted: map['privacyPolicyAccepted'] ?? false,
-      privacyPolicyAcceptedVersion: map['privacyPolicyAcceptedVersion'],
+          map['updatedAt'] as int? ??
+              DateTime.now().millisecondsSinceEpoch),
+      privacyPolicyAccepted:
+          map['privacyPolicyAccepted'] as bool? ?? false,
+      privacyPolicyAcceptedVersion:
+          map['privacyPolicyAcceptedVersion'] as String?,
       privacyPolicyAcceptedDate: map['privacyPolicyAcceptedDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(
-              map['privacyPolicyAcceptedDate'])
+              map['privacyPolicyAcceptedDate'] as int)
           : null,
-      email: map['email'] ?? '',
+      email: map['email'] as String? ?? '',
     );
   }
 

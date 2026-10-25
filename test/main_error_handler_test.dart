@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('main source-order regression guards', () {
     test('FirebaseCrashlytics init must come after Firebase.initializeApp()', () {
-      final mainPath = 'lib/main.dart';
+      const mainPath = 'lib/main.dart';
       final content = File(mainPath).readAsStringSync();
 
       final firebaseInitOffset = content.indexOf('Firebase.initializeApp()');

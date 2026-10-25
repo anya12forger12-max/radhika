@@ -15,6 +15,14 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    missing_required_param: error
+    missing_return: error
+    todo: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
@@ -29,8 +37,17 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # --- Performance Optimization Baselines ---
+    - prefer_const_constructors                  # Drastically cuts down runtime widget re-allocation loops
+    - prefer_const_constructors_in_immutables    # Insulates Riverpod layout nodes from unnecessary repaints
+    - prefer_const_declarations                 # Forces static values into immutable compile-time memory maps
+    - avoid_unnecessary_containers               # Strips layout bloat to speed up native screen rendering cycles
+
+    # --- Code Readability & Maintainability Rules ---
+    - always_declare_return_types               # Enforces explicit parameter boundaries on all functions
+    - avoid_print                                # Blocks accidental leakage of diagnostic data to OS log streams
+    - prefer_final_locals                       # Enforces immutability on local data variable pointers
+    - use_build_context_synchronously            # Prevents dangerous async context crashes during theme updates
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
