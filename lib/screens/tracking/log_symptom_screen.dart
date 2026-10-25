@@ -182,7 +182,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _SectionLabel(text: 'Date'),
+                  const _SectionLabel(text: 'Date'),
                   const SizedBox(height: 8),
                   Semantics(
                     label:
@@ -203,7 +203,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Pain Level'),
+                  const _SectionLabel(text: 'Pain Level'),
                   const SizedBox(height: 4),
                   Semantics(
                     label:
@@ -228,7 +228,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Symptoms'),
+                  const _SectionLabel(text: 'Symptoms'),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -258,7 +258,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Mood'),
+                  const _SectionLabel(text: 'Mood'),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -282,7 +282,7 @@ class _LogSymptomScreenState extends ConsumerState<LogSymptomScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Notes'),
+                  const _SectionLabel(text: 'Notes'),
                   const SizedBox(height: 8),
                   Semantics(
                     label: 'Additional notes text field',

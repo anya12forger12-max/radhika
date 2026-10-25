@@ -240,11 +240,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         borderRadius: BorderRadius.circular(12),
                         onTap: _pickDate,
                         child: InputDecorator(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Last period start date',
-                            prefixIcon: const Icon(Icons.calendar_today),
-                            border: const OutlineInputBorder(),
-                            suffixIcon: const Icon(Icons.edit_calendar),
+                            prefixIcon: Icon(Icons.calendar_today),
+                            border: OutlineInputBorder(),
+                            suffixIcon: Icon(Icons.edit_calendar),
                           ),
                           child: Text(
                             _lastPeriodStart != null

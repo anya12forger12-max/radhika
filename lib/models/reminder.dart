@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:radhika/data/models/secure_model_factory.dart';
 
 part 'reminder.g.dart';
 
@@ -53,7 +54,9 @@ class Reminder extends HiveObject {
     return Reminder(
       id: id,
       userId: map['userId'] as String? ?? '',
-      type: ReminderType.values[(map['type'] as int?) ?? 0],
+      type: safeEnumFromIndex<ReminderType>(
+          ReminderType.values, map['type'] as int?,
+          fallback: 0),
       enabled: map['enabled'] as bool? ?? true,
       hoursBefore: map['hoursBefore'] as int? ?? 24,
       hour: map['hour'] as int?,

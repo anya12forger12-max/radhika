@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:radhika/data/models/secure_model_factory.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
@@ -384,11 +385,37 @@ class StorageService {
       }
       final data = decoded;
 
+      // Critical deserialization boundary: validate any type indicator present
+      // in the payload against the strict allowlist before constructing models.
+      // Unknown markers are rejected (logged + DeserializationSecurityException)
+      // rather than silently defaulted.
+      final topLevelType = data['type'] ?? data['type_indicator'];
+      if (topLevelType != null) {
+        try {
+          validateAndResolveType(topLevelType as String?);
+        } catch (e) {
+          if (kDebugMode) debugPrint('Failed to import data: $e');
+          return;
+        }
+      }
+
       final profileData = data['profile'];
       if (profileData is Map<String, dynamic>) {
         try {
+          final profileType = profileData['type'] ?? profileData['type_indicator'];
+          if (profileType != null) {
+            final resolved = validateAndResolveType(profileType as String?);
+            if (resolved != AuthorizedModelType.userProfile) {
+              throw const DeserializationSecurityException(
+                  'Unexpected model type for profile payload');
+            }
+          }
           final profile = UserProfile.fromMap(profileData, userId);
           await saveProfile(profile);
+        } on DeserializationSecurityException catch (e) {
+          if (kDebugMode) {
+            debugPrint('Security violation importing profile: $e');
+          }
         } catch (e) {
           if (kDebugMode) debugPrint('Failed to import profile: $e');
         }
@@ -405,6 +432,17 @@ class StorageService {
             continue;
           }
           try {
+            final cycleType = cycleMap['type'] ?? cycleMap['type_indicator'];
+            if (cycleType != null) {
+              final resolved = validateAndResolveType(cycleType as String?);
+              if (resolved != AuthorizedModelType.cycleEntry) {
+                throw const DeserializationSecurityException(
+                    'Unexpected model type for cycle payload');
+              }
+            }
+            // fromMap already applies bounds-checked enum resolution
+            // (flowIntensity, mood, symptoms) which fails closed on tampered
+            // indices.
             final cycle = CycleEntry.fromMap(cycleMap, '');
             final importCycle = CycleEntry(
               id: cycle.id,
@@ -426,6 +464,10 @@ class StorageService {
               updatedAt: cycle.updatedAt,
             );
             await saveCycleEntry(importCycle);
+          } on DeserializationSecurityException catch (e) {
+            if (kDebugMode) {
+              debugPrint('Security violation importing cycle entry: $e');
+            }
           } catch (e) {
             if (kDebugMode) debugPrint('Failed to import cycle entry: $e');
           }

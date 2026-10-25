@@ -385,7 +385,7 @@ class _MonthlyTab extends StatelessWidget {
                               topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                               rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                             ),
-                            gridData: FlGridData(
+                            gridData: const FlGridData(
                               show: true,
                               horizontalInterval: 1,
                               drawVerticalLine: false,
@@ -647,7 +647,7 @@ class _YearlyTab extends StatelessWidget {
                         height: 250,
                         child: LineChart(
                           LineChartData(
-                            gridData: FlGridData(
+                            gridData: const FlGridData(
                               show: true,
                               horizontalInterval: 5,
                               drawVerticalLine: false,

@@ -10,9 +10,10 @@ echo "🌸 Starting Unified Radhika Production Compilation Loop..."
 echo "📥 Resolving third-party project packages..."
 flutter pub get
 
-# 2. Run tests
-echo "🧪 Executing tests..."
-flutter test test/widget_test.dart
+# 2. Run your comprehensive cryptographic database, Firebase, and Stress test checks
+echo "🧪 Executing secure integration, runtime, and volumetric stress test suites..."
+flutter test test/firebase_storage_test.dart
+flutter test test/storage_stress_test.dart
 
 # 3. Compile the production-ready native Android APK asset package
 echo "🤖 Building optimized, release-signed Android mobile binary..."
@@ -21,6 +22,15 @@ flutter build apk --release
 # 4. Compile the frictionless browser PWA alternative target layout
 echo "🌐 Building web engine configuration with offline-first PWA caching..."
 flutter build web --release --pwa-strategy=offline-first
+
+# 5. Automatically deploy the compiled PWA engine assets to Firebase Hosting logs
+echo "🚀 Transmitting production Web PWA builds directly to Firebase Hosting servers..."
+if command -v firebase &> /dev/null; then
+  firebase deploy --only hosting:radhika-pwa
+  echo "✅ Web Application is live at: https://web.app"
+else
+  echo "⚠️ Firebase CLI engine not found locally. Skipping remote hosting sync."
+fi
 
 echo "✨ All production pipelines completed successfully!"
 echo "📱 APK: build/app/outputs/flutter-apk/app-release.apk"

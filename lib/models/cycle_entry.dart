@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:radhika/data/models/secure_model_factory.dart';
 
 part 'cycle_entry.g.dart';
 
@@ -100,18 +101,27 @@ class CycleEntry extends HiveObject {
       endDate: map['endDate'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['endDate'] as int)
           : null,
-      flowIntensity: FlowIntensity.values[
-          (map['flowIntensity'] as int?) ?? 1],
+      flowIntensity: safeEnumFromIndex<FlowIntensity>(
+          FlowIntensity.values, map['flowIntensity'] as int?,
+          fallback: 1),
       spotting: map['spotting'] as bool? ?? false,
       painLevel: map['painLevel'] as int? ?? 0,
-      mood: Mood.values[(map['mood'] as int?) ?? 2],
+      mood: safeEnumFromIndex<Mood>(Mood.values, map['mood'] as int?,
+          fallback: 2),
       energyLevel: map['energyLevel'] as int? ?? 3,
       sleepHours: map['sleepHours'] as int? ?? 7,
       exercise: map['exercise'] as bool? ?? false,
       waterIntake: map['waterIntake'] as int? ?? 4,
       symptoms:
           (map['symptoms'] as List?)
-              ?.map((s) => Symptom.values[s as int])
+              ?.map((s) {
+                if (s is! int) {
+                  throw const DeserializationSecurityException(
+                      'Invalid symptom index type: non-int value');
+                }
+                return safeEnumFromIndexOrThrow<Symptom>(
+                    Symptom.values, s);
+              })
               .toList() ??
               [],
       notes: map['notes'] as String? ?? '',

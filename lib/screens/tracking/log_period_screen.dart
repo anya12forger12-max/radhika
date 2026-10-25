@@ -240,7 +240,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _SectionLabel(text: 'Dates'),
+                  const _SectionLabel(text: 'Dates'),
                   const SizedBox(height: 8),
                   _DateRow(
                     startDate: _startDate,
@@ -255,7 +255,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Flow Intensity'),
+                  const _SectionLabel(text: 'Flow Intensity'),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -283,7 +283,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Spotting'),
+                  const _SectionLabel(text: 'Spotting'),
                   const SizedBox(height: 4),
                   Semantics(
                     label:
@@ -302,7 +302,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Pain Level'),
+                  const _SectionLabel(text: 'Pain Level'),
                   const SizedBox(height: 4),
                   Semantics(
                     label: 'Pain level ${_painLevel.round()} out of 5, ${_painLabel(_painLevel)}',
@@ -326,7 +326,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Mood'),
+                  const _SectionLabel(text: 'Mood'),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -349,7 +349,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Energy Level'),
+                  const _SectionLabel(text: 'Energy Level'),
                   const SizedBox(height: 4),
                   Semantics(
                     label:
@@ -374,7 +374,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Sleep Hours'),
+                  const _SectionLabel(text: 'Sleep Hours'),
                   const SizedBox(height: 8),
                   Semantics(
                     label: 'Sleep hours: $_sleepHours hours',
@@ -399,7 +399,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Exercise'),
+                  const _SectionLabel(text: 'Exercise'),
                   const SizedBox(height: 4),
                   Semantics(
                     label: 'Exercise toggle, ${_exercise ? 'on' : 'off'}',
@@ -417,7 +417,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Water Intake'),
+                  const _SectionLabel(text: 'Water Intake'),
                   const SizedBox(height: 4),
                   Semantics(
                     label:
@@ -448,7 +448,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Symptoms'),
+                  const _SectionLabel(text: 'Symptoms'),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -478,7 +478,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  _SectionLabel(text: 'Notes'),
+                  const _SectionLabel(text: 'Notes'),
                   const SizedBox(height: 8),
                   Semantics(
                     label: 'Additional notes text field',

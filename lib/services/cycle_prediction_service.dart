@@ -32,11 +32,11 @@ class CyclePredictionService {
     final predictedEnd =
         predictedStart.add(Duration(days: averagePeriodLength));
     final ovulationDate =
-        predictedStart.subtract(Duration(days: AppConstants.ovulationDayOffset));
+        predictedStart.subtract(const Duration(days: AppConstants.ovulationDayOffset));
     final fertileStart = predictedStart.subtract(
-        Duration(days: AppConstants.fertileWindowOffsetFar));
+        const Duration(days: AppConstants.fertileWindowOffsetFar));
     final fertileEnd = predictedStart.subtract(
-        Duration(days: AppConstants.fertileWindowOffsetNear));
+        const Duration(days: AppConstants.fertileWindowOffsetNear));
 
     final confidence = _calculateConfidence(cycleHistory, averageCycleLength);
     final isDelayed = predictedStart.isBefore(DateTime.now()) &&

@@ -237,7 +237,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _SectionHeader(title: 'Appearance'),
+          const _SectionHeader(title: 'Appearance'),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -298,7 +298,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Notifications'),
+          const _SectionHeader(title: 'Notifications'),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -368,7 +368,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Data'),
+          const _SectionHeader(title: 'Data'),
           Card(
             child: Column(
               children: [
@@ -397,7 +397,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _SectionHeader(title: 'Account'),
+          const _SectionHeader(title: 'Account'),
           Card(
             child: Column(
               children: [
@@ -432,14 +432,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _SectionHeader(title: 'About'),
+          const _SectionHeader(title: 'About'),
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('App Name'),
-                  trailing: const Text(AppConstants.appName),
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('App Name'),
+                  trailing: Text(AppConstants.appName),
                 ),
                 const Divider(height: 1),
                 ListTile(

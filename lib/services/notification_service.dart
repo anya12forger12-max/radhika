@@ -115,7 +115,7 @@ class NotificationService {
 
     if (reminderDate.isBefore(now)) return;
 
-    final title = 'Period Reminder';
+    const title = 'Period Reminder';
     final body = daysBefore == 0
         ? 'Your period is expected to start today.'
         : 'Your period is expected in $daysBefore day'

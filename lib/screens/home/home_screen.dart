@@ -33,7 +33,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: Semantics(
           label: 'Radhika app title',
-          child: Text(AppConstants.appName),
+          child: const Text(AppConstants.appName),
         ),
         actions: [
           Semantics(
@@ -76,8 +76,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildGreeting(ThemeData theme, ColorScheme colorScheme, UserProfile? profile) {
-    final name = profile?.name?.isNotEmpty == true
-        ? profile!.name as String
+    final name = profile?.name.isNotEmpty == true
+        ? profile!.name
         : 'there';
     final hour = DateTime.now().hour;
     String greeting;
@@ -260,44 +260,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildQuickActions(ThemeData theme, ColorScheme colorScheme) {
     final actions = [
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.calendar_today,
         label: 'Log Period',
         route: '/log-period',
         semanticLabel: 'Log period entry',
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.add,
         label: 'Log Symptoms',
         route: '/log-symptom',
         semanticLabel: 'Log symptoms',
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.calendar_month,
         label: 'Calendar',
         route: '/calendar',
         semanticLabel: 'View calendar',
         isScreen: true,
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.school,
         label: 'Education',
         route: '/education',
         semanticLabel: 'Educational resources',
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.tips_and_updates,
         label: 'Recommendations',
         route: '/recommendations',
         semanticLabel: 'Personalized symptom recommendations',
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.bar_chart,
         label: 'Reports',
         route: '/reports',
         semanticLabel: 'View reports and charts',
       ),
-      _QuickAction(
+      const _QuickAction(
         icon: Icons.person,
         label: 'Profile',
         route: '/profile',
