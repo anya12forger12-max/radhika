@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
+import 'package:radhika/widgets/core.dart';
 
 enum _CycleMarker { period, predictedPeriod, fertileWindow, ovulation }
 
@@ -25,7 +26,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Widget build(BuildContext context) {
     final cycleState = ref.watch(cycleProvider);
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = context.colors;
     final entries = cycleState.cycleHistory;
     final prediction = cycleState.currentPrediction;
 
@@ -42,12 +43,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       body: Column(
         children: [
-          _buildCalendar(theme, colorScheme, markers),
+          _buildCalendar(theme, colors, markers),
           if (selectedDayEvents.isNotEmpty)
-            _buildSelectedDayDetails(theme, colorScheme, _selectedDay, selectedDayEvents, entries),
-          const SizedBox(height: 8),
-          _buildMonthEntriesList(theme, colorScheme, monthEntries),
-          _buildStatisticsBar(theme, colorScheme, entries),
+            _buildSelectedDayDetails(theme, colors, _selectedDay, selectedDayEvents, entries),
+          const SizedBox(height: AppTokens.spaceSm),
+          _buildMonthEntriesList(theme, colors, monthEntries),
+          _buildStatisticsBar(theme, colors, entries),
         ],
       ),
       floatingActionButton: Semantics(
@@ -58,7 +59,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           tooltip: 'Add period entry',
           child: const Icon(Icons.add),
         ),
-      ),
+      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2, duration: 400.ms),
     );
   }
 
@@ -130,7 +131,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _buildCalendar(
     ThemeData theme,
-    ColorScheme colorScheme,
+    ColorScheme colors,
     Map<DateTime, List<_CycleMarker>> markers,
   ) {
     return Semantics(
@@ -168,7 +169,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 1),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _markerColor(m),
+                      color: _markerColor(theme, m),
                     ),
                   );
                 }).toList(),
@@ -178,7 +179,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           selectedBuilder: (context, date, today) {
             return Container(
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
+                color: colors.primaryContainer,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -186,7 +187,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   '${date.day}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimaryContainer,
+                    color: colors.onPrimaryContainer,
                   ),
                 ),
               ),
@@ -195,7 +196,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           todayBuilder: (context, date, today) {
             return Container(
               decoration: BoxDecoration(
-                border: Border.all(color: colorScheme.primary, width: 2),
+                border: Border.all(color: colors.primary, width: 2),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -203,7 +204,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   '${date.day}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -213,9 +214,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         headerStyle: HeaderStyle(
           formatButtonVisible: true,
           titleCentered: true,
-          titleTextStyle: (theme.textTheme.titleMedium?.copyWith(
+          titleTextStyle: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
-          )) ?? const TextStyle(fontWeight: FontWeight.w600),
+          ),
           leftChevronIcon: Semantics(
             label: 'Previous month',
             button: true,
@@ -230,20 +231,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         calendarStyle: CalendarStyle(
           cellMargin: const EdgeInsets.all(4),
           todayDecoration: BoxDecoration(
-            border: Border.all(color: colorScheme.primary, width: 2),
+            border: Border.all(color: colors.primary, width: 2),
             shape: BoxShape.circle,
           ),
           selectedDecoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
+            color: colors.primaryContainer,
             shape: BoxShape.circle,
           ),
-          todayTextStyle: (theme.textTheme.bodyMedium?.copyWith(
+          todayTextStyle: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
-          )) ?? const TextStyle(fontWeight: FontWeight.bold),
-          selectedTextStyle: (theme.textTheme.bodyMedium?.copyWith(
+          ),
+          selectedTextStyle: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: colorScheme.onPrimaryContainer,
-          )) ?? const TextStyle(fontWeight: FontWeight.bold),
+            color: colors.onPrimaryContainer,
+          ),
         ),
       ),
     ).animate().fadeIn(duration: 400.ms);
@@ -265,22 +266,22 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return 'Markers: ${labels.join(', ')}';
   }
 
-  Color _markerColor(_CycleMarker marker) {
+  Color _markerColor(ThemeData theme, _CycleMarker marker) {
     switch (marker) {
       case _CycleMarker.period:
-        return Colors.red;
+        return theme.colorScheme.error;
       case _CycleMarker.predictedPeriod:
-        return Colors.pink;
+        return theme.colorScheme.secondary;
       case _CycleMarker.fertileWindow:
-        return Colors.purple;
+        return theme.colorScheme.tertiary;
       case _CycleMarker.ovulation:
-        return Colors.blue;
+        return theme.colorScheme.primary;
     }
   }
 
   Widget _buildSelectedDayDetails(
     ThemeData theme,
-    ColorScheme colorScheme,
+    ColorScheme colors,
     DateTime day,
     List<_CycleMarker> markers,
     List<CycleEntry> entries,
@@ -290,45 +291,43 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Semantics(
       label: 'Details for $dateStr',
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        elevation: 0,
-        color: colorScheme.surfaceContainerHigh,
+      child: AppCard(
+        margin: const EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
+        elevation: AppTokens.elevationNone,
+        color: colors.surfaceContainerHigh,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppTokens.cardPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(dateStr, style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               )),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTokens.spaceSm),
               if (entry != null && _isInRange(entry, day))
-                _buildEntryDetail(theme, colorScheme, entry, day)
+                _buildEntryDetail(theme, colors, entry, day)
               else if (markers.contains(_CycleMarker.ovulation))
-                Text('Ovulation Day', style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.w600,
-                ))
+                _buildMarkerLabel(theme, 'Ovulation Day', colors.primary)
               else if (markers.contains(_CycleMarker.fertileWindow))
-                Text('Fertile Window', style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.purple,
-                  fontWeight: FontWeight.w600,
-                ))
+                _buildMarkerLabel(theme, 'Fertile Window', colors.tertiary)
               else if (markers.contains(_CycleMarker.predictedPeriod))
-                Text('Predicted Period Day', style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.pink,
-                  fontWeight: FontWeight.w600,
-                ))
+                _buildMarkerLabel(theme, 'Predicted Period Day', colors.secondary)
               else
                 Text('No events', style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+                  color: colors.onSurfaceVariant,
                 )),
             ],
           ),
         ),
       ).animate().fadeIn(duration: 300.ms),
     );
+  }
+
+  Widget _buildMarkerLabel(ThemeData theme, String text, Color color) {
+    return Text(text, style: theme.textTheme.bodyLarge?.copyWith(
+      color: color,
+      fontWeight: FontWeight.w600,
+    ));
   }
 
   bool _isInRange(CycleEntry entry, DateTime day) {
@@ -347,7 +346,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return null;
   }
 
-  Widget _buildEntryDetail(ThemeData theme, ColorScheme colorScheme, CycleEntry entry, DateTime day) {
+  Widget _buildEntryDetail(ThemeData theme, ColorScheme colors, CycleEntry entry, DateTime day) {
     final flowLabels = {
       FlowIntensity.veryLight: 'Very Light',
       FlowIntensity.light: 'Light',
@@ -361,11 +360,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       children: [
         Row(
           children: [
-            Icon(Icons.water_drop, color: Colors.red.shade400, size: 18),
+            Icon(Icons.water_drop, color: theme.colorScheme.error, size: 18),
             const SizedBox(width: 6),
             Text('Period Day', style: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.red.shade700,
+              color: theme.colorScheme.error,
             )),
           ],
         ),
@@ -382,7 +381,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _detailRow(ThemeData theme, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: AppTokens.spaceXs),
       child: Row(
         children: [
           SizedBox(
@@ -406,7 +405,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ..sort((a, b) => b.startDate.compareTo(a.startDate));
   }
 
-  Widget _buildMonthEntriesList(ThemeData theme, ColorScheme colorScheme, List<CycleEntry> entries) {
+  Widget _buildMonthEntriesList(ThemeData theme, ColorScheme colors, List<CycleEntry> entries) {
     if (entries.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -417,34 +416,34 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       child: Semantics(
         label: 'Cycle entries for $monthStr',
         child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
           itemCount: entries.length,
           itemBuilder: (context, index) {
             final entry = entries[index];
-            return _buildEntryTile(theme, colorScheme, entry, index);
+            return _buildEntryTile(theme, colors, entry, index);
           },
         ),
       ),
     );
   }
 
-  Widget _buildEntryTile(ThemeData theme, ColorScheme colorScheme, CycleEntry entry, int index) {
+  Widget _buildEntryTile(ThemeData theme, ColorScheme colors, CycleEntry entry, int index) {
     final dateFormat = DateFormat('MMM d');
     return Semantics(
       label: 'Cycle entry starting ${dateFormat.format(entry.startDate)}',
-      child: Card(
-        elevation: 0,
-        color: colorScheme.surfaceContainerHigh,
-        margin: const EdgeInsets.only(bottom: 8),
+      child: AppCard(
+        elevation: AppTokens.elevationNone,
+        color: colors.surfaceContainerHigh,
+        margin: const EdgeInsets.only(bottom: AppTokens.cardGap),
         child: ListTile(
           leading: Container(
-            width: 40,
-            height: 40,
+            width: AppTokens.avatarSm,
+            height: AppTokens.avatarSm,
             decoration: BoxDecoration(
-              color: colorScheme.primaryContainer,
+              color: colors.primaryContainer,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.water_drop, color: colorScheme.onPrimaryContainer, size: 20),
+            child: Icon(Icons.water_drop, color: colors.onPrimaryContainer, size: AppTokens.iconMd),
           ),
           title: Text(
             'Started ${dateFormat.format(entry.startDate)}',
@@ -452,24 +451,24 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
           subtitle: Text(
             '${entry.duration} days · ${entry.flowIntensity.name} flow${entry.painLevel > 0 ? ' · Pain: ${entry.painLevel}/5' : ''}',
-            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
           ),
           trailing: Semantics(
             label: 'View entry details',
             button: true,
             child: IconButton(
-              icon: Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+              icon: Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
               tooltip: 'View details',
               onPressed: () => Navigator.pushNamed(context, '/cycle-detail', arguments: entry.id),
             ),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppTokens.spaceMd, vertical: AppTokens.spaceXs),
         ),
-      ),
-    ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms);
+      ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms),
+    );
   }
 
-  Widget _buildStatisticsBar(ThemeData theme, ColorScheme colorScheme, List<CycleEntry> entries) {
+  Widget _buildStatisticsBar(ThemeData theme, ColorScheme colors, List<CycleEntry> entries) {
     final completed = entries
         .where((e) => e.endDate != null && !e.isSymptomOnly)
         .toList();
@@ -493,25 +492,25 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       label: 'Cycle statistics - Average cycle $avgCycle days, average period $avgPeriod days, $cyclesLogged cycles logged',
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(AppTokens.screenPadding, AppTokens.spaceMd, AppTokens.screenPadding, AppTokens.spaceXl),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHigh,
-          border: Border(top: BorderSide(color: colorScheme.outlineVariant)),
+          color: colors.surfaceContainerHigh,
+          border: Border(top: BorderSide(color: colors.outlineVariant)),
         ),
         child: Row(
           children: [
-            _statItem(theme, colorScheme, '$avgCycle', 'Avg Cycle', 'days'),
-            _statDivider(colorScheme),
-            _statItem(theme, colorScheme, '$avgPeriod', 'Avg Period', 'days'),
-            _statDivider(colorScheme),
-            _statItem(theme, colorScheme, '$cyclesLogged', 'Cycles', 'logged'),
+            _statItem(theme, colors, '$avgCycle', 'Avg Cycle', 'days'),
+            _statDivider(colors),
+            _statItem(theme, colors, '$avgPeriod', 'Avg Period', 'days'),
+            _statDivider(colors),
+            _statItem(theme, colors, '$cyclesLogged', 'Cycles', 'logged'),
           ],
         ),
       ),
     );
   }
 
-  Widget _statItem(ThemeData theme, ColorScheme colorScheme, String value, String label, String unit) {
+  Widget _statItem(ThemeData theme, ColorScheme colors, String value, String label, String unit) {
     return Expanded(
       child: Semantics(
         label: '$label: $value $unit',
@@ -520,14 +519,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           children: [
             Text(value, style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
+              color: colors.primary,
             )),
             const SizedBox(height: 2),
             Text(label, style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+              color: colors.onSurfaceVariant,
             )),
             Text(unit, style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+              color: colors.onSurfaceVariant,
             )),
           ],
         ),
@@ -535,11 +534,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Widget _statDivider(ColorScheme colorScheme) {
+  Widget _statDivider(ColorScheme colors) {
     return Container(
       width: 1,
       height: 32,
-      color: colorScheme.outlineVariant,
+      color: colors.outlineVariant,
     );
   }
 }

@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:radhika/core/constants/app_constants.dart';
+import 'package:radhika/core/theme/app_tokens.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/providers/theme_provider.dart';
 import 'package:radhika/services/notification_service.dart';
 import 'package:radhika/services/storage_service.dart';
 import 'package:radhika/screens/settings/privacy_policy_screen.dart';
+import 'package:radhika/widgets/core.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -87,7 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
             child: const Text('Delete All'),
           ),
         ],
@@ -123,7 +125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
             child: const Text('Delete Account'),
           ),
         ],
@@ -230,17 +232,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final theme = Theme.of(context);
     final themeState = ref.watch(themeProvider);
     final authState = ref.watch(authProvider);
-    final colorScheme = theme.colorScheme;
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTokens.screenPadding),
         children: [
-          const _SectionHeader(title: 'Appearance'),
-          Card(
+          AppSectionHeader(title: 'Appearance'),
+          AppCard(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTokens.cardPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -271,12 +273,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       showSelectedIcon: false,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppTokens.spaceXl),
                   Semantics(
                     label: 'Font size slider',
                     child: Row(
                       children: [
-                        const Icon(Icons.text_fields, size: 20),
+                        const Icon(Icons.text_fields, size: AppTokens.iconMd),
                         Expanded(
                           child: Slider(
                             value: themeState.fontSize,
@@ -297,56 +299,46 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'Notifications'),
-          Card(
+          const SizedBox(height: AppTokens.sectionGap),
+          AppSectionHeader(title: 'Notifications'),
+          AppCard(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTokens.cardPadding),
               child: Column(
                 children: [
-                  Semantics(
-                    label: 'Remind me 3 days before period toggle',
-                    child: SwitchListTile(
-                      title: const Text('3 days before'),
-                      value: _reminder3Days,
-                      onChanged: (v) {
-                        setState(() => _reminder3Days = v);
-                        _syncReminders();
-                      },
-                    ),
+                  AppToggleButton(
+                    label: '3 days before',
+                    value: _reminder3Days,
+                    onChanged: (v) {
+                      setState(() => _reminder3Days = v);
+                      _syncReminders();
+                    },
                   ),
                   const Divider(height: 1),
-                  Semantics(
-                    label: 'Remind me 2 days before period toggle',
-                    child: SwitchListTile(
-                      title: const Text('2 days before'),
-                      value: _reminder2Days,
-                      onChanged: (v) {
-                        setState(() => _reminder2Days = v);
-                        _syncReminders();
-                      },
-                    ),
+                  AppToggleButton(
+                    label: '2 days before',
+                    value: _reminder2Days,
+                    onChanged: (v) {
+                      setState(() => _reminder2Days = v);
+                      _syncReminders();
+                    },
                   ),
                   const Divider(height: 1),
-                  Semantics(
-                    label: 'Remind me 1 day before period toggle',
-                    child: SwitchListTile(
-                      title: const Text('1 day before'),
-                      value: _reminder1Day,
-                      onChanged: (v) => setState(() => _reminder1Day = v),
-                    ),
+                  AppToggleButton(
+                    label: '1 day before',
+                    value: _reminder1Day,
+                    onChanged: (v) {
+                      setState(() => _reminder1Day = v);
+                    },
                   ),
                   const Divider(height: 1),
-                  Semantics(
-                    label: 'Remind me on period start day toggle',
-                    child: SwitchListTile(
-                      title: const Text('Day of period'),
-                      value: _reminderToday,
-                      onChanged: (v) {
-                        setState(() => _reminderToday = v);
-                        _syncReminders();
-                      },
-                    ),
+                  AppToggleButton(
+                    label: 'Day of period',
+                    value: _reminderToday,
+                    onChanged: (v) {
+                      setState(() => _reminderToday = v);
+                      _syncReminders();
+                    },
                   ),
                   const Divider(height: 1),
                   Semantics(
@@ -356,7 +348,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       trailing: Text(
                         _notificationTime.format(context),
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.primary,
+                          color: colors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -367,9 +359,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'Data'),
-          Card(
+          const SizedBox(height: AppTokens.sectionGap),
+          AppSectionHeader(title: 'Data'),
+          AppCard(
             child: Column(
               children: [
                 Semantics(
@@ -386,8 +378,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Semantics(
                   label: 'Delete all data button',
                   child: ListTile(
-                    leading: Icon(Icons.delete_sweep_outlined, color: colorScheme.error),
-                    title: Text('Delete All Data', style: TextStyle(color: colorScheme.error)),
+                    leading: Icon(Icons.delete_sweep_outlined, color: colors.error),
+                    title: Text('Delete All Data', style: TextStyle(color: colors.error)),
                     subtitle: const Text('Remove all local data'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: _deleteAllData,
@@ -396,9 +388,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'Account'),
-          Card(
+          const SizedBox(height: AppTokens.sectionGap),
+          AppSectionHeader(title: 'Account'),
+          AppCard(
             child: Column(
               children: [
                 Semantics(
@@ -421,8 +413,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Semantics(
                   label: 'Delete account button',
                   child: ListTile(
-                    leading: Icon(Icons.person_remove_outlined, color: colorScheme.error),
-                    title: Text('Delete Account', style: TextStyle(color: colorScheme.error)),
+                    leading: Icon(Icons.person_remove_outlined, color: colors.error),
+                    title: Text('Delete Account', style: TextStyle(color: colors.error)),
                     subtitle: const Text('Permanently remove your account'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: _deleteAccount,
@@ -431,15 +423,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'About'),
-          Card(
+          const SizedBox(height: AppTokens.sectionGap),
+          AppSectionHeader(title: 'About'),
+          AppCard(
             child: Column(
               children: [
-                const ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text('App Name'),
-                  trailing: Text(AppConstants.appName),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('App Name'),
+                  trailing: const Text(AppConstants.appName),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -455,50 +447,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppTokens.spaceXl),
           Semantics(
             label: 'Logout button',
-            child: SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: authState.isLoading ? null : _logout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.error,
-                  foregroundColor: colorScheme.onError,
-                ),
-                child: authState.isLoading
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Logout'),
-              ),
+            child: AppDestructiveButton(
+              label: 'Logout',
+              onPressed: authState.isLoading ? null : _logout,
+              isLoading: authState.isLoading,
+              semanticLabel: 'Logout button',
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppTokens.space3xl),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
       ),
     );
   }
