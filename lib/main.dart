@@ -46,12 +46,16 @@ Future<ThemeModeSetting> _loadInitialTheme() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
   try {
     await Firebase.initializeApp();
   } catch (e) {
     if (kDebugMode) debugPrint('Failed to initialize Firebase: $e');
+  }
+
+  try {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+  } catch (e) {
+    if (kDebugMode) debugPrint('Crashlytics initialization failed: $e');
   }
 
   final initialTheme = await _loadInitialTheme();
