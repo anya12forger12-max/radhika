@@ -27,7 +27,7 @@ class AppTheme {
 
   // High-contrast color scheme — WCAG AAA compliant (≥7:1 contrast),
   // built with ThemeData (not FlexThemeData) so blend levels don't wash out contrast.
-  static final ColorScheme _highContrastColorScheme = const ColorScheme(
+  static const ColorScheme _highContrastColorScheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF000000),
     onPrimary: Color(0xFFFFFFFF),
