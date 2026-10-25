@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config>
+        <domain includeSubdomains="true">*.radhika.app</domain>
         <domain-block cleartextTrafficPermitted="false">
             <domain>*</domain>
         </domain-block>
