@@ -74,3 +74,13 @@ We use Google Firebase for authentication only (no health data is transmitted to
 
 9. Children's Privacy
 Radhika is not intended for children under 13 and we do not knowingly collect information from anyone under 13. If you believe a child has provided us personal information, contact us and we will delete it.
+''';
+
+  static const String medicalDisclaimer =
+      'This app provides general menstrual cycle information and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.';
+
+  static const String predictionDisclaimer =
+      'Cycle predictions are estimates based on your logged data and may not be accurate for every cycle. Use them as a guide only.';
+
+  static const String cycleDelayMessage =
+      'Your cycle appears to be delayed compared to your usual pattern. If your period is significantly late, consider taking a pregnancy test or consulting a healthcare provider.';

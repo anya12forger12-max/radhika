@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -31,8 +33,13 @@ Future<void> _rescheduleStartupReminders() async {
 Future<ThemeModeSetting> _loadInitialTheme() async {
   try {
     await StorageService.instance.init();
-    final prefs = StorageService.instance.getAppPreferences();
-    return prefs.themeMode;
+    final themeStr = StorageService.instance.getSetting('theme_mode');
+    final themeIndex = themeStr != null ? int.tryParse(themeStr) : null;
+    return themeIndex != null &&
+            themeIndex >= 0 &&
+            themeIndex < ThemeModeSetting.values.length
+        ? ThemeModeSetting.values[themeIndex]
+        : ThemeModeSetting.system;
   } catch (e) {
     if (kDebugMode) debugPrint('Failed to load initial theme: $e');
     return ThemeModeSetting.system;

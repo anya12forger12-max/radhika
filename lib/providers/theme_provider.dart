@@ -92,3 +92,7 @@ final themeProvider =
   final storageService = ref.read(storageServiceProvider);
   return ThemeNotifier(storageService);
 });
+
+/// Allows main.dart to pass the theme loaded from storage at startup,
+/// preventing UI flicker before async storage read completes.
+final initialThemeProvider = Provider<ThemeModeSetting>((_) => ThemeModeSetting.system);
