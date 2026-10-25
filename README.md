@@ -111,6 +111,22 @@ Radhika implements a clean architecture pattern with repository-style data abstr
 - Release APK: `build/app/outputs/flutter-apk/app-release.apk`
 - Release AAB: `build/app/outputs/bundle/release/app-release.aab`
 
+### 📲 Direct Mobile Installation (OTA APK Download)
+
+If you want to install the release-signed production version of the Radhika application directly onto an Android device without building it from source code, you can download the compiled asset file straight from your mobile web browser.
+
+**⚡ Quick Setup Instructions:**
+
+1. **Get the Download Link:** Navigate to the [Releases](https://github.com/anya12forger12-max/radhika/releases) section of this repository on your mobile device.
+2. **Download the Installer:** Under the latest verified production tag release, tap the **`app-release.apk`** hyperlink anchor file to download the lightweight package onto your internal device storage.
+3. **Handle System Security Prompts:**
+   - Open the downloaded file from your browser's history or notifications panel.
+   - If Android blocks the package with a notification saying *"For security, your phone is not allowed to install unknown apps from this source,"* tap **Settings** directly in that dialog window.
+   - Toggle the **"Allow from this source"** switch to **ON**.
+4. **Complete Installation:** Go back to the installer, tap **Install**, and the Radhika application will load cleanly onto your phone's main home screen app drawer, with fully functional Firebase Authentication and local Hive storage encryption enabled out of the box.
+
+*Note: The released binaries are cryptographically signed using our official release credentials (`anya-release-key-v2`). They map accurately to our restricted Firebase console configurations, ensuring total runtime stability.*
+
 ### 📜 Medical Disclaimer
 
 > **This application provides educational information and cycle tracking functionality only. It is not a medical device, does not diagnose conditions, and is not a substitute for professional medical advice.** Always consult a qualified healthcare provider for medical concerns. The application clearly distinguishes between educational guidance and clinical advice, and never provides diagnoses or treatment recommendations.
