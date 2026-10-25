@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:radhika/core/theme/app_tokens.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
+import 'package:radhika/widgets/core.dart';
 
 class LogPeriodScreen extends ConsumerStatefulWidget {
   const LogPeriodScreen({super.key});
@@ -58,6 +60,12 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now,
       helpText: isStart ? 'Select start date' : 'Select end date',
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: Theme.of(context).colorScheme,
+        ),
+        child: child!,
+      ),
     );
     if (picked != null) {
       setState(() {
@@ -227,294 +235,248 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log Period'),
         centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  const _SectionLabel(text: 'Dates'),
-                  const SizedBox(height: 8),
-                  _DateRow(
-                    startDate: _startDate,
-                    endDate: _isOngoing ? null : _endDate,
-                    isOngoing: _isOngoing,
-                    onPickStart: () => _pickDate(isStart: true),
-                    onPickEnd: () => _pickDate(isStart: false),
-                    onToggleOngoing: (v) => setState(() {
-                      _isOngoing = v;
-                      if (v) _endDate = _startDate;
-                    }),
-                  ),
-                  const SizedBox(height: 24),
+      body: AppLoadingOverlay(
+        isLoading: _isLoading,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(AppTokens.screenPadding),
+            children: [
+              AppSectionLabel(text: 'Dates'),
+              const SizedBox(height: AppTokens.spaceSm),
+              _DateRow(
+                startDate: _startDate,
+                endDate: _isOngoing ? null : _endDate,
+                isOngoing: _isOngoing,
+                onPickStart: () => _pickDate(isStart: true),
+                onPickEnd: () => _pickDate(isStart: false),
+                onToggleOngoing: (v) => setState(() {
+                  _isOngoing = v;
+                  if (v) _endDate = _startDate;
+                }),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
 
-                  const _SectionLabel(text: 'Flow Intensity'),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: FlowIntensity.values.map((flow) {
-                      final selected = _flowIntensity == flow;
-                      return Semantics(
-                        label:
-                            'Flow intensity: ${_flowLabel(flow)}${selected ? ', selected' : ''}',
-                        child: FilterChip(
-                          selected: selected,
-                          label: Text(_flowLabel(flow)),
-                          avatar: Icon(
-                            _flowIcon(flow),
-                            size: 18,
-                          ),
-                          onSelected: (_) =>
-                              setState(() => _flowIntensity = flow),
-                          showCheckmark: false,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
+              AppSectionLabel(text: 'Flow Intensity'),
+              const SizedBox(height: AppTokens.spaceSm),
+              Wrap(
+                spacing: AppTokens.cardGap,
+                runSpacing: AppTokens.cardGap,
+                children: FlowIntensity.values.map((flow) {
+                  final selected = _flowIntensity == flow;
+                  return Semantics(
+                    label: 'Flow intensity: ${_flowLabel(flow)}${selected ? ', selected' : ''}',
+                    child: AppFilterChip(
+                      label: _flowLabel(flow),
+                      selected: selected,
+                      onSelected: (_) => setState(() => _flowIntensity = flow),
+                      avatar: Icon(_flowIcon(flow), size: AppTokens.iconSm),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
 
-                  const _SectionLabel(text: 'Spotting'),
-                  const SizedBox(height: 4),
-                  Semantics(
-                    label:
-                        'Spotting toggle, ${_spotting ? 'on' : 'off'}',
-                    child: SwitchListTile(
-                      title: const Text('Spotting'),
-                      subtitle: Text(
-                        _spotting
-                            ? 'You are experiencing spotting'
-                            : 'No spotting',
+              AppSectionLabel(text: 'Spotting'),
+              const SizedBox(height: AppTokens.spaceXs),
+              Semantics(
+                label: 'Spotting toggle, ${_spotting ? 'on' : 'off'}',
+                child: AppToggleButton(
+                  label: 'Spotting',
+                  value: _spotting,
+                  onChanged: (v) => setState(() => _spotting = v),
+                  subtitle: _spotting ? 'You are experiencing spotting' : 'No spotting',
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Pain Level'),
+              const SizedBox(height: AppTokens.spaceXs),
+              Semantics(
+                label: 'Pain level ${_painLevel.round()} out of 5, ${_painLabel(_painLevel)}',
+                child: Column(
+                  children: [
+                    Text(
+                      '${_painEmoji(_painLevel)} ${_painLabel(_painLevel)}',
+                      style: theme.textTheme.titleLarge,
+                    ),
+                    Slider(
+                      value: _painLevel,
+                      min: 0,
+                      max: 5,
+                      divisions: 5,
+                      label: _painLevel.round().toString(),
+                      onChanged: (v) => setState(() => _painLevel = v),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Mood'),
+              const SizedBox(height: AppTokens.spaceSm),
+              Wrap(
+                spacing: AppTokens.cardGap,
+                runSpacing: AppTokens.cardGap,
+                children: Mood.values.map((mood) {
+                  final selected = _mood == mood;
+                  return Semantics(
+                    label: 'Mood: ${_moodLabel(mood)}${selected ? ', selected' : ''}',
+                    child: AppChoiceChip(
+                      label: '${_moodEmoji(mood)} ${_moodLabel(mood)}',
+                      selected: selected,
+                      onSelected: (_) => setState(() => _mood = mood),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Energy Level'),
+              const SizedBox(height: AppTokens.spaceXs),
+              Semantics(
+                label: 'Energy level ${_energyLevel.round()} out of 5',
+                child: Row(
+                  children: [
+                    const Text('\u{26A0}\u{FE0F}'),
+                    Expanded(
+                      child: Slider(
+                        value: _energyLevel,
+                        min: 1,
+                        max: 5,
+                        divisions: 4,
+                        label: _energyLevel.round().toString(),
+                        onChanged: (v) => setState(() => _energyLevel = v),
                       ),
-                      value: _spotting,
-                      onChanged: (v) => setState(() => _spotting = v),
-                      contentPadding: EdgeInsets.zero,
+                    ),
+                    const Text('\u{26A1}'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Sleep Hours'),
+              const SizedBox(height: AppTokens.spaceSm),
+              Semantics(
+                label: 'Sleep hours: $_sleepHours hours',
+                child: AppDropdownField<int>(
+                  label: 'Sleep Hours',
+                  items: List.generate(
+                    12,
+                    (i) => DropdownMenuItem(
+                      value: i + 1,
+                      child: Text('${i + 1} ${i == 0 ? 'hour' : 'hours'}'),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  value: _sleepHours,
+                  onChanged: (v) {
+                    if (v != null) setState(() => _sleepHours = v);
+                  },
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
 
-                  const _SectionLabel(text: 'Pain Level'),
-                  const SizedBox(height: 4),
-                  Semantics(
-                    label: 'Pain level ${_painLevel.round()} out of 5, ${_painLabel(_painLevel)}',
-                    child: Column(
-                      children: [
-                        Text(
-                          '${_painEmoji(_painLevel)} ${_painLabel(_painLevel)}',
-                          style: theme.textTheme.titleLarge,
-                        ),
-                        Slider(
-                          value: _painLevel,
-                          min: 0,
-                          max: 5,
-                          divisions: 5,
-                          label: _painLevel.round().toString(),
-                          onChanged: (v) =>
-                              setState(() => _painLevel = v),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+              AppSectionLabel(text: 'Exercise'),
+              const SizedBox(height: AppTokens.spaceXs),
+              Semantics(
+                label: 'Exercise toggle, ${_exercise ? 'on' : 'off'}',
+                child: AppToggleButton(
+                  label: 'Exercise Today',
+                  value: _exercise,
+                  onChanged: (v) => setState(() => _exercise = v),
+                  subtitle: _exercise ? 'You exercised today' : 'No exercise logged',
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
 
-                  const _SectionLabel(text: 'Mood'),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: Mood.values.map((mood) {
-                      final selected = _mood == mood;
-                      return Semantics(
-                        label:
-                            'Mood: ${_moodLabel(mood)}${selected ? ', selected' : ''}',
-                        child: ChoiceChip(
-                          selected: selected,
-                          label: Text('${_moodEmoji(mood)} ${_moodLabel(mood)}'),
-                          onSelected: (_) =>
-                              setState(() => _mood = mood),
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Energy Level'),
-                  const SizedBox(height: 4),
-                  Semantics(
-                    label:
-                        'Energy level ${_energyLevel.round()} out of 5',
-                    child: Row(
-                      children: [
-                        const Text('\u{26A0}\u{FE0F}'),
-                        Expanded(
-                          child: Slider(
-                            value: _energyLevel,
-                            min: 1,
-                            max: 5,
-                            divisions: 4,
-                            label: _energyLevel.round().toString(),
-                            onChanged: (v) =>
-                                setState(() => _energyLevel = v),
-                          ),
-                        ),
-                        const Text('\u{26A1}'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Sleep Hours'),
-                  const SizedBox(height: 8),
-                  Semantics(
-                    label: 'Sleep hours: $_sleepHours hours',
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _sleepHours,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              AppSectionLabel(text: 'Water Intake'),
+              const SizedBox(height: AppTokens.spaceXs),
+              Semantics(
+                label: 'Water intake ${_waterIntake.round()} glasses',
+                child: Row(
+                  children: [
+                    const Icon(Icons.water_drop, size: AppTokens.iconMd),
+                    Expanded(
+                      child: Slider(
+                        value: _waterIntake,
+                        min: 1,
+                        max: 10,
+                        divisions: 9,
+                        label: '${_waterIntake.round()} glasses',
+                        onChanged: (v) => setState(() => _waterIntake = v),
                       ),
-                      items: List.generate(
-                        12,
-                        (i) => DropdownMenuItem(
-                          value: i + 1,
-                          child: Text('${i + 1} ${i == 0 ? 'hour' : 'hours'}'),
-                        ),
+                    ),
+                    SizedBox(
+                      width: 40,
+                      child: Text(
+                        '${_waterIntake.round()}',
+                        textAlign: TextAlign.center,
                       ),
-                      onChanged: (v) {
-                        if (v != null) setState(() => _sleepHours = v);
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Symptoms'),
+              const SizedBox(height: AppTokens.spaceSm),
+              Wrap(
+                spacing: AppTokens.cardGap,
+                runSpacing: AppTokens.cardGap,
+                children: Symptom.values.map((symptom) {
+                  final selected = _selectedSymptoms.contains(symptom);
+                  return Semantics(
+                    label: 'Symptom: ${_symptomLabels[symptom]}, selected: $selected',
+                    child: AppFilterChip(
+                      label: _symptomLabels[symptom]!,
+                      selected: selected,
+                      onSelected: (v) {
+                        setState(() {
+                          if (v) {
+                            _selectedSymptoms.add(symptom);
+                          } else {
+                            _selectedSymptoms.remove(symptom);
+                          }
+                        });
                       },
                     ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Exercise'),
-                  const SizedBox(height: 4),
-                  Semantics(
-                    label: 'Exercise toggle, ${_exercise ? 'on' : 'off'}',
-                    child: SwitchListTile(
-                      title: const Text('Exercise Today'),
-                      subtitle: Text(
-                        _exercise
-                            ? 'You exercised today'
-                            : 'No exercise logged',
-                      ),
-                      value: _exercise,
-                      onChanged: (v) => setState(() => _exercise = v),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Water Intake'),
-                  const SizedBox(height: 4),
-                  Semantics(
-                    label:
-                        'Water intake ${_waterIntake.round()} glasses',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.water_drop, size: 20),
-                        Expanded(
-                          child: Slider(
-                            value: _waterIntake,
-                            min: 1,
-                            max: 10,
-                            divisions: 9,
-                            label: '${_waterIntake.round()} glasses',
-                            onChanged: (v) =>
-                                setState(() => _waterIntake = v),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 40,
-                          child: Text(
-                            '${_waterIntake.round()}',
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Symptoms'),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: Symptom.values.map((symptom) {
-                      final selected = _selectedSymptoms.contains(symptom);
-                      return Semantics(
-                        label:
-                            'Symptom: ${_symptomLabels[symptom]}, selected: $selected',
-                        child: FilterChip(
-                          selected: selected,
-                          label: Text(_symptomLabels[symptom]!),
-                          onSelected: (v) {
-                            setState(() {
-                              if (v) {
-                                _selectedSymptoms.add(symptom);
-                              } else {
-                                _selectedSymptoms.remove(symptom);
-                              }
-                            });
-                          },
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionLabel(text: 'Notes'),
-                  const SizedBox(height: 8),
-                  Semantics(
-                    label: 'Additional notes text field',
-                    child: TextFormField(
-                      controller: _notesController,
-                      maxLines: 4,
-                      maxLength: 1000,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Add any additional notes...',
-                        alignLabelWithHint: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  Semantics(
-                    label: 'Save period entry',
-                    child: FilledButton.icon(
-                      onPressed: _isLoading ? null : _save,
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(_isLoading ? 'Saving...' : 'Save'),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  );
+                }).toList(),
               ),
-            ),
+              const SizedBox(height: AppTokens.sectionGap),
+
+              AppSectionLabel(text: 'Notes'),
+              const SizedBox(height: AppTokens.spaceSm),
+              Semantics(
+                label: 'Additional notes text field',
+                child: AppMultiLineField(
+                  label: 'Notes',
+                  controller: _notesController,
+                  maxLines: 4,
+                  maxLength: 1000,
+                  hint: 'Add any additional notes...',
+                ),
+              ),
+              const SizedBox(height: AppTokens.space3xl),
+
+              AppPrimaryButton(
+                label: _isLoading ? 'Saving...' : 'Save',
+                onPressed: _isLoading ? null : _save,
+                isLoading: _isLoading,
+                icon: _isLoading ? null : const Icon(Icons.save),
+              ),
+              const SizedBox(height: AppTokens.spaceMd),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -527,6 +489,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: text,
+      header: true,
       child: Text(
         text,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -566,7 +529,7 @@ class _DateRow extends StatelessWidget {
                 label: 'Start date: ${dateFormat.format(startDate)}. Tap to change',
                 child: InkWell(
                   onTap: onPickStart,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTokens.inputRadius),
                   child: InputDecorator(
                     decoration: const InputDecoration(
                       labelText: 'Start Date',
@@ -578,7 +541,7 @@ class _DateRow extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppTokens.cardGap),
             Expanded(
               child: Semantics(
                 label: isOngoing
@@ -586,7 +549,7 @@ class _DateRow extends StatelessWidget {
                     : 'End date: ${endDate != null ? dateFormat.format(endDate!) : "Not set"}. Tap to change',
                 child: InkWell(
                   onTap: isOngoing ? null : onPickEnd,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppTokens.inputRadius),
                   child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: 'End Date',
@@ -603,7 +566,7 @@ class _DateRow extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppTokens.spaceSm),
         Semantics(
           label: 'Period still ongoing toggle, ${isOngoing ? 'on' : 'off'}',
           child: Row(

@@ -342,6 +342,7 @@ class AppMultiLineField extends StatelessWidget {
     this.maxLines = 3,
     this.minLines = 2,
     this.enabled = true,
+    this.maxLength,
     this.prefixIcon,
     this.semanticLabel,
   });
@@ -354,6 +355,7 @@ class AppMultiLineField extends StatelessWidget {
   final int maxLines;
   final int minLines;
   final bool enabled;
+  final int? maxLength;
   final IconData? prefixIcon;
   final String? semanticLabel;
 
@@ -371,6 +373,7 @@ class AppMultiLineField extends StatelessWidget {
             controller: controller,
             maxLines: maxLines,
             minLines: minLines,
+            maxLength: maxLength,
             enabled: enabled,
             validator: validator,
             style: Theme.of(context).textTheme.bodyLarge,
