@@ -12,7 +12,8 @@ class NotificationService {
 
   static const int _id3DaysBefore = 1001;
   static const int _id2DaysBefore = 1002;
-  static const int _idDayOf = 1003;
+  static const int _id1DayBefore = 1003;
+  static const int _idDayOf = 1004;
 
   static final NotificationService instance = NotificationService._();
   NotificationService._();
@@ -158,6 +159,8 @@ class NotificationService {
         return _id3DaysBefore;
       case 2:
         return _id2DaysBefore;
+      case 1:
+        return _id1DayBefore;
       default:
         return _idDayOf;
     }
@@ -166,6 +169,7 @@ class NotificationService {
   Future<void> cancelPeriodReminders() async {
     await _plugin.cancel(_id3DaysBefore);
     await _plugin.cancel(_id2DaysBefore);
+    await _plugin.cancel(_id1DayBefore);
     await _plugin.cancel(_idDayOf);
   }
 
@@ -192,6 +196,10 @@ class NotificationService {
       if (prefs.remind2DaysBefore) {
         await schedulePeriodReminder(
             daysBefore: 2, predictedDate: predictedDate);
+      }
+      if (prefs.remind1DayBefore) {
+        await schedulePeriodReminder(
+            daysBefore: 1, predictedDate: predictedDate);
       }
       if (prefs.remindDayOf) {
         await schedulePeriodReminder(

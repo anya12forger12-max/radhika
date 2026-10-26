@@ -38,6 +38,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ref.read(storageServiceProvider).getReminderPreferences(userId);
       _reminder3Days = prefs.remind3DaysBefore;
       _reminder2Days = prefs.remind2DaysBefore;
+      _reminder1Day = prefs.remind1DayBefore;
       _reminderToday = prefs.remindDayOf;
     }
   }
@@ -186,6 +187,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final prefs = ReminderPreferences(
       remind3DaysBefore: _reminder3Days,
       remind2DaysBefore: _reminder2Days,
+      remind1DayBefore: _reminder1Day,
       remindDayOf: _reminderToday,
     );
     final userId = ref.read(authProvider).user.value?.uid;
@@ -330,6 +332,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     value: _reminder1Day,
                     onChanged: (v) {
                       setState(() => _reminder1Day = v);
+                      _syncReminders();
                     },
                   ),
                   const Divider(height: 1),

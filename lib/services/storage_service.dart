@@ -18,25 +18,29 @@ final storageServiceProvider =
 class ReminderPreferences {
   final bool remind3DaysBefore;
   final bool remind2DaysBefore;
+  final bool remind1DayBefore;
   final bool remindDayOf;
 
   const ReminderPreferences({
     this.remind3DaysBefore = false,
     this.remind2DaysBefore = false,
+    this.remind1DayBefore = false,
     this.remindDayOf = false,
   });
 
   bool get anyEnabled =>
-      remind3DaysBefore || remind2DaysBefore || remindDayOf;
+      remind3DaysBefore || remind2DaysBefore || remind1DayBefore || remindDayOf;
 
   ReminderPreferences copyWith({
     bool? remind3DaysBefore,
     bool? remind2DaysBefore,
+    bool? remind1DayBefore,
     bool? remindDayOf,
   }) {
     return ReminderPreferences(
       remind3DaysBefore: remind3DaysBefore ?? this.remind3DaysBefore,
       remind2DaysBefore: remind2DaysBefore ?? this.remind2DaysBefore,
+      remind1DayBefore: remind1DayBefore ?? this.remind1DayBefore,
       remindDayOf: remindDayOf ?? this.remindDayOf,
     );
   }
@@ -50,6 +54,7 @@ class StorageService {
   static const String _settingsBox = 'settings_box';
   static const String _reminder3DaysKey = 'reminder_3_days_before';
   static const String _reminder2DaysKey = 'reminder_2_days_before';
+  static const String _reminder1DayKey = 'reminder_1_day_before';
   static const String _reminderDayOfKey = 'reminder_day_of';
 
   // Encryption key material lives in the platform keystore, never in Hive.
@@ -324,6 +329,8 @@ class StorageService {
         '${prefs.remind3DaysBefore}');
     await _settings.put('${userId}_$_reminder2DaysKey',
         '${prefs.remind2DaysBefore}');
+    await _settings.put('${userId}_$_reminder1DayKey',
+        '${prefs.remind1DayBefore}');
     await _settings.put('${userId}_$_reminderDayOfKey',
         '${prefs.remindDayOf}');
   }
@@ -337,6 +344,7 @@ class StorageService {
     return ReminderPreferences(
       remind3DaysBefore: readBool(_reminder3DaysKey),
       remind2DaysBefore: readBool(_reminder2DaysKey),
+      remind1DayBefore: readBool(_reminder1DayKey),
       remindDayOf: readBool(_reminderDayOfKey),
     );
   }
@@ -358,6 +366,7 @@ class StorageService {
     }
     await _settings.delete('${userId}_$_reminder3DaysKey');
     await _settings.delete('${userId}_$_reminder2DaysKey');
+    await _settings.delete('${userId}_$_reminder1DayKey');
     await _settings.delete('${userId}_$_reminderDayOfKey');
     await _profile.delete(userId);
   }
