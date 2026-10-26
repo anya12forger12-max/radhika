@@ -7,3 +7,4 @@ export 'core/app_buttons.dart';
 export 'core/app_card.dart';
 export 'core/app_loading.dart';
 export 'core/app_misc.dart';
+export 'core/app_privacy_signpost.dart';

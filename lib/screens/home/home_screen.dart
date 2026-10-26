@@ -11,6 +11,7 @@ import 'package:radhika/models/user_profile.dart';
 import 'package:radhika/screens/calendar/calendar_screen.dart';
 import 'package:radhika/screens/history/history_screen.dart';
 import 'package:radhika/widgets/ad_banner.dart';
+import 'package:radhika/widgets/core.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -56,6 +57,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             _buildGreeting(theme, colorScheme, profile),
+            const SizedBox(height: 8),
+            const AppPrivacySignpost(),
             const SizedBox(height: 16),
             _buildPredictionCard(theme, colorScheme, prediction, profile),
             const SizedBox(height: 20),

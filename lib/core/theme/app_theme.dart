@@ -5,9 +5,10 @@ class AppTheme {
   AppTheme._();
 
   // Pre-computed seed colors — defined once, never per-build.
-  static const Color _primaryColor = Color(0xFFE91E63);
-  static const Color _secondaryColor = Color(0xFF9C27B0);
-  static const Color _tertiaryColor = Color(0xFFFF9800);
+  // Signature soft pink (M3 seed) chosen for a calming, trustworthy feel.
+  static const Color _primaryColor = Color(0xFFD4A3B8);
+  static const Color _secondaryColor = Color(0xFF9C7FA8);
+  static const Color _tertiaryColor = Color(0xFFB8A39C);
 
   // Pre-computed color schemes — computed once at class load time,
   // not recomputed on every MaterialApp rebuild.
