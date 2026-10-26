@@ -149,4 +149,4 @@ This project is licensed under the MIT License. Full license text available in t
 
 ---
 *Last updated: [Current Date]*
-*Version: 1.2.25+30 (as per pubspec.yaml versioning)*
+*Version: 1.2.31+36 (as per pubspec.yaml versioning)*
