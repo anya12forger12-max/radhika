@@ -128,6 +128,17 @@ class _RecommendationCard extends StatelessWidget {
                 label: 'Diet tips',
                 items: recommendation.dietTips,
               ),
+              if (recommendation.hydrationTips.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _BulletSection(
+                  label: 'Hydration tips',
+                  items: recommendation.hydrationTips,
+                ),
+              ],
+              if (recommendation.warningSigns.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _WarningSignsSection(items: recommendation.warningSigns),
+              ],
               if (recommendation.careNote != null) ...[
                 const SizedBox(height: 12),
                 _CareNote(text: recommendation.careNote!),
@@ -187,6 +198,76 @@ class _BulletSection extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _WarningSignsSection extends StatelessWidget {
+  const _WarningSignsSection({required this.items});
+
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Semantics(
+      label: 'Warning signs',
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: colorScheme.errorContainer.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 18,
+                  color: colorScheme.error,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'When to seek medical advice',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            for (final item in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '\u2022 ',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.error,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        item,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
