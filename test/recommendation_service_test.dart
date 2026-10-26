@@ -117,7 +117,7 @@ void main() {
     );
   });
 
-  test('recommendation cards expose relief and diet tips', () {
+  test('recommendation cards expose relief, diet, and hydration tips', () {
     final result = service.build(
       entries: [
         _entry(
@@ -129,8 +129,27 @@ void main() {
     for (final recommendation in result) {
       expect(recommendation.reliefTips, isNotEmpty);
       expect(recommendation.dietTips, isNotEmpty);
+      expect(recommendation.hydrationTips, isNotEmpty);
       expect(recommendation.iconKey, isNotEmpty);
     }
+  });
+
+  test('general wellness card exposes hydration tips', () {
+    final result = service.build(entries: const []);
+    expect(result.first.hydrationTips, isNotEmpty);
+  });
+
+  test('recommendation cards expose warning signs for symptoms', () {
+    final result = service.build(
+      entries: [
+        _entry(
+          daysAgo: 1,
+          symptoms: const [Symptom.cramps],
+        ),
+      ],
+    );
+    final cramps = result.firstWhere((r) => r.title == 'Cramps');
+    expect(cramps.warningSigns, isNotEmpty);
   });
 
   test('depression card carries a mental health care note', () {
