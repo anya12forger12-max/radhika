@@ -90,7 +90,8 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 final themeProvider =
     StateNotifierProvider<ThemeNotifier, ThemeState>((ref) {
   final storageService = ref.read(storageServiceProvider);
-  return ThemeNotifier(storageService);
+  final initialTheme = ref.read(initialThemeProvider);
+  return ThemeNotifier(storageService, initialTheme: initialTheme);
 });
 
 /// Allows main.dart to pass the theme loaded from storage at startup,
