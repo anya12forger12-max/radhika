@@ -248,7 +248,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
           child: ListView(
             padding: const EdgeInsets.all(AppTokens.screenPadding),
             children: [
-              AppSectionLabel(text: 'Dates'),
+              const AppSectionLabel(text: 'Dates'),
               const SizedBox(height: AppTokens.spaceSm),
               _DateRow(
                 startDate: _startDate,
@@ -263,7 +263,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Flow Intensity'),
+              const AppSectionLabel(text: 'Flow Intensity'),
               const SizedBox(height: AppTokens.spaceSm),
               Wrap(
                 spacing: AppTokens.cardGap,
@@ -283,7 +283,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Spotting'),
+              const AppSectionLabel(text: 'Spotting'),
               const SizedBox(height: AppTokens.spaceXs),
               Semantics(
                 label: 'Spotting toggle, ${_spotting ? 'on' : 'off'}',
@@ -296,7 +296,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Pain Level'),
+              const AppSectionLabel(text: 'Pain Level'),
               const SizedBox(height: AppTokens.spaceXs),
               Semantics(
                 label: 'Pain level ${_painLevel.round()} out of 5, ${_painLabel(_painLevel)}',
@@ -319,7 +319,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Mood'),
+              const AppSectionLabel(text: 'Mood'),
               const SizedBox(height: AppTokens.spaceSm),
               Wrap(
                 spacing: AppTokens.cardGap,
@@ -338,7 +338,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Energy Level'),
+              const AppSectionLabel(text: 'Energy Level'),
               const SizedBox(height: AppTokens.spaceXs),
               Semantics(
                 label: 'Energy level ${_energyLevel.round()} out of 5',
@@ -361,7 +361,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Sleep Hours'),
+              const AppSectionLabel(text: 'Sleep Hours'),
               const SizedBox(height: AppTokens.spaceSm),
               Semantics(
                 label: 'Sleep hours: $_sleepHours hours',
@@ -382,7 +382,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Exercise'),
+              const AppSectionLabel(text: 'Exercise'),
               const SizedBox(height: AppTokens.spaceXs),
               Semantics(
                 label: 'Exercise toggle, ${_exercise ? 'on' : 'off'}',
@@ -395,7 +395,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Water Intake'),
+              const AppSectionLabel(text: 'Water Intake'),
               const SizedBox(height: AppTokens.spaceXs),
               Semantics(
                 label: 'Water intake ${_waterIntake.round()} glasses',
@@ -424,7 +424,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Symptoms'),
+              const AppSectionLabel(text: 'Symptoms'),
               const SizedBox(height: AppTokens.spaceSm),
               Wrap(
                 spacing: AppTokens.cardGap,
@@ -451,7 +451,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
               ),
               const SizedBox(height: AppTokens.sectionGap),
 
-              AppSectionLabel(text: 'Notes'),
+              const AppSectionLabel(text: 'Notes'),
               const SizedBox(height: AppTokens.spaceSm),
               Semantics(
                 label: 'Additional notes text field',

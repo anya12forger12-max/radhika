@@ -47,7 +47,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           _buildCalendar(theme, colors, markers),
           if (selectedDayEvents.isNotEmpty)
             _buildSelectedDayDetails(theme, colors, _selectedDay, selectedDayEvents, entries),
-          SizedBox(height: AppTokens.spaceSm),
+          const SizedBox(height: AppTokens.spaceSm),
           _buildMonthEntriesList(theme, colors, monthEntries),
           _buildStatisticsBar(theme, colors, entries),
         ],
@@ -293,18 +293,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Semantics(
       label: 'Details for $dateStr',
       child: AppCard(
-        margin: EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
+        margin: const EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
         elevation: AppTokens.elevationNone,
         color: colors.surfaceContainerHigh,
         child: Padding(
-          padding: EdgeInsets.all(AppTokens.cardPadding),
+          padding: const EdgeInsets.all(AppTokens.cardPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(dateStr, style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               )),
-              SizedBox(height: AppTokens.spaceSm),
+              const SizedBox(height: AppTokens.spaceSm),
               if (entry != null && _isInRange(entry, day))
                 _buildEntryDetail(theme, colors, entry, day)
               else if (markers.contains(_CycleMarker.ovulation))
@@ -382,7 +382,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Widget _detailRow(ThemeData theme, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppTokens.spaceXs),
+      padding: const EdgeInsets.symmetric(vertical: AppTokens.spaceXs),
       child: Row(
         children: [
           SizedBox(
@@ -417,7 +417,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       child: Semantics(
         label: 'Cycle entries for $monthStr',
         child: ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
+          padding: const EdgeInsets.symmetric(horizontal: AppTokens.screenPadding),
           itemCount: entries.length,
           itemBuilder: (context, index) {
             final entry = entries[index];
@@ -435,7 +435,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       child: AppCard(
         elevation: AppTokens.elevationNone,
         color: colors.surfaceContainerHigh,
-        margin: EdgeInsets.only(bottom: AppTokens.cardGap),
+        margin: const EdgeInsets.only(bottom: AppTokens.cardGap),
         child: ListTile(
           leading: Container(
             width: AppTokens.avatarSm,
@@ -463,7 +463,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               onPressed: () => Navigator.pushNamed(context, '/cycle-detail', arguments: entry.id),
             ),
           ),
-          contentPadding: EdgeInsets.symmetric(horizontal: AppTokens.spaceMd, vertical: AppTokens.spaceXs),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppTokens.spaceMd, vertical: AppTokens.spaceXs),
         ),
       ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms),
     );
@@ -493,7 +493,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       label: 'Cycle statistics - Average cycle $avgCycle days, average period $avgPeriod days, $cyclesLogged cycles logged',
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.fromLTRB(AppTokens.screenPadding, AppTokens.spaceMd, AppTokens.screenPadding, AppTokens.spaceXl),
+        padding: const EdgeInsets.fromLTRB(AppTokens.screenPadding, AppTokens.spaceMd, AppTokens.screenPadding, AppTokens.spaceXl),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
           border: Border(top: BorderSide(color: colors.outlineVariant)),

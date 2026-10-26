@@ -32,7 +32,6 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final theme = context.theme;
 
     final card = Card(
       elevation: elevation,
@@ -132,7 +131,7 @@ class AppCardWithHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (action != null) action!,
+                ?action,
               ],
             ),
           ),
@@ -226,7 +225,6 @@ class AppStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final theme = context.theme;
 
     return Semantics(
       label: semanticLabel ?? '$label: $value ${unit ?? ""}',

@@ -22,7 +22,6 @@ class AppLoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final overlayColor = color ?? Colors.black26;
 
     return Stack(
@@ -268,7 +267,7 @@ class AppSkeletonList extends StatelessWidget {
             child: Row(
               children: [
                 if (showAvatar) ...[
-                  AppSkeleton(
+                  const AppSkeleton(
                     width: AppTokens.avatarMd,
                     height: AppTokens.avatarMd,
                     borderRadius: AppTokens.radiusFull,
@@ -280,14 +279,14 @@ class AppSkeletonList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppSkeleton(
+                      const AppSkeleton(
                         width: double.infinity,
                         height: 16,
                         borderRadius: AppTokens.radiusSm,
                       ),
                       if (showSubtitle) ...[
                         const SizedBox(height: AppTokens.spaceXs),
-                        AppSkeleton(
+                        const AppSkeleton(
                           width: 120,
                           height: 12,
                           borderRadius: AppTokens.radiusSm,

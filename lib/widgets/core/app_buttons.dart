@@ -30,7 +30,7 @@ class AppPrimaryButton extends StatelessWidget {
     final colors = context.colors;
     final enabled = onPressed != null && !isLoading;
 
-    Widget child = isLoading
+    final Widget child = isLoading
         ? SizedBox(
             width: 24,
             height: 24,
@@ -117,7 +117,7 @@ class AppSecondaryButton extends StatelessWidget {
     final enabled = onPressed != null && !isLoading;
     final color = foregroundColor ?? colors.primary;
 
-    Widget child = isLoading
+    final Widget child = isLoading
         ? SizedBox(
             width: 24,
             height: 24,
@@ -306,7 +306,7 @@ class AppIconButton extends StatelessWidget {
       onPressed: onPressed,
       tooltip: tooltip,
       padding: padding,
-      constraints: BoxConstraints(
+      constraints: const BoxConstraints(
         minWidth: AppTokens.minTouchTarget,
         minHeight: AppTokens.minTouchTarget,
       ),
@@ -370,7 +370,7 @@ class AppToggleButton extends StatelessWidget {
             ? Icon(icon, color: context.colors.primary, size: AppTokens.iconMd)
             : null,
         contentPadding: EdgeInsets.zero,
-        activeColor: colors.primary,
+        activeThumbColor: colors.primary,
         inactiveThumbColor: colors.outline,
         inactiveTrackColor: colors.surfaceContainerHighest,
       ),

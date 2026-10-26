@@ -295,7 +295,6 @@ class AppBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final badgeColor = color ?? context.colors.primaryContainer;
     final badgeTextColor = textColor ?? context.colors.onPrimaryContainer;
 
@@ -344,8 +343,6 @@ class AppSectionDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     if (label == null) {
       return Divider(
         indent: indent,
@@ -356,7 +353,7 @@ class AppSectionDivider extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppTokens.spaceSm),
+      padding: const EdgeInsets.symmetric(vertical: AppTokens.spaceSm),
       child: Row(
         children: [
           Expanded(

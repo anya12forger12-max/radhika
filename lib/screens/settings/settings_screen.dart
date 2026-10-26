@@ -240,7 +240,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(AppTokens.screenPadding),
         children: [
-          AppSectionHeader(title: 'Appearance'),
+          const AppSectionHeader(title: 'Appearance'),
           AppCard(
             child: Padding(
               padding: const EdgeInsets.all(AppTokens.cardPadding),
@@ -301,7 +301,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: AppTokens.sectionGap),
-          AppSectionHeader(title: 'Notifications'),
+          const AppSectionHeader(title: 'Notifications'),
           AppCard(
             child: Padding(
               padding: const EdgeInsets.all(AppTokens.cardPadding),
@@ -361,7 +361,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: AppTokens.sectionGap),
-          AppSectionHeader(title: 'Data'),
+          const AppSectionHeader(title: 'Data'),
           AppCard(
             child: Column(
               children: [
@@ -390,7 +390,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: AppTokens.sectionGap),
-          AppSectionHeader(title: 'Account'),
+          const AppSectionHeader(title: 'Account'),
           AppCard(
             child: Column(
               children: [
@@ -425,14 +425,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: AppTokens.sectionGap),
-          AppSectionHeader(title: 'About'),
+          const AppSectionHeader(title: 'About'),
           AppCard(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: const Text('App Name'),
-                  trailing: const Text(AppConstants.appName),
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('App Name'),
+                  trailing: Text(AppConstants.appName),
                 ),
                 const Divider(height: 1),
                 ListTile(
