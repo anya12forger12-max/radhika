@@ -101,6 +101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (user != null) {
         final storageService = ref.read(storageServiceProvider);
         await storageService.clearUserData(user.uid);
+        ref.invalidate(cycleProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('All data deleted')),
