@@ -1,6 +1,6 @@
 # Privacy Policy — Radhika
 
-Last updated: September 2026
+Last updated: October 2026
 
 ## 1. Introduction
 
