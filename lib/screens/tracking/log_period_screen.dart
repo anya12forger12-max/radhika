@@ -235,7 +235,6 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
@@ -273,7 +272,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   final selected = _flowIntensity == flow;
                   return Semantics(
                     label: 'Flow intensity: ${_flowLabel(flow)}${selected ? ', selected' : ''}',
-                    child: AppFilterChip(
+                    child: AppFilterChip<FlowIntensity>(
                       label: _flowLabel(flow),
                       selected: selected,
                       onSelected: (_) => setState(() => _flowIntensity = flow),
@@ -329,7 +328,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   final selected = _mood == mood;
                   return Semantics(
                     label: 'Mood: ${_moodLabel(mood)}${selected ? ', selected' : ''}',
-                    child: AppChoiceChip(
+                    child: AppChoiceChip<Mood>(
                       label: '${_moodEmoji(mood)} ${_moodLabel(mood)}',
                       selected: selected,
                       onSelected: (_) => setState(() => _mood = mood),
@@ -434,7 +433,7 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
                   final selected = _selectedSymptoms.contains(symptom);
                   return Semantics(
                     label: 'Symptom: ${_symptomLabels[symptom]}, selected: $selected',
-                    child: AppFilterChip(
+                    child: AppFilterChip<Symptom>(
                       label: _symptomLabels[symptom]!,
                       selected: selected,
                       onSelected: (v) {
@@ -476,25 +475,6 @@ class _LogPeriodScreenState extends ConsumerState<LogPeriodScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: text,
-      header: true,
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
       ),
     );
   }
