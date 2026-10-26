@@ -15,6 +15,8 @@ class AppFormField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.suffix,
+    this.onSuffixTap,
+    this.suffixTooltip,
     this.keyboardType,
     this.textInputAction,
     this.obscureText = false,
@@ -44,6 +46,8 @@ class AppFormField extends StatelessWidget {
   final IconData? prefixIcon;
   final IconData? suffixIcon;
   final Widget? suffix;
+  final VoidCallback? onSuffixTap;
+  final String? suffixTooltip;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final bool obscureText;
@@ -106,11 +110,13 @@ class AppFormField extends StatelessWidget {
                   ? Icon(prefixIcon, size: AppTokens.iconMd)
                   : null,
               suffixIcon: suffixIcon != null
-                  ? IconButton(
-                      icon: Icon(suffixIcon, size: AppTokens.iconMd),
-                      onPressed: () {},
-                      tooltip: '',
-                    )
+                  ? (onSuffixTap != null
+                      ? IconButton(
+                          icon: Icon(suffixIcon, size: AppTokens.iconMd),
+                          onPressed: onSuffixTap,
+                          tooltip: suffixTooltip ?? '',
+                        )
+                      : Icon(suffixIcon, size: AppTokens.iconMd))
                   : suffix,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppTokens.inputRadius),
