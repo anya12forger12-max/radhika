@@ -177,9 +177,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Semantics(
                     label: 'Privacy policy consent checkbox',
                     child: CheckboxListTile(
-                      title: const Text(
-                        'I explicitly accept the Privacy Policy to use Radhika.',
-                        style: TextStyle(fontSize: 13),
+                      title: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text(
+                            'I accept the ',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pushNamed(context, '/privacy-policy'),
+                            child: Text(
+                              'Privacy Policy',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: theme.colorScheme.primary,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          const Text(
+                            ' to use Radhika.',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ],
                       ),
                       value: _privacyAccepted,
                       onChanged: (v) => setState(() => _privacyAccepted = v ?? false),

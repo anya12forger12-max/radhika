@@ -8,7 +8,6 @@ import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/user_profile.dart';
-import 'package:radhika/screens/calendar/calendar_screen.dart';
 import 'package:radhika/screens/history/history_screen.dart';
 import 'package:radhika/widgets/ad_banner.dart';
 import 'package:radhika/widgets/core.dart';
@@ -349,14 +348,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _navigateTo(_QuickAction action) {
-    if (action.isScreen) {
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
-      );
-    } else {
-      Navigator.pushNamed(context, action.route);
-    }
+    Navigator.pushNamed(context, action.route);
   }
 
   Widget _buildCycleStatus(
@@ -401,8 +393,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     bool isOnPeriod = false;
     if (entries.isNotEmpty) {
-      final latest = entries.first as CycleEntry;
-      if (latest.endDate != null && latest.isSymptomOnly != true) {
+      final latest = entries.first;
+      if (latest is CycleEntry && latest.endDate != null && latest.isSymptomOnly != true) {
         final end = latest.endDate as DateTime;
         isOnPeriod = latest.startDate.isBefore(now) && end.isAfter(now.subtract(const Duration(days: 1)));
       }
