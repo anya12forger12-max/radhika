@@ -208,6 +208,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = _authService.currentUser;
       if (user != null) {
         await _storageService.clearUserData(user.uid);
+        _ref.invalidate(cycleProvider);
         await _authService.deleteAccount();
       }
       state = const AuthState(isLoading: false);
