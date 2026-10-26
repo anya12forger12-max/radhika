@@ -117,7 +117,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   void _showEntryDetails(CycleEntry entry) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (ctx) => Padding(
         padding: const EdgeInsets.all(24),

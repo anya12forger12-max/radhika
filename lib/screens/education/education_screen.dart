@@ -179,7 +179,7 @@ Always consult a healthcare provider for persistent or severe symptoms.
                     onTap: () {
                       if (topic.onTap && topic.destinationScreen != null) {
                         Navigator.of(context).push(
-                          MaterialPageRoute(
+                          MaterialPageRoute<void>(
                             builder: (_) => topic.destinationScreen!,
                           ),
                         );

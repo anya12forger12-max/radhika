@@ -299,7 +299,6 @@ class AppIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final enabled = onPressed != null;
 
     final button = IconButton(
       icon: Icon(icon, size: size, color: color ?? colors.onSurface),

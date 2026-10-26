@@ -352,7 +352,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (action.isScreen) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const CalendarScreen()),
+        MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
       );
     } else {
       Navigator.pushNamed(context, action.route);
@@ -495,7 +495,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: colorScheme.error,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (_) => HistoryPage(
                         favoritesOnly: true,
                         userId: ref.read(authProvider).profile?.id,
@@ -513,7 +513,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: colorScheme.primary,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (_) => HistoryPage(
                         favoritesOnly: false,
                         userId: ref.read(authProvider).profile?.id,
