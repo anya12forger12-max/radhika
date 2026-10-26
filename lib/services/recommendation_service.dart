@@ -9,6 +9,8 @@ class Recommendation {
     required this.iconKey,
     required this.reliefTips,
     required this.dietTips,
+    this.hydrationTips = const [],
+    this.warningSigns = const [],
     this.symptom,
     this.careNote,
   });
@@ -17,6 +19,12 @@ class Recommendation {
   final String iconKey;
   final List<String> reliefTips;
   final List<String> dietTips;
+
+  /// Hydration guidance tailored to the symptom.
+  final List<String> hydrationTips;
+
+  /// Warning signs that may warrant professional medical assessment.
+  final List<String> warningSigns;
 
   /// The [Symptom] this recommendation targets, or null for general cards.
   final Symptom? symptom;
@@ -114,6 +122,16 @@ class RecommendationService {
         'Magnesium-rich foods (dark chocolate, nuts, bananas) may ease cramping',
         'Cut back on salt and caffeine and stay well hydrated',
       ],
+      hydrationTips: [
+        'Drink warm water or herbal tea (ginger, chamomile) to ease cramping',
+        'Aim for 8-10 glasses of fluid per day during your period',
+        'Avoid cold drinks that may worsen cramping for some individuals',
+      ],
+      warningSigns: [
+        'Cramps that prevent you from doing normal daily activities',
+        'Pain that starts well before your period or continues after it ends',
+        'Pain that does not respond to over-the-counter relief',
+      ],
       careNote:
           'If cramps are severe, last beyond your period, or don\'t respond to '
           'over-the-counter relief, talk to a healthcare provider.',
@@ -132,6 +150,16 @@ class RecommendationService {
         'Include anti-inflammatory foods and omega-3s (fatty fish, walnuts, flax seeds)',
         'Stay hydrated to keep tissues and muscles comfortable',
         'Limit processed foods and excess caffeine',
+      ],
+      hydrationTips: [
+        'Sip water throughout the day to help relax back muscles',
+        'Warm water or herbal tea may ease lower-back discomfort',
+        'Aim for 8-10 glasses of fluid daily during your period',
+      ],
+      warningSigns: [
+        'Back pain that radiates down the leg or causes numbness',
+        'Pain that persists beyond your period',
+        'Pain accompanied by fever or unusual discharge',
       ],
       careNote:
           'If back pain is severe, persistent, or comes with other symptoms, '
@@ -154,6 +182,16 @@ class RecommendationService {
         'Limit caffeine and alcohol, which can make headaches worse',
         'Don\'t skip meals, especially on low-energy days',
       ],
+      hydrationTips: [
+        'Drink water regularly - dehydration is a common headache trigger',
+        'Sip water slowly throughout the day rather than large amounts at once',
+        'Herbal teas (peppermint, chamomile) may help soothe tension headaches',
+      ],
+      warningSigns: [
+        'Headache with vision changes, confusion, or weakness',
+        'Sudden severe headache unlike any previous headache',
+        'Headache accompanied by fever or neck stiffness',
+      ],
       careNote:
           'Frequent or severe headaches, or headaches with vision changes, '
           'warrant a healthcare provider review.',
@@ -175,6 +213,17 @@ class RecommendationService {
         'Stay hydrated with small, frequent sips of water',
         'Keep eating regularly even if your appetite is low',
       ],
+      hydrationTips: [
+        'Take small, frequent sips of water throughout the day',
+        'Ginger tea or warm water may help settle the stomach',
+        'Avoid large volumes of liquid at once; sip slowly',
+        'Oral rehydration solutions may help if you are losing fluids',
+      ],
+      warningSigns: [
+        'Nausea that prevents you from keeping any fluids down for more than 24 hours',
+        'Nausea accompanied by severe abdominal pain',
+        'Nausea with signs of dehydration (dizziness, dark urine, dry mouth)',
+      ],
       careNote:
           'If nausea is severe, causes vomiting, or is new and unexplained, '
           'seek medical advice.',
@@ -195,6 +244,16 @@ class RecommendationService {
         'Ginger or peppermint tea may ease a bloated feeling',
         'Introduce fiber gradually if it\'s new to your routine',
       ],
+      hydrationTips: [
+        'Drink water regularly to help reduce water retention',
+        'Avoid carbonated beverages that increase bloating',
+        'Peppermint or ginger tea may help ease bloating',
+      ],
+      warningSigns: [
+        'Bloating accompanied by severe pain or fever',
+        'Bloating that persists beyond your period',
+        'Bloating with significant weight change',
+      ],
     ),
     Symptom.breastTenderness: Recommendation(
       title: 'Breast Tenderness',
@@ -211,6 +270,16 @@ class RecommendationService {
         'Magnesium and vitamin B6-rich foods (bananas, nuts, lean poultry)',
         'Include fatty fish and flax seeds in a supportive diet',
         'Limit high-saturated-fat foods',
+      ],
+      hydrationTips: [
+        'Stay well hydrated to reduce fluid retention',
+        'Limit caffeine which can increase tenderness',
+        'Drink water regularly throughout the day',
+      ],
+      warningSigns: [
+        'A new lump or persistent one-sided tenderness',
+        'Unusual discharge or skin changes',
+        'Pain that persists beyond your period',
       ],
       careNote:
           'A new lump, persistent one-sided tenderness, or unusual discharge '
@@ -232,6 +301,16 @@ class RecommendationService {
         'Choose complex carbs and protein for steady energy (oats, whole grains, eggs)',
         'Stay hydrated throughout the day',
       ],
+      hydrationTips: [
+        'Drink water regularly to support energy levels',
+        'Avoid relying on excessive caffeine',
+        'Herbal teas can provide gentle hydration without caffeine',
+      ],
+      warningSigns: [
+        'Fatigue that persists beyond your period despite rest',
+        'Fatigue accompanied by dizziness or shortness of breath',
+        'Extreme exhaustion that prevents daily activities',
+      ],
       careNote:
           'If fatigue persists despite rest and a balanced diet, a healthcare '
           'provider can check for causes such as low iron.',
@@ -251,6 +330,16 @@ class RecommendationService {
         'Zinc-rich foods (pumpkin seeds, chickpeas, lentils) support skin',
         'Stay hydrated and eat plenty of vegetables',
         'Include probiotic-rich foods like plain yogurt',
+      ],
+      hydrationTips: [
+        'Drink water regularly to support skin health',
+        'Limit sugary drinks that may worsen acne',
+        'Herbal teas (green tea, chamomile) may support skin health',
+      ],
+      warningSigns: [
+        'Severe or cystic acne that causes pain or scarring',
+        'Acne accompanied by hormonal irregularities',
+        'Acne that worsens despite basic skincare',
       ],
       careNote:
           'Persistent or severe acne may improve with a planned skincare '
@@ -273,6 +362,16 @@ class RecommendationService {
         'Magnesium-rich foods (nuts, dark chocolate, leafy greens)',
         'Limit caffeine, sugar spikes, and alcohol',
       ],
+      hydrationTips: [
+        'Stay hydrated to support mood stability',
+        'Limit caffeine and alcohol which can worsen mood swings',
+        'Herbal teas (chamomile, lavender) may promote calmness',
+      ],
+      warningSigns: [
+        'Mood swings that significantly interfere with daily life',
+        'Mood changes accompanied by thoughts of self-harm',
+        'Severe mood disturbances that last beyond your period',
+      ],
       careNote:
           'If mood swings are intense, frequent, or interfere with daily life, '
           'speak with a healthcare provider.',
@@ -293,6 +392,16 @@ class RecommendationService {
         'Omega-3s (fatty fish, chia seeds, walnuts) may support mood',
         'Magnesium-rich foods and calm herbal teas can be relaxing choices',
         'Reduce alcohol and late-day caffeine',
+      ],
+      hydrationTips: [
+        'Stay hydrated to support nervous system function',
+        'Limit caffeine which can increase anxiety',
+        'Warm herbal teas (chamomile, lavender, passionflower) may promote calmness',
+      ],
+      warningSigns: [
+        'Anxiety that persists beyond your period',
+        'Anxiety accompanied by panic attacks or difficulty breathing',
+        'Anxiety that significantly affects daily functioning',
       ],
       careNote:
           'If anxiety persists, feels overwhelming, or affects daily life, '
@@ -315,6 +424,16 @@ class RecommendationService {
         'B vitamins from whole grains, eggs, and leafy greens',
         'Stay hydrated and limit alcohol',
       ],
+      hydrationTips: [
+        'Stay hydrated to support mood and energy',
+        'Limit alcohol which can worsen low mood',
+        'Warm herbal teas may provide comfort',
+      ],
+      warningSigns: [
+        'Low mood that lasts more than two weeks',
+        'Thoughts of self-harm or suicide',
+        'Depression that significantly affects daily functioning',
+      ],
       careNote:
           'If low mood lasts more than two weeks, or you have thoughts of '
           'self-harm, reach out for help right away - a trusted person, a '
@@ -336,6 +455,16 @@ class RecommendationService {
       'Limit salt and caffeine',
       'Don\'t skip meals - stable blood sugar supports comfort',
     ],
+    hydrationTips: [
+      'Drink warm water or herbal tea to ease cramping',
+      'Stay well hydrated to support pain management',
+      'Avoid dehydration which can worsen cramping',
+    ],
+    warningSigns: [
+      'Pain that prevents normal daily activities',
+      'Pain accompanied by heavy bleeding, fever, or vomiting',
+      'Pain that persists beyond your period',
+    ],
     careNote:
         'Severe pain (4-5 out of 5) that repeats, or pain with heavy bleeding, '
         'fever, or vomiting, needs evaluation by a healthcare provider.',
@@ -354,6 +483,17 @@ class RecommendationService {
       'Iron-rich foods (leafy greens, beans, lentils, lean red meat)',
       'Pair with vitamin C (citrus, bell peppers) to help iron absorption',
       'Stay hydrated and include whole grains for steady energy',
+    ],
+    hydrationTips: [
+      'Increase fluid intake to replace blood loss',
+      'Drink water or iron-rich beverages (like prune juice)',
+      'Monitor for signs of dehydration (dizziness, dark urine)',
+    ],
+    warningSigns: [
+      'Soaking through a pad or tampon every hour',
+      'Passing large clots',
+      'Bleeding lasting beyond 7 days',
+      'Dizziness or weakness with heavy bleeding',
     ],
     careNote:
         'If you soak through a pad or tampon every hour, pass large clots, or '
@@ -374,6 +514,16 @@ class RecommendationService {
       'Eat iron-rich foods during bleeding (leafy greens, beans, lentils)',
       'Include calcium and magnesium sources daily (dairy, nuts, leafy greens)',
       'Add anti-inflammatory foods like ginger, turmeric, berries, and fatty fish',
+    ],
+    hydrationTips: [
+      'Drink plenty of water throughout your cycle',
+      'Aim for 8-10 glasses of fluid per day',
+      'Limit caffeine and alcohol which can affect hydration',
+    ],
+    warningSigns: [
+      'Unusually heavy or prolonged bleeding',
+      'Severe pain that interferes with daily life',
+      'Symptoms that significantly affect your wellbeing',
     ],
   );
 }
