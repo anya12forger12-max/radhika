@@ -1,7 +1,7 @@
 name: radhika
 description: "Radhika - Cross-platform menstrual health tracking application"
 publish_to: 'none'
-version: 1.2.31+36
+version: 1.2.32+37
 # +36 = github.run_number (the documented --build-number substitution per rounds-49/50 rule).
 # versionName reads from pubspec at tag; About screen honesty gate passes
 # when appVersion matches pubspec version. Switching to --build-name would
