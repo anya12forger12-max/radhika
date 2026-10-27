@@ -279,7 +279,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         label: 'Calendar',
         route: '/calendar',
         semanticLabel: 'View calendar',
-        isScreen: true,
       ),
       const _QuickAction(
         icon: Icons.school,
@@ -590,14 +589,12 @@ class _QuickAction {
   final String label;
   final String route;
   final String semanticLabel;
-  final bool isScreen;
 
   const _QuickAction({
     required this.icon,
     required this.label,
     required this.route,
     required this.semanticLabel,
-    this.isScreen = false,
   });
 }
 
