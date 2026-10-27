@@ -5,7 +5,7 @@ class AppConstants {
   static const String appVersion = '1.2.32';
   static const String privacyPolicyUrl =
       'https://raw.githubusercontent.com/anya12forger12-max/radhika/main/PRIVACY_POLICY.md';
-  static const String privacyPolicyVersion = '1.2.31';
+  static const String privacyPolicyVersion = '1.2.32';
 
   static const int minPasswordLength = 8;
   static const int minAge = 10;
