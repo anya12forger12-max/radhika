@@ -10,10 +10,9 @@ echo "🌸 Starting Unified Radhika Production Compilation Loop..."
 echo "📥 Resolving third-party project packages..."
 flutter pub get
 
-# 2. Run your comprehensive cryptographic database, Firebase, and Stress test checks
+# 2. Run the comprehensive cryptographic database, Firebase, and Stress test checks
 echo "🧪 Executing secure integration, runtime, and volumetric stress test suites..."
-flutter test test/firebase_storage_test.dart
-flutter test test/storage_stress_test.dart
+flutter test
 
 # 3. Compile the production-ready native Android APK asset package
 echo "🤖 Building optimized, release-signed Android mobile binary..."
