@@ -225,10 +225,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Monthly'),
-            Tab(text: 'Yearly'),
-            Tab(text: 'History'),
+          tabs: [
+            Semantics(label: 'Monthly cycle view', child: Tab(text: 'Monthly')),
+            Semantics(label: 'Yearly cycle view', child: Tab(text: 'Yearly')),
+            Semantics(label: 'Cycle history list', child: Tab(text: 'History')),
           ],
         ),
       ),

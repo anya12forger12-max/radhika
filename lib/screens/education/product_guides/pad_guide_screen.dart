@@ -14,6 +14,7 @@ class _PadGuideScreenState extends State<PadGuideScreen> {
     _GuideSection(
       title: 'Types of Pads',
       icon: Icons.category,
+      semanticLabel: 'Types of Pads',
       content: '''
 **Disposable Pads:**
 Single-use pads made with absorbent materials like wood pulp, super absorbent polymer (SAP), and a waterproof backing. Available in various sizes and absorbencies for different flow levels. Convenient for on-the-go use.
@@ -37,6 +38,7 @@ Made from organic cotton or bamboo fibers, free from chlorine bleaching, fragran
     _GuideSection(
       title: 'Choosing the Right Pad',
       icon: Icons.search,
+      semanticLabel: 'Choosing the Right Pad',
       content: '''
 **Consider Your Flow:**
 
@@ -65,6 +67,7 @@ Made from organic cotton or bamboo fibers, free from chlorine bleaching, fragran
     _GuideSection(
       title: 'How to Wear a Pad',
       icon: Icons.check_circle_outline,
+      semanticLabel: 'How to Wear a Pad',
       content: '''
 **Step 1: Prepare**
 Wash your hands thoroughly with soap and water before handling a new pad.
@@ -91,6 +94,7 @@ Change your pad every 4-6 hours, or more frequently if needed. Never leave a pad
     _GuideSection(
       title: 'How Often to Change',
       icon: Icons.timer_outlined,
+      semanticLabel: 'How Often to Change',
       content: '''
 **General Guideline: Change every 4-6 hours**
 
@@ -118,6 +122,7 @@ Change your pad every 4-6 hours, or more frequently if needed. Never leave a pad
     _GuideSection(
       title: 'Safe Disposal',
       icon: Icons.delete_outline,
+      semanticLabel: 'Safe Disposal',
       content: '''
 **Do Not Flush:**
 Menstrual pads should NEVER be flushed down the toilet. They cause blockages in plumbing and sewage systems, leading to costly repairs and environmental damage.
@@ -142,6 +147,7 @@ Disposable pads contribute significantly to landfill waste. Each pad can take 50
     _GuideSection(
       title: 'Hygiene Tips',
       icon: Icons.clean_hands,
+      semanticLabel: 'Hygiene Tips',
       content: '''
 **Before Use:**
 - Always wash hands before handling a new pad
@@ -175,6 +181,7 @@ Disposable pads contribute significantly to landfill waste. Each pad can take 50
     _GuideSection(
       title: 'Environmental Considerations',
       icon: Icons.eco,
+      semanticLabel: 'Environmental Considerations',
       content: '''
 **Impact of Disposable Pads:**
 - A single disposable pad contains the equivalent of about 4 plastic bags
@@ -282,7 +289,7 @@ Disposable pads contribute significantly to landfill waste. Each pad can take 50
                     firstChild: const SizedBox.shrink(),
                     secondChild: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      child: _SectionContent(content: section.content),
+                      child: _SectionContent(content: section.content, sectionTitle: section.title),
                     ),
                     crossFadeState: isExpanded
                         ? CrossFadeState.showSecond
@@ -301,7 +308,8 @@ Disposable pads contribute significantly to landfill waste. Each pad can take 50
 
 class _SectionContent extends StatelessWidget {
   final String content;
-  const _SectionContent({required this.content});
+  final String sectionTitle;
+  const _SectionContent({required this.content, required this.sectionTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -348,7 +356,7 @@ class _SectionContent extends StatelessWidget {
     }
 
     return Semantics(
-      label: 'Section content',
+      label: '$sectionTitle section content',
       child: RichText(
         text: TextSpan(children: children),
       ),
@@ -395,10 +403,12 @@ class _GuideSection {
   final String title;
   final IconData icon;
   final String content;
+  final String semanticLabel;
 
   _GuideSection({
     required this.title,
     required this.icon,
     required this.content,
+    required this.semanticLabel,
   });
 }
