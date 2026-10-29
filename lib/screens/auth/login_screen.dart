@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/core/utils/validators.dart';
+import 'package:radhika/core/theme/app_theme.dart';
 import 'package:radhika/screens/auth/register_screen.dart';
 import 'package:radhika/screens/auth/forgot_password_screen.dart';
 
@@ -214,6 +215,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       height: 48,
                       child: ElevatedButton(
                         onPressed: authState.isLoading ? null : _signIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.rose500,
+                          foregroundColor: AppTheme.rose900,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppTheme.cardBorderRadius,
+                          ),
+                        ),
                         child: authState.isLoading
                             ? const SizedBox(
                                 height: 24,
@@ -233,6 +241,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onPressed: authState.isLoading ? null : _signInWithGoogle,
                         icon: const Icon(Icons.g_mobiledata_rounded),
                         label: const Text('Continue with Google'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.rose500,
+                          side: const BorderSide(color: AppTheme.rose500),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppTheme.cardBorderRadius,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -249,6 +264,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           );
                         },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.rose500,
+                        ),
                         child: const Text('Forgot Password?'),
                       ),
                     ),
