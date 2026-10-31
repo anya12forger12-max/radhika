@@ -10,6 +10,7 @@ import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
 import 'package:radhika/models/user_profile.dart';
+import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/providers/theme_provider.dart';
 
 final storageServiceProvider =
@@ -91,11 +92,16 @@ class StorageService {
     Hive.registerAdapter(ReminderTypeAdapter());
 
     final cipher = await _getOrCreateCipher();
-    await _openBoxSafely<UserProfile>(_profileBox, cipher);
-    await _openBoxSafely<CycleEntry>(_cyclesBox, cipher);
-    await _openBoxSafely<CyclePrediction>(_predictionsBox, cipher);
-    await _openBoxSafely<Reminder>(_remindersBox, cipher);
-    await _openBoxSafely<String>(_settingsBox, cipher);
+    // The five boxes are independent once the cipher is available, so open
+    // them concurrently rather than serially. This cuts startup I/O latency
+    // proportionally to the slowest single box open instead of the sum.
+    await Future.wait([
+      _openBoxSafely<UserProfile>(_profileBox, cipher),
+      _openBoxSafely<CycleEntry>(_cyclesBox, cipher),
+      _openBoxSafely<CyclePrediction>(_predictionsBox, cipher),
+      _openBoxSafely<Reminder>(_remindersBox, cipher),
+      _openBoxSafely<String>(_settingsBox, cipher),
+    ]);
   }
 
   Future<Box<T>> _openBoxSafely<T>(String base, HiveAesCipher cipher) async {
@@ -374,10 +380,21 @@ class StorageService {
   Future<String> exportData(String userId) async {
     final profile = getProfile(userId);
     final cycles = getCycleEntries(userId);
+    final predictions = getPredictions(userId);
+    final reminders = getReminders(userId);
     final data = {
       'profile': profile?.toMap(),
       'cycles': cycles.map((c) => c.toMap()).toList(),
+      'predictions': predictions.map((p) => p.toMap()).toList(),
+      'reminders': reminders.map((r) => r.toMap()).toList(),
+      'reminderPreferences': {
+        'remind3DaysBefore': getReminderPreferences(userId).remind3DaysBefore,
+        'remind2DaysBefore': getReminderPreferences(userId).remind2DaysBefore,
+        'remind1DayBefore': getReminderPreferences(userId).remind1DayBefore,
+        'remindDayOf': getReminderPreferences(userId).remindDayOf,
+      },
       'exportDate': DateTime.now().toIso8601String(),
+      'appVersion': AppConstants.appVersion,
     };
     return const JsonEncoder.withIndent('  ').convert(data);
   }

@@ -207,15 +207,65 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final user = _authService.currentUser;
       if (user != null) {
+        // Delete the authentication-provider record first. Firebase Auth
+        // requires a recent sign-in for this operation; if it fails with
+        // requires-recent-login we must NOT have already wiped local data,
+        // otherwise the user is left with no data but a live account.
+        await _authService.deleteAccount();
         await _storageService.clearUserData(user.uid);
         _ref.invalidate(cycleProvider);
-        await _authService.deleteAccount();
       }
       state = const AuthState(isLoading: false);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'For security, please sign in again before deleting your account.',
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to delete account',
+        );
+      }
     } catch (e) {
+      if (kDebugMode) debugPrint('Account deletion error: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Failed to delete account',
+      );
+    }
+  }
+
+  Future<void> changePassword(String newPassword) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _authService.updatePassword(newPassword);
+      state = state.copyWith(isLoading: false);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'For security, please sign in again before changing your password.',
+        );
+      } else if (e.code == 'weak-password') {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Password is too weak',
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to change password',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('Password change error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to change password',
       );
     }
   }
