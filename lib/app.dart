@@ -16,6 +16,7 @@ import 'package:radhika/screens/home/home_screen.dart';
 import 'package:radhika/screens/profile/profile_screen.dart';
 import 'package:radhika/screens/reports/reports_screen.dart';
 import 'package:radhika/screens/settings/privacy_policy_screen.dart';
+import 'package:radhika/screens/settings/terms_and_conditions_screen.dart';
 import 'package:radhika/screens/settings/settings_screen.dart';
 import 'package:radhika/screens/splash/splash_screen.dart';
 import 'package:radhika/screens/tracking/log_period_screen.dart';
@@ -70,6 +71,7 @@ class RadhikaApp extends ConsumerWidget {
         '/reports': (context) => const ReportsScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/privacy-policy': (context) => const PrivacyPolicyScreen(),
+        '/terms-and-conditions': (context) => const TermsAndConditionsScreen(),
         '/privacy-policy-required': (context) =>
             const PrivacyPolicyScreen(isRequired: true),
         '/profile': (context) => const ProfileScreen(),

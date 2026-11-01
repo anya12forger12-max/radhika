@@ -11,6 +11,7 @@ import 'package:radhika/providers/theme_provider.dart';
 import 'package:radhika/services/notification_service.dart';
 import 'package:radhika/services/storage_service.dart';
 import 'package:radhika/screens/settings/privacy_policy_screen.dart';
+import 'package:radhika/screens/settings/terms_and_conditions_screen.dart';
 import 'package:radhika/widgets/core.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -408,6 +409,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         context,
                         MaterialPageRoute<void>(
                           builder: (_) => const PrivacyPolicyScreen(isRequired: false),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                Semantics(
+                  label: 'Terms and Conditions button',
+                  child: ListTile(
+                    leading: const Icon(Icons.description_outlined),
+                    title: const Text('Terms and Conditions'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => const TermsAndConditionsScreen(),
                         ),
                       );
                     },
