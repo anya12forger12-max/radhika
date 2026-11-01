@@ -1,3 +1,4 @@
+import org.gradle.api.GradleException
 import java.util.Properties
 
 plugins {
@@ -41,14 +42,13 @@ android {
                 storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
             } else {
-                // No key.properties (e.g. CI): fall back to the Android debug
-                // key so release builds always succeed and produce installable
-                // artifacts for testing. Real Play Console uploads still
-                // require key.properties with the registered upload key.
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
-                storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
-                storePassword = "android"
+                // Fail closed: a release build must never silently fall back to
+                // the Android debug key. Real signing requires android/key.properties
+                // with the authorized release keystore.
+                throw GradleException(
+                    "Release signing requires android/key.properties with the authorized release keystore. " +
+                    "Refusing to build a release artifact without configured release signing."
+                )
             }
         }
     }

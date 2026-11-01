@@ -5,12 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:radhika/core/constants/app_constants.dart';
+import 'package:radhika/core/utils/error_handler.dart';
 import 'package:radhika/data/models/secure_model_factory.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
 import 'package:radhika/models/user_profile.dart';
-import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/providers/theme_provider.dart';
 
 final storageServiceProvider =
@@ -248,7 +249,12 @@ class StorageService {
   Box<String> get _settings => Hive.box<String>(_encryptedName(_settingsBox));
 
   Future<void> saveProfile(UserProfile profile) async {
-    await _profile.put(profile.id, profile);
+    try {
+      await _profile.put(profile.id, profile);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-save-profile');
+      rethrow;
+    }
   }
 
   UserProfile? getProfile(String userId) {
@@ -256,11 +262,21 @@ class StorageService {
   }
 
   Future<void> deleteProfile(String userId) async {
-    await _profile.delete(userId);
+    try {
+      await _profile.delete(userId);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-delete-profile');
+      rethrow;
+    }
   }
 
   Future<void> saveCycleEntry(CycleEntry entry) async {
-    await _cycles.put(entry.id, entry);
+    try {
+      await _cycles.put(entry.id, entry);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-save-cycle');
+      rethrow;
+    }
   }
 
   List<CycleEntry> getCycleEntries(String userId) {
@@ -271,7 +287,12 @@ class StorageService {
   }
 
   Future<void> deleteCycleEntry(String entryId) async {
-    await _cycles.delete(entryId);
+    try {
+      await _cycles.delete(entryId);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-delete-cycle');
+      rethrow;
+    }
   }
 
   /// Reads a single cycle entry by id without requiring a user id.
@@ -281,11 +302,21 @@ class StorageService {
   Future<void> toggleFavorite(String entryId) async {
     final entry = _cycles.get(entryId);
     if (entry == null) return;
-    await _cycles.put(entryId, entry.copyWith(isFavorite: !entry.isFavorite));
+    try {
+      await _cycles.put(entryId, entry.copyWith(isFavorite: !entry.isFavorite));
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-toggle-favorite');
+      rethrow;
+    }
   }
 
   Future<void> savePrediction(CyclePrediction prediction) async {
-    await _predictions.put(prediction.id, prediction);
+    try {
+      await _predictions.put(prediction.id, prediction);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-save-prediction');
+      rethrow;
+    }
   }
 
   CyclePrediction? getLatestPrediction(String userId) {
@@ -304,11 +335,21 @@ class StorageService {
   }
 
   Future<void> deletePrediction(String predictionId) async {
-    await _predictions.delete(predictionId);
+    try {
+      await _predictions.delete(predictionId);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-delete-prediction');
+      rethrow;
+    }
   }
 
   Future<void> saveReminder(Reminder reminder) async {
-    await _reminders.put(reminder.id, reminder);
+    try {
+      await _reminders.put(reminder.id, reminder);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-save-reminder');
+      rethrow;
+    }
   }
 
   List<Reminder> getReminders(String userId) {
@@ -316,15 +357,88 @@ class StorageService {
   }
 
   Future<void> deleteReminder(String reminderId) async {
-    await _reminders.delete(reminderId);
+    try {
+      await _reminders.delete(reminderId);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-delete-reminder');
+      rethrow;
+    }
   }
 
   Future<void> saveSetting(String key, String value) async {
-    await _settings.put(key, value);
+    try {
+      await _settings.put(key, value);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-save-setting');
+      rethrow;
+    }
   }
 
   String? getSetting(String key) {
     return _settings.get(key);
+  }
+
+  /// Optional, user-scoped personalization preferences (enabled flag +
+  /// voluntarily selected interests). Stored as a JSON string in the settings
+  /// box; absent value means "enabled with no explicit interests" (defaults).
+  Future<void> savePersonalizationPreferences(
+    String userId, {
+    required bool enabled,
+    required List<String> interests,
+  }) async {
+    // Privacy: persist only normalized, allowlisted interests (data
+    // minimization). Unrecognized values are dropped before storage.
+    final normalized = interests
+        .map((i) => i.trim().toLowerCase())
+        .where((i) => i.isNotEmpty)
+        .where((i) =>
+            AppConstants.allowedPersonalizationInterests
+                .any((token) => i.contains(token)))
+        .toSet()
+        .toList();
+    await _settings.put(
+      '${userId}_personalization',
+      jsonEncode({
+        'enabled': enabled,
+        'interests': normalized,
+      }),
+    );
+  }
+
+  Map<String, dynamic>? getPersonalizationPreferences(String userId) {
+    final raw = _settings.get('${userId}_personalization');
+    if (raw == null) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) {
+        errorHandler.reportError(
+          StateError(
+              'Unexpected personalization payload type ${decoded.runtimeType}'),
+          context: 'storage-personalization-read',
+        );
+        return null;
+      }
+      final interests = ((decoded['interests'] as List?) ?? const [])
+          .whereType<String>()
+          .map((i) => i.trim().toLowerCase())
+          .where((i) => i.isNotEmpty)
+          .where((i) =>
+              AppConstants.allowedPersonalizationInterests
+                  .any((token) => i.contains(token)))
+          .toSet()
+          .toList();
+      return {
+        'enabled': decoded['enabled'] == true,
+        'interests': interests,
+      };
+    } catch (e) {
+      errorHandler.reportError(e, context: 'storage-personalization-read');
+      return null;
+    }
+  }
+
+  Future<void> clearPersonalizationPreferences(String userId) async {
+    await _settings.delete('${userId}_personalization');
   }
 
   /// Reminder preferences are scoped per account (`userId`) so that two users
@@ -375,6 +489,7 @@ class StorageService {
     await _settings.delete('${userId}_$_reminder1DayKey');
     await _settings.delete('${userId}_$_reminderDayOfKey');
     await _profile.delete(userId);
+    await _settings.delete('${userId}_personalization');
   }
 
   Future<String> exportData(String userId) async {

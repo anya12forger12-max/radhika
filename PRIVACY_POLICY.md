@@ -1,6 +1,6 @@
 # PRIVACY POLICY FOR RADHIKA
 **Effective Date: September 2026**
-**Last Updated: October 2026**
+**Last Updated: November 2026**
 
 Welcome to **Radhika** (the "Application"), a menstrual cycle tracking and health companion app.
 
@@ -31,6 +31,7 @@ To provide the features of Radhika, we collect the following categories of infor
 ### C. Device Settings and Preferences
 * **Notification Preferences:** Reminder settings, notification times, and permission status.
 * **App Preferences:** Theme selection, font size, and display options.
+* **Personalized Recommendations:** Optional, user-scoped recommendation preferences (interest selection and opt-out) are stored locally in app-private storage on the device under the user's local account scope. Personalized content is derived only from data you log; no personalization data is transmitted to or stored on our servers, and no third-party analytics or sharing of personalization data occurs. Essential educational content remains available when personalization is disabled.
 
 ### D. Usage Analytics and Telemetry
 Radhika does **not** collect usage analytics or telemetry. The Application contains no analytics SDK and does not track features accessed, button clicks, time spent on screens, or similar interaction data. All activity data is confined to your device.

@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/core/theme/app_tokens.dart';
+import 'package:radhika/core/utils/error_handler.dart';
 import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/providers/theme_provider.dart';
@@ -27,6 +28,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _reminder2Days = false;
   bool _reminder1Day = true;
   bool _reminderToday = false;
+  bool _personalizationEnabled = true;
+  final List<String> _personalizationInterests = const [];
   late Future<String> _versionFuture;
 
   @override
@@ -41,6 +44,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _reminder2Days = prefs.remind2DaysBefore;
       _reminder1Day = prefs.remind1DayBefore;
       _reminderToday = prefs.remindDayOf;
+      final personalization =
+          ref.read(storageServiceProvider).getPersonalizationPreferences(userId);
+      if (personalization != null) {
+        _personalizationEnabled = personalization['enabled'] == true;
+        final interests = personalization['interests'];
+        if (interests is List) {
+          _personalizationInterests.clear();
+          _personalizationInterests.addAll(interests.cast<String>());
+        }
+      }
     }
   }
 
@@ -231,6 +244,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _syncPersonalization() async {
+    final userId = ref.read(authProvider).user.value?.uid;
+    if (userId == null) return;
+    try {
+      await ref.read(storageServiceProvider).savePersonalizationPreferences(
+            userId,
+            enabled: _personalizationEnabled,
+            interests: _personalizationInterests,
+          );
+    } catch (e) {
+      errorHandler.reportError(e, context: 'personalization-prefs');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -359,6 +386,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       onTap: _pickTime,
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppTokens.sectionGap),
+          const AppSectionHeader(title: 'Personalization'),
+          AppCard(
+            child: Padding(
+              padding: const EdgeInsets.all(AppTokens.cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppToggleButton(
+                    label: 'Personalized recommendations',
+                    value: _personalizationEnabled,
+                    onChanged: (v) {
+                      setState(() => _personalizationEnabled = v);
+                      _syncPersonalization();
+                    },
+                  ),
+                  const SizedBox(height: AppTokens.spaceXl),
+                  const Text(
+                    'When on, recommendations use your logged symptoms and saved context. Turning this off stops personalized recommendations and falls back to general wellness guidance. Essential educational content remains available.',
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),

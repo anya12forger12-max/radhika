@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/core/constants/app_constants.dart';
+import 'package:radhika/providers/auth_provider.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/services/recommendation_service.dart';
+import 'package:radhika/services/storage_service.dart';
 
 class RecommendationsScreen extends ConsumerWidget {
   const RecommendationsScreen({super.key});
@@ -29,45 +31,78 @@ class RecommendationsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final cycleState = ref.watch(cycleProvider);
-    final recommendations =
-        RecommendationService().build(entries: cycleState.cycleHistory);
+    final authState = ref.read(authProvider);
+    final userId = authState.user.value?.uid;
+    final personalization = userId != null
+        ? ref
+            .read(storageServiceProvider)
+            .getPersonalizationPreferences(userId)
+        : null;
+    final rawInterests = personalization?['interests'];
+    final interests = rawInterests is List
+        ? rawInterests.cast<String>()
+        : const <String>[];
+    final recommendations = RecommendationService().build(
+      entries: cycleState.cycleHistory,
+      interests:
+          personalization?['enabled'] == true ? interests : const <String>[],
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Recommendations'),
         centerTitle: true,
       ),
-      body: ListView(
+      body: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        children: [
-          Semantics(
-            label: 'Personalized recommendations from your recent logs',
-            child: Text(
-              'Relief and diet tips based on symptoms you\'ve logged in the '
-              'last 30 days.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          for (final recommendation in recommendations) ...[
-            _RecommendationCard(recommendation: recommendation),
-            const SizedBox(height: 12),
-          ],
-          Semantics(
-            label: 'Log symptoms for personalized tips',
-            button: true,
-            child: OutlinedButton.icon(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed('/log-symptom'),
-              icon: const Icon(Icons.add),
-              label: const Text('Log symptoms for more tips'),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const _DisclaimerCard(),
-        ],
+        itemCount: recommendations.length + 3,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Column(
+              children: [
+                Semantics(
+                  label: 'Personalized recommendations from your recent logs',
+                  child: Text(
+                    'Relief and diet tips based on symptoms you\'ve logged in the '
+                    'last 30 days.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            );
+          }
+          if (index <= recommendations.length) {
+            final recommendation = recommendations[index - 1];
+            return Column(
+              children: [
+                _RecommendationCard(recommendation: recommendation),
+                const SizedBox(height: 12),
+              ],
+            );
+          }
+          if (index == recommendations.length + 1) {
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                Semantics(
+                  label: 'Log symptoms for personalized tips',
+                  button: true,
+                  child: OutlinedButton.icon(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed('/log-symptom'),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Log symptoms for more tips'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            );
+          }
+          return const _DisclaimerCard();
+        },
       ),
     );
   }
@@ -86,7 +121,9 @@ class _RecommendationCard extends StatelessWidget {
         Icons.spa;
 
     return Semantics(
-      label: recommendation.title,
+      label: recommendation.sourceNote != null
+          ? '${recommendation.title}. ${recommendation.sourceNote}'
+          : recommendation.title,
       child: Card(
         elevation: 0,
         color: colorScheme.surfaceContainerHigh,
@@ -143,8 +180,52 @@ class _RecommendationCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 _CareNote(text: recommendation.careNote!),
               ],
+              if (recommendation.sourceNote != null) ...[
+                const SizedBox(height: 12),
+                _SourceNote(text: recommendation.sourceNote!),
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SourceNote extends StatelessWidget {
+  const _SourceNote({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      label: 'Source note: $text',
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: 18,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

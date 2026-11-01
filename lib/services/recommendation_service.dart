@@ -1,3 +1,4 @@
+import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/models/cycle_entry.dart';
 
 /// A single piece of symptom-based guidance shown on the Recommendations
@@ -13,6 +14,8 @@ class Recommendation {
     this.warningSigns = const [],
     this.symptom,
     this.careNote,
+    this.sourceNote,
+    this.category,
   });
 
   final String title;
@@ -32,7 +35,40 @@ class Recommendation {
   /// Short note to surface when a symptom may warrant professional care.
   final String? careNote;
 
+  /// Optional source note explaining why this recommendation exists
+  /// (e.g., interest-based educational guidance).
+  final String? sourceNote;
+
+  /// Content category this recommendation belongs to (e.g., education).
+  final String? category;
+
   bool get isGeneral => symptom == null;
+
+  Recommendation copyWith({
+    String? title,
+    String? iconKey,
+    List<String>? reliefTips,
+    List<String>? dietTips,
+    List<String>? hydrationTips,
+    List<String>? warningSigns,
+    Symptom? symptom,
+    String? careNote,
+    String? sourceNote,
+    String? category,
+  }) {
+    return Recommendation(
+      title: title ?? this.title,
+      iconKey: iconKey ?? this.iconKey,
+      reliefTips: reliefTips ?? this.reliefTips,
+      dietTips: dietTips ?? this.dietTips,
+      hydrationTips: hydrationTips ?? this.hydrationTips,
+      warningSigns: warningSigns ?? this.warningSigns,
+      symptom: symptom ?? this.symptom,
+      careNote: careNote ?? this.careNote,
+      sourceNote: sourceNote ?? this.sourceNote,
+      category: category ?? this.category,
+    );
+  }
 }
 
 /// Builds personalized relief and diet guidance from a user's logged cycle
@@ -44,7 +80,10 @@ class RecommendationService {
 
   final int _windowDays;
 
-  List<Recommendation> build({required List<CycleEntry> entries}) {
+  List<Recommendation> build({
+    required List<CycleEntry> entries,
+    List<String> interests = const [],
+  }) {
     final cutoff = DateTime.now().subtract(Duration(days: _windowDays));
     final recent =
         entries.where((e) => !e.startDate.isBefore(cutoff)).toList();
@@ -70,22 +109,88 @@ class RecommendationService {
         symptomDays.containsKey(Symptom.cramps) ||
             symptomDays.containsKey(Symptom.backPain);
     if (maxPain >= 4 && !hasPainSymptom) {
-      result.add(_severePain);
+      result.add(
+        _severePain.copyWith(sourceNote: 'Based on severe symptoms you logged'),
+      );
     }
 
     for (final symptom in _orderedSymptoms) {
       if (!symptomDays.containsKey(symptom)) continue;
-      result.add(_adviceFor(symptom));
+      result.add(
+        _adviceFor(symptom).copyWith(sourceNote: 'Based on symptoms you logged'),
+      );
     }
 
     if (heavyFlowDays > 0) {
-      result.add(_heavyFlowSupport);
+      result.add(
+        _heavyFlowSupport.copyWith(sourceNote: 'Based on heavy flow you logged'),
+      );
     }
 
-    if (result.isEmpty) {
-      return const [_generalWellness];
+    final effectiveInterests = interests
+        .map((i) => i.trim().toLowerCase())
+        .where((i) => i.isNotEmpty)
+        .where((i) =>
+            AppConstants.allowedPersonalizationInterests
+                .any((token) => i.contains(token)))
+        .toList(growable: false);
+
+    final recommendations = List<Recommendation>.of(result);
+    if (effectiveInterests.isNotEmpty) {
+      recommendations.addAll(_educationForInterests(effectiveInterests));
     }
-    return result;
+    if (recommendations.isEmpty) {
+      return [
+        _generalWellness.copyWith(
+          sourceNote: 'No symptoms logged recently - showing general wellness guidance',
+        ),
+      ];
+    }
+    return recommendations;
+  }
+
+  /// Context-aware educational guidance for user-selected interests. Maps
+  /// interests to the app's existing verified guidance pools; no individualized
+  /// medical conclusions are introduced here.
+  List<Recommendation> _educationForInterests(List<String> interests) {
+    final picks = <Recommendation>[];
+    for (final raw in interests) {
+      final key = raw.trim().toLowerCase();
+      Recommendation? pick;
+      if (key.contains('pain') ||
+          key.contains('severe') ||
+          key.contains('care')) {
+        pick = _severePain;
+      } else if (key.contains('flow') ||
+          key.contains('heavy') ||
+          key.contains('bleeding') ||
+          key.contains('spotting')) {
+        pick = _heavyFlowSupport;
+      } else if (key.contains('hygiene') ||
+          key.contains('wellness') ||
+          key.contains('lifestyle') ||
+          key.contains('nutrition') ||
+          key.contains('hydration') ||
+          key.contains('habit') ||
+          key.contains('health')) {
+        pick = _generalWellness;
+      }
+      if (pick != null && !picks.any((r) => r.iconKey == pick!.iconKey)) {
+        picks.add(Recommendation(
+          title: pick.title,
+          iconKey: pick.iconKey,
+          reliefTips: pick.reliefTips,
+          dietTips: pick.dietTips,
+          hydrationTips: pick.hydrationTips,
+          warningSigns: pick.warningSigns,
+          symptom: pick.symptom,
+          careNote: pick.careNote,
+          sourceNote: 'Based on your selected interests',
+          category: 'education',
+        ));
+      }
+    }
+    return picks;
   }
 
   static const List<Symptom> _orderedSymptoms = [
@@ -254,6 +359,9 @@ class RecommendationService {
         'Bloating that persists beyond your period',
         'Bloating with significant weight change',
       ],
+      careNote:
+          'If bloating is severe, comes with severe pain or fever, or persists '
+          'beyond your period, consult a healthcare provider.',
     ),
     Symptom.breastTenderness: Recommendation(
       title: 'Breast Tenderness',
@@ -525,5 +633,9 @@ class RecommendationService {
       'Severe pain that interferes with daily life',
       'Symptoms that significantly affect your wellbeing',
     ],
+    careNote:
+        'These are general wellness habits. If severe symptoms or warning '
+        'signs appear, please consult a healthcare professional.',
+    category: 'education',
   );
 }

@@ -7,6 +7,26 @@ class AppConstants {
       'https://raw.githubusercontent.com/anya12forger12-max/radhika/main/PRIVACY_POLICY.md';
   static const String privacyPolicyVersion = '1.2.32';
 
+  /// Privacy boundary: personalization interest tokens recognized by the
+  /// recommendation engine. Interests outside this allowlist are ignored
+  /// (fail-closed) and never influence personalization content.
+  static const List<String> allowedPersonalizationInterests = <String>[
+    'pain',
+    'severe',
+    'care',
+    'flow',
+    'heavy',
+    'bleeding',
+    'spotting',
+    'hygiene',
+    'wellness',
+    'lifestyle',
+    'nutrition',
+    'hydration',
+    'habit',
+    'health',
+  ];
+
   static const int minPasswordLength = 8;
   static const int minAge = 10;
   static const int maxAge = 120;

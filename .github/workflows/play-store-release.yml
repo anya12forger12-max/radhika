@@ -55,7 +55,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
-          flutter-version: '3.47.3'
+          flutter-version: '3.47.5'
           cache: true
 
       - name: Get dependencies
@@ -96,7 +96,8 @@ jobs:
               "$STORE_PASS" "$KEY_PASS" "$KEY_ALIAS" > android/key.properties
             echo "Release signing configured."
           else
-            echo "RELEASE_KEYSTORE_B64 not set; falling back to debug signing."
+            echo "::error::RELEASE_KEYSTORE_B64 secret is required for release signing. Refusing to build a release artifact without the authorized release keystore."
+            exit 1
           fi
 
       - name: Build Android Release Bundle

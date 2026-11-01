@@ -162,4 +162,83 @@ void main() {
     expect(depression.careNote, isNotNull);
     expect(depression.careNote!, contains('self-harm'));
   });
+
+  test('general wellness fallback explains that no symptoms were logged', () {
+    final result = service.build(entries: const []);
+    expect(result.first.sourceNote, isNotNull);
+    expect(result.first.sourceNote, contains('No symptoms logged'));
+  });
+
+  test('symptom cards explain they are based on logged symptoms', () {
+    final result = service.build(
+      entries: [
+        _entry(daysAgo: 1, symptoms: const [Symptom.cramps]),
+      ],
+    );
+    final cramps = result.firstWhere((r) => r.title == 'Cramps');
+    expect(cramps.sourceNote, isNotNull);
+    expect(cramps.sourceNote, contains('Based on symptoms you logged'));
+  });
+
+  test('severe pain card explains it came from logged symptoms', () {
+    final result = service.build(
+      entries: [_entry(daysAgo: 1, painLevel: 4)],
+    );
+    final severe = result.firstWhere((r) => r.title == 'Severe Pain Care');
+    expect(severe.sourceNote, isNotNull);
+    expect(severe.sourceNote, contains('Based on severe symptoms you logged'));
+  });
+
+  test('heavy flow card explains it came from logged flow', () {
+    final result = service.build(
+      entries: [_entry(daysAgo: 1, flowIntensity: FlowIntensity.heavy)],
+    );
+    final heavy = result.firstWhere((r) => r.title == 'Heavy Flow Support');
+    expect(heavy.sourceNote, isNotNull);
+    expect(heavy.sourceNote, contains('Based on heavy flow you logged'));
+  });
+
+  test('interest based educational picks explain their source', () {
+    final result = service.build(
+      entries: const [],
+      interests: const ['hydration'],
+    );
+    expect(result.length, 1);
+    expect(result.first.sourceNote, 'Based on your selected interests');
+  });
+
+  test('interest outside the allowlist is ignored', () {
+    final result = service.build(
+      entries: const [],
+      interests: const ['not_a_real_interest'],
+    );
+    // Unknown interests are dropped (fail-closed) and fall back to
+    // general wellness guidance.
+    expect(result.length, 1);
+    expect(result.first.title, 'Healthy Cycle Habits');
+    expect(result.first.sourceNote, contains('No symptoms logged'));
+  });
+
+  test('general wellness card carries a care note and warning signs', () {
+    final result = service.build(entries: const []);
+    expect(result.first.careNote, isNotNull);
+    expect(result.first.warningSigns, isNotEmpty);
+  });
+
+  test('bloating card carries a care note', () {
+    final result = service.build(
+      entries: [_entry(daysAgo: 1, symptoms: const [Symptom.bloating])],
+    );
+    final bloating = result.firstWhere((r) => r.title == 'Bloating');
+    expect(bloating.careNote, isNotNull);
+  });
+
+  test('interests mapping to the same guidance pool collapse via dedupe', () {
+    final result = service.build(
+      entries: const [],
+      interests: const ['pain', 'severe'],
+    );
+    expect(result.length, 1);
+    expect(result.first.iconKey, 'severe_pain');
+  });
 }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/core/constants/app_constants.dart';
+import 'package:radhika/core/utils/error_handler.dart';
 import 'package:radhika/models/user_profile.dart';
 import 'package:radhika/providers/cycle_provider.dart';
 import 'package:radhika/services/auth_service.dart';
@@ -54,19 +55,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void _onAuthChange(User? user) {
-    if (user != null) {
-      final profile = _storageService.getProfile(user.uid);
-      // Carry isLoading through: auth events fire mid-operation (signup /
-      // sign-in / delete) and resetting isLoading here re-enables submit
-      // buttons while profile save is still in flight, allowing a
-      // double-submit that ends in "email already in use".
-      state = AuthState(
-        user: AsyncData(user),
-        profile: profile,
-        isLoading: state.isLoading,
-      );
-    } else {
-      state = AuthState(isLoading: state.isLoading);
+    try {
+      if (user != null) {
+        final profile = _storageService.getProfile(user.uid);
+        // Carry isLoading through: auth events fire mid-operation (signup /
+        // sign-in / delete) and resetting isLoading here re-enables submit
+        // buttons while profile save is still in flight, allowing a
+        // double-submit that ends in "email already in use".
+        state = AuthState(
+          user: AsyncData(user),
+          profile: profile,
+          isLoading: state.isLoading,
+        );
+      } else {
+        state = AuthState(isLoading: state.isLoading);
+      }
+    } catch (e) {
+      // A storage failure while reading the profile during an auth event
+      // must not crash the listener; report and keep the auth state safe.
+      errorHandler.reportError(e, context: 'auth-state-change');
     }
   }
 
@@ -76,11 +83,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _authService.signInWithEmail(email, password);
       state = state.copyWith(isLoading: false);
     } on FirebaseAuthException catch (e) {
+      errorHandler.reportError(e, context: 'auth-signin-email');
       state = state.copyWith(
         isLoading: false,
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
+      errorHandler.reportError(e, context: 'auth-signin-email');
       if (kDebugMode) debugPrint('Email sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
@@ -105,11 +114,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _storageService.saveProfile(profile);
       state = state.copyWith(isLoading: false, profile: profile);
     } on FirebaseAuthException catch (e) {
+      errorHandler.reportError(e, context: 'auth-register');
       state = state.copyWith(
         isLoading: false,
         error: _mapFirebaseError(e.code, isRegistration: true),
       );
     } catch (e) {
+      errorHandler.reportError(e, context: 'auth-register');
       if (kDebugMode) debugPrint('Registration error: $e');
       state = state.copyWith(
         isLoading: false,
@@ -138,6 +149,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
       state = state.copyWith(isLoading: false, profile: profile);
     } on FirebaseAuthException catch (e) {
+      errorHandler.reportError(e, context: 'auth-signin-google');
       state = state.copyWith(
         isLoading: false,
         error: _mapFirebaseError(e.code),
@@ -153,6 +165,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             : 'Could not complete Google sign-in. Please try again.',
       );
     } catch (e) {
+      errorHandler.reportError(e, context: 'auth-signin-google');
       if (kDebugMode) debugPrint('Google sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
@@ -169,11 +182,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _authService.sendPasswordResetEmail(email);
       state = state.copyWith(isLoading: false);
     } on FirebaseAuthException catch (e) {
+      errorHandler.reportError(e, context: 'auth-password-reset');
       state = state.copyWith(
         isLoading: false,
         error: _mapFirebaseError(e.code),
       );
     } catch (e) {
+      errorHandler.reportError(e, context: 'auth-password-reset');
       if (kDebugMode) debugPrint('Password reset error: $e');
       state = state.copyWith(
         isLoading: false,
@@ -186,20 +201,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final user = _authService.currentUser;
     if (user == null) return;
 
-    var profile = state.profile ?? UserProfile(id: user.uid);
-    profile = profile.copyWith(
-      privacyPolicyAccepted: true,
-      privacyPolicyAcceptedVersion: AppConstants.privacyPolicyVersion,
-      privacyPolicyAcceptedDate: DateTime.now(),
-    );
-    await _storageService.saveProfile(profile);
-    state = state.copyWith(profile: profile);
+    try {
+      var profile = state.profile ?? UserProfile(id: user.uid);
+      profile = profile.copyWith(
+        privacyPolicyAccepted: true,
+        privacyPolicyAcceptedVersion: AppConstants.privacyPolicyVersion,
+        privacyPolicyAcceptedDate: DateTime.now(),
+      );
+      await _storageService.saveProfile(profile);
+      state = state.copyWith(profile: profile);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'privacy-accept');
+      state = state.copyWith(error: errorHandler.userMessage(e));
+    }
   }
 
   Future<void> signOut() async {
-    await _authService.signOut();
-    _ref.invalidate(cycleProvider);
-    state = const AuthState();
+    try {
+      await _authService.signOut();
+      _ref.invalidate(cycleProvider);
+      state = const AuthState();
+    } catch (e) {
+      errorHandler.reportError(e, context: 'auth-signout');
+      state = state.copyWith(isLoading: false, error: errorHandler.userMessage(e));
+    }
   }
 
   Future<void> deleteAccount() async {
@@ -230,6 +255,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } catch (e) {
+      errorHandler.reportError(e, context: 'auth-delete-account');
       if (kDebugMode) debugPrint('Account deletion error: $e');
       state = state.copyWith(
         isLoading: false,
@@ -271,9 +297,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> updateProfile(UserProfile profile) async {
-    await _storageService.saveProfile(profile);
-    state = state.copyWith(profile: profile);
-    _ref.read(cycleProvider.notifier).recomputePrediction();
+    try {
+      await _storageService.saveProfile(profile);
+      state = state.copyWith(profile: profile);
+      _ref.read(cycleProvider.notifier).recomputePrediction();
+    } catch (e) {
+      errorHandler.reportError(e, context: 'profile-update');
+      state = state.copyWith(profile: state.profile, error: errorHandler.userMessage(e));
+    }
   }
 
   void updateProfileState(UserProfile profile) {
@@ -282,9 +313,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> refreshProfile() async {
     final user = _authService.currentUser;
-    if (user != null) {
+    if (user == null) return;
+    try {
       final profile = _storageService.getProfile(user.uid);
       state = state.copyWith(profile: profile);
+    } catch (e) {
+      errorHandler.reportError(e, context: 'profile-refresh');
+      state = state.copyWith(error: errorHandler.userMessage(e));
     }
   }
 

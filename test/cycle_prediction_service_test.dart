@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:radhika/models/cycle_entry.dart';
-import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/services/cycle_prediction_service.dart';
 
 CycleEntry _entry({
