@@ -15,13 +15,10 @@ void main() {
   group('hardcoded secret source guards', () {
     final Directory libDir = Directory('lib');
     final List<File> libDartFiles = libDir
-        .listSync()
+        .listSync(recursive: true)
         .whereType<File>()
         .where((File f) => f.path.endsWith('.dart'))
-        .cast<File>()
-        .toList(growable: false)
-        .cast<File>()
-        .toList();
+        .toList(growable: false);
 
     final RegExp firebaseKeyPattern = RegExp(r'AIza[A-Za-z0-9_\-]{8,}');
     final RegExp clientSecretPattern =
