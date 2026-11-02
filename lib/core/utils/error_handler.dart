@@ -22,6 +22,10 @@ class ErrorHandler {
             'AppError${context != null && context.isNotEmpty ? ' ($context)' : ''}: $error');
         debugPrintStack(stackTrace: stackTrace);
       }
+      // Structured breadcrumb for authorized diagnostics before capture.
+      FirebaseCrashlytics.instance.log(
+        'AppError${context != null && context.isNotEmpty ? ' ($context)' : ''}: $error',
+      );
       FirebaseCrashlytics.instance.recordError(error, stackTrace);
     } catch (_) {
       // Diagnostic reporting must never mask the original failure.
