@@ -29,6 +29,17 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Decode google-services.json
+        env:
+          GS_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GS_JSON" ]; then
+            echo "::error::GOOGLE_SERVICES_JSON secret is not set."
+            exit 1
+          fi
+          echo "$GS_JSON" > android/app/google-services.json
+          echo "Wrote google-services.json from secret."
+
       - name: Configure release signing
         env:
           KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
