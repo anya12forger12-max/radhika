@@ -21,5 +21,25 @@ void main() {
               'not before — calling setCrashlyticsCollectionEnabled on an uninitialized '
               'Firebase app throws [core/no-app] and crashes every launch');
     });
+
+    test('FlutterError.onError must be wired to Crashlytics recordFlutterFatalError', () {
+      const mainPath = 'lib/main.dart';
+      final content = File(mainPath).readAsStringSync();
+
+      expect(content, contains('FlutterError.onError'),
+          reason: 'main.dart must wire FlutterError.onError to Crashlytics '
+              'so uncaught framework errors are recorded, not just printed');
+      expect(content, contains('recordFlutterFatalError'),
+          reason: 'main.dart must call recordFlutterFatalError on Crashlytics');
+    });
+
+    test('PlatformDispatcher.instance.onError must be wired to Crashlytics', () {
+      const mainPath = 'lib/main.dart';
+      final content = File(mainPath).readAsStringSync();
+
+      expect(content, contains('PlatformDispatcher.instance.onError'),
+          reason: 'main.dart must wire PlatformDispatcher.instance.onError to '
+              'Crashlytics so uncaught async/platform errors are recorded');
+    });
   });
 }

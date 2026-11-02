@@ -24,11 +24,23 @@ class NotificationService {
     if (_initialized) return;
 
     tzdata.initializeTimeZones();
-    try {
-      final info = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(info.identifier));
-    } catch (e) {
-      if (kDebugMode) debugPrint('Failed to load local timezone, using UTC: $e');
+    bool timezoneSet = false;
+    for (int attempt = 0; attempt < 3 && !timezoneSet; attempt++) {
+      try {
+        final info = await FlutterTimezone.getLocalTimezone();
+        tz.setLocalLocation(tz.getLocation(info.identifier));
+        timezoneSet = true;
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Timezone detection attempt ${attempt + 1} failed: $e');
+        }
+        if (attempt < 2) {
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+      }
+    }
+    if (!timezoneSet) {
+      if (kDebugMode) debugPrint('All timezone detection attempts failed, using UTC');
       tz.setLocalLocation(tz.UTC);
     }
 
@@ -109,9 +121,18 @@ class NotificationService {
   Future<void> schedulePeriodReminder({
     required int daysBefore,
     required DateTime predictedDate,
+    int hour = 9,
+    int minute = 0,
   }) async {
     final reminderDate =
         predictedDate.subtract(Duration(days: daysBefore));
+    final scheduledTime = DateTime(
+      reminderDate.year,
+      reminderDate.month,
+      reminderDate.day,
+      hour,
+      minute,
+    );
     final now = DateTime.now();
 
     if (reminderDate.isBefore(now)) return;
@@ -145,7 +166,7 @@ class NotificationService {
       _idFor(daysBefore),
       title,
       body,
-      tz.TZDateTime.from(reminderDate, tz.local),
+      tz.TZDateTime.from(scheduledTime, tz.local),
       details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
@@ -191,19 +212,31 @@ class NotificationService {
       if (!prefs.anyEnabled) return;
       if (prefs.remind3DaysBefore) {
         await schedulePeriodReminder(
-            daysBefore: 3, predictedDate: predictedDate);
+            daysBefore: 3,
+            predictedDate: predictedDate,
+            hour: prefs.hour,
+            minute: prefs.minute);
       }
       if (prefs.remind2DaysBefore) {
         await schedulePeriodReminder(
-            daysBefore: 2, predictedDate: predictedDate);
+            daysBefore: 2,
+            predictedDate: predictedDate,
+            hour: prefs.hour,
+            minute: prefs.minute);
       }
       if (prefs.remind1DayBefore) {
         await schedulePeriodReminder(
-            daysBefore: 1, predictedDate: predictedDate);
+            daysBefore: 1,
+            predictedDate: predictedDate,
+            hour: prefs.hour,
+            minute: prefs.minute);
       }
       if (prefs.remindDayOf) {
         await schedulePeriodReminder(
-            daysBefore: 0, predictedDate: predictedDate);
+            daysBefore: 0,
+            predictedDate: predictedDate,
+            hour: prefs.hour,
+            minute: prefs.minute);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Failed to reschedule period reminders: $e');

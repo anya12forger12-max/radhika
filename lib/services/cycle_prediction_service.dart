@@ -59,21 +59,23 @@ class CyclePredictionService {
 
   double _calculateConfidence(
       List<CycleEntry> history, int averageCycleLength) {
-    if (history.length < 2) return 0.3;
-    if (history.length < 4) return 0.5;
-    if (history.length < 6) return 0.7;
+    // Only count valid (non-symptom-only) entries for confidence
+    final valid = history.where((e) => !e.isSymptomOnly).toList();
+    if (valid.length < 2) return 0.3;
+    if (valid.length < 4) return 0.5;
+    if (valid.length < 6) return 0.7;
 
     double variance = 0;
-    for (int i = 1; i < history.length; i++) {
-      final diff = history[i - 1]
+    for (int i = 1; i < valid.length; i++) {
+      final diff = valid[i - 1]
               .startDate
-              .difference(history[i].startDate)
+              .difference(valid[i].startDate)
               .abs()
               .inDays -
           averageCycleLength;
       variance += diff * diff;
     }
-    variance /= history.length - 1;
+    variance /= valid.length - 1;
     final stdDev = math.sqrt(variance);
 
     if (stdDev <= 2) return 0.9;
@@ -85,15 +87,22 @@ class CyclePredictionService {
   bool _hasActivePeriod(List<CycleEntry> cycleHistory) {
     final now = DateTime.now();
     return cycleHistory.any((entry) {
-      if (entry.endDate == null) return false;
+      if (entry.isSymptomOnly) return false;
+      // An entry without an end date is an ongoing period if it started
+      // recently (within the last 10 days) and hasn't been explicitly ended.
+      if (entry.endDate == null) {
+        final daysSinceStart = now.difference(entry.startDate).inDays;
+        return daysSinceStart >= 0 && daysSinceStart <= 10;
+      }
       return entry.startDate.isBefore(now) && entry.endDate!.isAfter(now);
     });
   }
 
   int calculateAverageCycleLength(List<CycleEntry> cycleHistory) {
-    if (cycleHistory.length < 2) return AppConstants.defaultCycleLength;
+    final valid = cycleHistory.where((e) => !e.isSymptomOnly).toList();
+    if (valid.length < 2) return AppConstants.defaultCycleLength;
 
-    final sorted = List<CycleEntry>.from(cycleHistory)
+    final sorted = List<CycleEntry>.from(valid)
       ..sort((a, b) => a.startDate.compareTo(b.startDate));
 
     int totalDays = 0;

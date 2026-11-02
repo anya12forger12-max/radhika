@@ -28,7 +28,7 @@ class AppConstants {
   ];
 
   static const int minPasswordLength = 8;
-  static const int minAge = 10;
+  static const int minAge = 13;
   static const int maxAge = 120;
   static const int defaultCycleLength = 28;
   static const int defaultPeriodLength = 5;

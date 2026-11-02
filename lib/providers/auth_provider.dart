@@ -237,8 +237,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // requires-recent-login we must NOT have already wiped local data,
         // otherwise the user is left with no data but a live account.
         await _authService.deleteAccount();
-        await _storageService.clearUserData(user.uid);
-        _ref.invalidate(cycleProvider);
+        try {
+          await _storageService.clearUserData(user.uid);
+          _ref.invalidate(cycleProvider);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Account deleted but local data cleanup failed: $e');
+          }
+          // Auth account is already gone; report partial success so the
+          // user knows to manually clear app data if needed.
+          state = state.copyWith(
+            isLoading: false,
+            error: 'Account deleted, but some local data could not be '
+                'removed. Please clear app data manually if needed.',
+          );
+          return;
+        }
       }
       state = const AuthState(isLoading: false);
     } on FirebaseAuthException catch (e) {

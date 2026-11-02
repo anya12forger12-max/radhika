@@ -203,6 +203,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       remind2DaysBefore: _reminder2Days,
       remind1DayBefore: _reminder1Day,
       remindDayOf: _reminderToday,
+      hour: _notificationTime.hour,
+      minute: _notificationTime.minute,
     );
     final userId = ref.read(authProvider).user.value?.uid;
     try {

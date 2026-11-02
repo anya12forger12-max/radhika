@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -47,6 +49,7 @@ Future<ThemeModeSetting> _loadInitialTheme() async {
 }
 
 Future<void> main() async {
+  final startupStopwatch = Stopwatch()..start();
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
@@ -58,6 +61,15 @@ Future<void> main() async {
 
   try {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    // Route uncaught Flutter framework errors to Crashlytics so they are
+    // recorded as fatal events rather than only printed to the console.
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // Route uncaught async/platform errors to Crashlytics as non-fatal
+    // events (they may be recoverable) so they are still visible.
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+      return true;
+    };
   } catch (e) {
     errorHandler.reportError(e, context: 'crashlytics-init');
     if (kDebugMode) debugPrint('Crashlytics initialization failed: $e');
@@ -85,6 +97,11 @@ Future<void> main() async {
     );
     FlutterError.dumpErrorToConsole(details);
   };
+
+  startupStopwatch.stop();
+  if (kDebugMode) {
+    debugPrint('Radhika startup completed in ${startupStopwatch.elapsedMilliseconds}ms');
+  }
 
   runApp(
     ProviderScope(

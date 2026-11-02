@@ -34,6 +34,7 @@ We do not sell your personal information to anyone, including advertisers.
 - Data will never be shared with other users
 - All network communication (authentication, ads) uses industry-standard TLS encryption
 - Industry-standard security measures protect your information
+- Firebase Crashlytics collects crash reports and diagnostic information (stack traces, device model, OS version, app version) to help fix bugs. Crashlytics does not receive menstrual, symptom, or other health data, and is not linked to your account.
 
 ## 5. Data Retention
 

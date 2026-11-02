@@ -8,10 +8,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/core/utils/error_handler.dart';
 import 'package:radhika/data/models/secure_model_factory.dart';
+import 'package:radhika/models/app_preferences.dart';
 import 'package:radhika/models/cycle_entry.dart';
 import 'package:radhika/models/cycle_prediction.dart';
 import 'package:radhika/models/reminder.dart';
 import 'package:radhika/models/user_profile.dart';
+
 import 'package:radhika/providers/theme_provider.dart';
 
 final storageServiceProvider =
@@ -22,12 +24,16 @@ class ReminderPreferences {
   final bool remind2DaysBefore;
   final bool remind1DayBefore;
   final bool remindDayOf;
+  final int hour;
+  final int minute;
 
   const ReminderPreferences({
     this.remind3DaysBefore = false,
     this.remind2DaysBefore = false,
     this.remind1DayBefore = false,
     this.remindDayOf = false,
+    this.hour = 9,
+    this.minute = 0,
   });
 
   bool get anyEnabled =>
@@ -38,12 +44,16 @@ class ReminderPreferences {
     bool? remind2DaysBefore,
     bool? remind1DayBefore,
     bool? remindDayOf,
+    int? hour,
+    int? minute,
   }) {
     return ReminderPreferences(
       remind3DaysBefore: remind3DaysBefore ?? this.remind3DaysBefore,
       remind2DaysBefore: remind2DaysBefore ?? this.remind2DaysBefore,
       remind1DayBefore: remind1DayBefore ?? this.remind1DayBefore,
       remindDayOf: remindDayOf ?? this.remindDayOf,
+      hour: hour ?? this.hour,
+      minute: minute ?? this.minute,
     );
   }
 }
@@ -58,6 +68,8 @@ class StorageService {
   static const String _reminder2DaysKey = 'reminder_2_days_before';
   static const String _reminder1DayKey = 'reminder_1_day_before';
   static const String _reminderDayOfKey = 'reminder_day_of';
+  static const String _reminderHourKey = 'reminder_hour';
+  static const String _reminderMinuteKey = 'reminder_minute';
 
   // Encryption key material lives in the platform keystore, never in Hive.
   static const String _secureKeyName = 'hive_encryption_key';
@@ -453,6 +465,8 @@ class StorageService {
         '${prefs.remind1DayBefore}');
     await _settings.put('${userId}_$_reminderDayOfKey',
         '${prefs.remindDayOf}');
+    await _settings.put('${userId}_$_reminderHourKey', '${prefs.hour}');
+    await _settings.put('${userId}_$_reminderMinuteKey', '${prefs.minute}');
   }
 
   ReminderPreferences getReminderPreferences(String userId) {
@@ -461,33 +475,31 @@ class StorageService {
       return value == 'true';
     }
 
+    final hourStr = _settings.get('${userId}_$_reminderHourKey');
+    final minuteStr = _settings.get('${userId}_$_reminderMinuteKey');
     return ReminderPreferences(
       remind3DaysBefore: readBool(_reminder3DaysKey),
       remind2DaysBefore: readBool(_reminder2DaysKey),
       remind1DayBefore: readBool(_reminder1DayKey),
       remindDayOf: readBool(_reminderDayOfKey),
+      hour: hourStr != null ? int.tryParse(hourStr) ?? 9 : 9,
+      minute: minuteStr != null ? int.tryParse(minuteStr) ?? 0 : 0,
     );
   }
 
+  /// User preference management
+  AppPreferences getAppPreferences(String userId) {
+    final box = Hive.box<AppPreferences>('app_preferences_encrypted');
+    return box.get(userId) ?? AppPreferences(id: userId);
+  }
+
+  /// User preference management
+  Future<void> saveAppPreferences(String userId, AppPreferences preferences) async {
+    final box = Hive.box<AppPreferences>('app_preferences_encrypted');
+    await box.put(userId, preferences);
+  }
+
   Future<void> clearUserData(String userId) async {
-    final cycles = _cycles.values.where((c) => c.userId == userId).toList();
-    for (final cycle in cycles) {
-      await _cycles.delete(cycle.id);
-    }
-    final predictions =
-        _predictions.values.where((p) => p.userId == userId).toList();
-    for (final prediction in predictions) {
-      await _predictions.delete(prediction.id);
-    }
-    final reminders =
-        _reminders.values.where((r) => r.userId == userId).toList();
-    for (final reminder in reminders) {
-      await _reminders.delete(reminder.id);
-    }
-    await _settings.delete('${userId}_$_reminder3DaysKey');
-    await _settings.delete('${userId}_$_reminder2DaysKey');
-    await _settings.delete('${userId}_$_reminder1DayKey');
-    await _settings.delete('${userId}_$_reminderDayOfKey');
     await _profile.delete(userId);
     await _settings.delete('${userId}_personalization');
   }
@@ -618,41 +630,13 @@ class StorageService {
       if (kDebugMode) debugPrint('Failed to import data: $e');
     }
   }
-
-  Future<AppPreferences> getAppPreferences() async {
-    final themeStr = getSetting('theme_mode');
-    final fontSizeStr = getSetting('font_size');
-
-    final themeIndex = themeStr != null ? int.tryParse(themeStr) : null;
-    final setting = themeIndex != null &&
-            themeIndex >= 0 &&
-            themeIndex < ThemeModeSetting.values.length
-        ? ThemeModeSetting.values[themeIndex]
-        : ThemeModeSetting.system;
-
-    final fontSizeValue =
-        fontSizeStr != null ? double.tryParse(fontSizeStr) : null;
-    final fontSize = fontSizeValue != null
-        ? fontSizeValue.clamp(0.8, 1.5)
-        : 1.0;
-
-    return AppPreferences(themeMode: setting, fontSize: fontSize);
-  }
-
-  Future<void> clearAll() async {
-    await _profile.clear();
-    await _cycles.clear();
-    await _predictions.clear();
-    await _reminders.clear();
-    await _settings.clear();
-  }
 }
 
-class AppPreferences {
+class AppPreferencesConfig {
   final ThemeModeSetting themeMode;
   final double fontSize;
 
-  const AppPreferences({
+  const AppPreferencesConfig({
     required this.themeMode,
     required this.fontSize,
   });
