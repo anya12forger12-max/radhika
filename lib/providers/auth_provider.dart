@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,8 +52,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authService, this._storageService, this._ref)
       : super(const AuthState()) {
-    _authService.authStateChanges.listen(_onAuthChange);
+    try {
+      _authService.authStateChanges.listen(_onAuthChange);
+    } catch (e) {
+      // A web build without a Firebase web app configuration has no
+      // FirebaseAuth instance to subscribe to. Treat that as a signed-out
+      // session so the login screen still renders instead of failing during
+      // provider construction.
+      errorHandler.reportError(e, context: 'auth-state-listen');
+    }
   }
+
+  /// True when this is a web build with no Firebase app configured (no web
+  /// Firebase options were supplied at build time). Mobile builds always
+  /// initialize Firebase from the bundled platform config.
+  bool get _firebaseUnavailableOnWeb => kIsWeb && Firebase.apps.isEmpty;
+
+  String get _unexpectedAuthError => _firebaseUnavailableOnWeb
+      ? 'Sign-in is not configured for this web deployment yet. '
+          'Please use the Radhika mobile app.'
+      : 'Something went wrong. Please try again.';
 
   void _onAuthChange(User? user) {
     try {
@@ -93,7 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (kDebugMode) debugPrint('Email sign-in error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Something went wrong. Please try again.',
+        error: _unexpectedAuthError,
       );
     }
   }
@@ -124,7 +143,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (kDebugMode) debugPrint('Registration error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Something went wrong. Please try again.',
+        error: _unexpectedAuthError,
       );
     }
   }
@@ -192,7 +211,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (kDebugMode) debugPrint('Password reset error: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Something went wrong. Please try again.',
+        error: _unexpectedAuthError,
       );
     }
   }

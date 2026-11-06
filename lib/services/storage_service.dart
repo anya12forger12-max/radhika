@@ -92,8 +92,14 @@ class StorageService {
   StorageService._();
 
   Future<void> init() async {
-    final dir = await getApplicationDocumentsDirectory();
-    await Hive.initFlutter(dir.path);
+    if (kIsWeb) {
+      // path_provider has no web implementation. hive_flutter's web backend
+      // stores boxes in IndexedDB and does not take a filesystem path.
+      await Hive.initFlutter();
+    } else {
+      final dir = await getApplicationDocumentsDirectory();
+      await Hive.initFlutter(dir.path);
+    }
 
     Hive.registerAdapter(UserProfileAdapter());
     Hive.registerAdapter(CycleEntryAdapter());

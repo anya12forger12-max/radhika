@@ -66,3 +66,9 @@ macos/Runner/GoogleService-Info.plist
 # Local signing keystore (never commit)
 my-release-key.jks
 .aider*
+.vercel
+
+# Signing (never commit)
+android/key.properties
+*.jks
+*.keystore

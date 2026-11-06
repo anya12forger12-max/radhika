@@ -15,7 +15,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _fadeAnimation;
-  late final StreamSubscription<User?> _authSub;
+  StreamSubscription<User?>? _authSub;
   Timer? _navigationTimer;
   late final DateTime _splashStart;
   var _authDelivered = false;
@@ -34,11 +34,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       curve: Curves.easeIn,
     );
     _animationController.forward();
-    _authSub = ref.read(authServiceProvider).authStateChanges.listen((user) {
-      if (!mounted || _navigated) return;
+    try {
+      _authSub = ref.read(authServiceProvider).authStateChanges.listen((user) {
+        if (!mounted || _navigated) return;
+        _authDelivered = true;
+        _navigateBasedOnAuth();
+      });
+    } catch (e) {
+      // A web build with no Firebase app configuration cannot expose an auth
+      // stream. Continue as a signed-out session so the login screen renders.
       _authDelivered = true;
-      _navigateBasedOnAuth();
-    });
+    }
     _scheduleNavigation();
   }
 
@@ -77,7 +83,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void dispose() {
     _navigationTimer?.cancel();
-    _authSub.cancel();
+    _authSub?.cancel();
     _animationController.dispose();
     super.dispose();
   }

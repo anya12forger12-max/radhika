@@ -3,7 +3,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/app.dart';
@@ -31,6 +31,46 @@ Future<void> _rescheduleStartupReminders() async {
   }
 }
 
+/// Firebase configuration for the web build.
+///
+/// Mobile builds read the bundled `google-services.json` /
+/// `GoogleService-Info.plist`. The web build has no such file, so the web
+/// app credentials are supplied at build time via `--dart-define` (see
+/// `vercel_build.sh`, which forwards the Vercel project environment
+/// variables). When they are absent, `null` is returned and the app starts
+/// signed-out with a clear message on the login screen instead of failing
+/// to boot.
+FirebaseOptions? _webFirebaseOptions() {
+  if (!kIsWeb) return null;
+
+  const apiKey = String.fromEnvironment('FIREBASE_API_KEY');
+  const appId = String.fromEnvironment('FIREBASE_APP_ID');
+  const messagingSenderId =
+      String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
+  const projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
+  const authDomain = String.fromEnvironment('FIREBASE_AUTH_DOMAIN');
+  const storageBucket = String.fromEnvironment('FIREBASE_STORAGE_BUCKET');
+
+  if (apiKey.isEmpty ||
+      appId.isEmpty ||
+      messagingSenderId.isEmpty ||
+      projectId.isEmpty) {
+    return null;
+  }
+
+  return FirebaseOptions(
+    apiKey: apiKey,
+    appId: appId,
+    messagingSenderId: messagingSenderId,
+    projectId: projectId,
+    authDomain:
+        authDomain.isEmpty ? '$projectId.firebaseapp.com' : authDomain,
+    storageBucket: storageBucket.isEmpty
+        ? '$projectId.firebasestorage.app'
+        : storageBucket,
+  );
+}
+
 Future<ThemeModeSetting> _loadInitialTheme() async {
   try {
     await StorageService.instance.init();
@@ -53,7 +93,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await Firebase.initializeApp();
+    final webOptions = _webFirebaseOptions();
+    if (webOptions != null) {
+      await Firebase.initializeApp(options: webOptions);
+    } else {
+      await Firebase.initializeApp();
+    }
   } catch (e) {
     errorHandler.reportError(e, context: 'firebase-init');
     if (kDebugMode) debugPrint('Failed to initialize Firebase: $e');

@@ -4,8 +4,26 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:radhika/models/user_profile.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // Resolved lazily: on the web build Firebase is only initialized when a
+  // web app configuration is supplied at build time (see main.dart). Eagerly
+  // touching FirebaseAuth.instance here would throw during provider
+  // construction and take the whole app down before the login screen can
+  // render.
+  FirebaseAuth get _auth => FirebaseAuth.instance;
+
+  // The web google_sign_in implementation asserts that a client ID is
+  // configured as soon as the plugin is constructed. Build the plugin on
+  // first use, and only when web has a client ID, so a plain web deployment
+  // boots without an uncaught plugin error.
+  static const String _webClientId =
+      String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
+
+  bool get _googleSignInSupported => !kIsWeb || _webClientId.isNotEmpty;
+
+  GoogleSignIn? _googleSignInInstance;
+
+  GoogleSignIn get _googleSignIn => _googleSignInInstance ??=
+      kIsWeb ? GoogleSignIn(clientId: _webClientId) : GoogleSignIn();
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   User? get currentUser => _auth.currentUser;
@@ -41,6 +59,10 @@ class AuthService {
   }
 
   Future<UserCredential> signInWithGoogle() async {
+    if (!_googleSignInSupported) {
+      throw UnsupportedError(
+          'Google sign-in is not configured for this web deployment.');
+    }
     final googleUser = await _googleSignIn.signIn();
     if (googleUser == null) throw Exception('Google sign-in cancelled');
     final googleAuth = await googleUser.authentication;
@@ -56,7 +78,16 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    if (_googleSignInSupported) {
+      try {
+        await _googleSignIn.signOut();
+      } catch (e) {
+        // Clearing the Firebase session must not depend on a Google session
+        // being present (for example on web, where Google sign-in may not be
+        // configured).
+        if (kDebugMode) debugPrint('Google sign-out skipped: $e');
+      }
+    }
     await _auth.signOut();
   }
 

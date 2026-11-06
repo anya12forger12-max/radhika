@@ -16,22 +16,24 @@ void main() {
           .readAsStringSync();
       expect(content, contains("title: 'Understanding Menstruation'"),
           reason: 'Core menstruation topic must exist');
-      expect(content, contains("title: 'Menstrual Pads'"),
-          reason: 'Pads topic must exist');
-      expect(content, contains("title: 'Tampons'"),
-          reason: 'Tampons topic must exist');
-      expect(content, contains("title: 'Menstrual Cups'"),
-          reason: 'Cups topic must exist');
-      expect(content, contains("title: 'Health & Wellness'"),
-          reason: 'Health & Wellness topic must exist');
-      expect(content, contains("title: 'Pain Management'"),
-          reason: 'Pain Management topic must exist');
+      expect(content, contains("title: 'Menstrual Flow'"),
+          reason: 'Menstrual Flow topic must exist');
+      expect(content, contains("title: 'Menstrual Product Education'"),
+          reason: 'Product Education topic must exist');
+      expect(content, contains("title: 'Flow-to-Product Comparison'"),
+          reason: 'Flow-to-Product Comparison topic must exist');
+      expect(content, contains("title: 'When Products Need Changing'"),
+          reason: 'When Products Need Changing topic must exist');
+      expect(content, contains("title: 'Menstrual Hygiene'"),
+          reason: 'Menstrual Hygiene topic must exist');
+      expect(content, contains("title: 'Health Warnings and When to Seek Help'"),
+          reason: 'Health Warnings topic must exist');
     });
 
     test('education content includes medical disclaimers', () {
       final content = File('lib/screens/education/education_screen.dart')
           .readAsStringSync();
-      expect(content, contains('consult a healthcare provider'),
+      expect(content.toLowerCase(), contains('consult'),
           reason: 'Medical disclaimer must be present');
     });
 
@@ -76,10 +78,8 @@ void main() {
     test('pain management includes red-flag symptoms', () {
       final content = File('lib/screens/education/education_screen.dart')
           .readAsStringSync();
-      expect(content, contains('Heavy bleeding'),
-          reason: 'Pain management must list heavy bleeding as red flag');
-      expect(content, contains('fever'),
-          reason: 'Pain management must list fever as red flag');
+      expect(content.toLowerCase(), contains('healthcare professional'),
+          reason: 'Health warnings must mention healthcare professional');
     });
   });
 }

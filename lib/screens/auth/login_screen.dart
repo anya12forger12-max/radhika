@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/providers/auth_provider.dart';
+import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/core/utils/validators.dart';
 import 'package:radhika/core/theme/app_theme.dart';
 import 'package:radhika/screens/auth/register_screen.dart';
@@ -268,6 +269,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           foregroundColor: AppTheme.rose500,
                         ),
                         child: const Text('Forgot Password?'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: 'Medical disclaimer',
+                    child: Text(
+                      AppConstants.medicalDisclaimer,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ),

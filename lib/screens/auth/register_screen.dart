@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:radhika/providers/auth_provider.dart';
+import 'package:radhika/core/constants/app_constants.dart';
 import 'package:radhika/core/utils/validators.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -255,6 +256,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Semantics(
+                    label: 'Medical disclaimer',
+                    child: Text(
+                      AppConstants.medicalDisclaimer,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
