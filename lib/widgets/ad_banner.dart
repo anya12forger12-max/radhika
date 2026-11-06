@@ -12,6 +12,13 @@ class AdBanner extends StatefulWidget {
   // AdMob banner unit for radhika (com.radhika.app).
   static const String adUnitId = 'ca-app-pub-7692188087567714/5141301526';
 
+  /// Google's official sample banner unit, for local verification only.
+  ///
+  /// It always serves test ads and earns no revenue, so it must never be the
+  /// shipped unit. Point [adUnitId] at this value temporarily when validating
+  /// ad rendering without risking invalid-traffic strikes on the real unit.
+  static const String testAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+
   @override
   State<AdBanner> createState() => _AdBannerState();
 }
@@ -43,7 +50,9 @@ class _AdBannerState extends State<AdBanner> {
     }
 
     final adapter = BannerAd(
-      adUnitId: AdBanner.adUnitId,
+      // Debug builds request Google's sample unit (paired with the debug
+      // manifest's test App ID) so local testing never touches the live unit.
+      adUnitId: kDebugMode ? AdBanner.testAdUnitId : AdBanner.adUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
