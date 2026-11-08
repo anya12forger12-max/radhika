@@ -150,3 +150,12 @@ This project is licensed under the MIT License. Full license text available in t
 ---
 *Last updated: [Current Date]*
 *Version: 1.2.31+36 (as per pubspec.yaml versioning)*
+---
+
+## Repository
+
+- **Home:** https://github.com/anya12forger12-max/radhika
+- **License:** MIT (see `LICENSE`)
+- **Issues:** https://github.com/anya12forger12-max/radhika/issues
+- **Security:** See `SECURITY.md` / `.github/SECURITY.md`
+- **Contributing:** See `CONTRIBUTING.md` (or open an issue/PR)
