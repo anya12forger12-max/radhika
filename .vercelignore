@@ -1,0 +1,32 @@
+# Only the Flutter web build inputs are needed on Vercel.
+# Everything below is either rebuilt during the deploy or irrelevant to web.
+
+build/
+.dart_tool/
+.flutter-plugins-dependencies
+.idea/
+.vscode/
+
+android/
+ios/
+linux/
+macos/
+windows/
+integration_test/
+test/
+docs/
+firebase/
+
+.git/
+.github/
+.gitignore
+.aider*
+*.iml
+*.log
+
+# Local secrets / platform config never shipped to the web build
+.env
+.env.*
+!.env.example
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
