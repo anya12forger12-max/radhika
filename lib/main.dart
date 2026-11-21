@@ -92,6 +92,7 @@ Future<void> main() async {
   final startupStopwatch = Stopwatch()..start();
   WidgetsFlutterBinding.ensureInitialized();
 
+  var firebaseReady = false;
   try {
     final webOptions = _webFirebaseOptions();
     if (webOptions != null) {
@@ -99,20 +100,31 @@ Future<void> main() async {
     } else {
       await Firebase.initializeApp();
     }
+    firebaseReady = true;
   } catch (e) {
     errorHandler.reportError(e, context: 'firebase-init');
     if (kDebugMode) debugPrint('Failed to initialize Firebase: $e');
   }
 
   try {
+    if (!firebaseReady) {
+      throw StateError('Firebase is not initialized');
+    }
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     // Route uncaught Flutter framework errors to Crashlytics so they are
     // recorded as fatal events rather than only printed to the console.
+    // The final handler installed below preserves this call.
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     // Route uncaught async/platform errors to Crashlytics as non-fatal
     // events (they may be recoverable) so they are still visible.
     PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+      if (firebaseReady) {
+        try {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+        } catch (_) {
+          // Diagnostics must never mask the original failure.
+        }
+      }
       return true;
     };
   } catch (e) {
@@ -135,6 +147,15 @@ Future<void> main() async {
   // authorized diagnostics (debug log + Crashlytics), then preserve the
   // default console behavior.
   FlutterError.onError = (FlutterErrorDetails details) {
+    // Keep framework errors fatal in Crashlytics. Assigning a plain closure
+    // here would otherwise discard the recordFlutterFatalError wiring above.
+    if (firebaseReady) {
+      try {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+      } catch (_) {
+        // Diagnostics must never mask the original failure.
+      }
+    }
     errorHandler.reportError(
       details.exception,
       context: 'flutter-error',

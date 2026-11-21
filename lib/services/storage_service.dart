@@ -64,6 +64,7 @@ class StorageService {
   static const String _predictionsBox = 'predictions_box';
   static const String _remindersBox = 'reminders_box';
   static const String _settingsBox = 'settings_box';
+  static const String _appPreferencesBox = 'app_preferences_encrypted';
   static const String _reminder3DaysKey = 'reminder_3_days_before';
   static const String _reminder2DaysKey = 'reminder_2_days_before';
   static const String _reminder1DayKey = 'reminder_1_day_before';
@@ -102,6 +103,7 @@ class StorageService {
     }
 
     Hive.registerAdapter(UserProfileAdapter());
+    Hive.registerAdapter(AppPreferencesAdapter());
     Hive.registerAdapter(CycleEntryAdapter());
     Hive.registerAdapter(FlowIntensityAdapter());
     Hive.registerAdapter(MoodAdapter());
@@ -120,6 +122,10 @@ class StorageService {
       _openBoxSafely<CyclePrediction>(_predictionsBox, cipher),
       _openBoxSafely<Reminder>(_remindersBox, cipher),
       _openBoxSafely<String>(_settingsBox, cipher),
+      Hive.openBox<AppPreferences>(
+        _appPreferencesBox,
+        encryptionCipher: cipher,
+      ),
     ]);
   }
 
@@ -495,17 +501,44 @@ class StorageService {
 
   /// User preference management
   AppPreferences getAppPreferences(String userId) {
-    final box = Hive.box<AppPreferences>('app_preferences_encrypted');
+    final box = Hive.box<AppPreferences>(_appPreferencesBox);
     return box.get(userId) ?? AppPreferences(id: userId);
   }
 
   /// User preference management
   Future<void> saveAppPreferences(String userId, AppPreferences preferences) async {
-    final box = Hive.box<AppPreferences>('app_preferences_encrypted');
+    final box = Hive.box<AppPreferences>(_appPreferencesBox);
     await box.put(userId, preferences);
   }
 
+  /// Removes every record belonging to [userId] from local storage.
+  ///
+  /// Used both by "Delete All Data" and by account deletion, so all health
+  /// records and reminder settings must be removed, not just the profile.
   Future<void> clearUserData(String userId) async {
+    final cycles = _cycles.values.where((c) => c.userId == userId).toList();
+    for (final cycle in cycles) {
+      await _cycles.delete(cycle.id);
+    }
+    final predictions =
+        _predictions.values.where((p) => p.userId == userId).toList();
+    for (final prediction in predictions) {
+      await _predictions.delete(prediction.id);
+    }
+    final reminders =
+        _reminders.values.where((r) => r.userId == userId).toList();
+    for (final reminder in reminders) {
+      await _reminders.delete(reminder.id);
+    }
+    await _settings.delete('${userId}_$_reminder3DaysKey');
+    await _settings.delete('${userId}_$_reminder2DaysKey');
+    await _settings.delete('${userId}_$_reminder1DayKey');
+    await _settings.delete('${userId}_$_reminderDayOfKey');
+    await _settings.delete('${userId}_$_reminderHourKey');
+    await _settings.delete('${userId}_$_reminderMinuteKey');
+    if (Hive.isBoxOpen(_appPreferencesBox)) {
+      await Hive.box<AppPreferences>(_appPreferencesBox).delete(userId);
+    }
     await _profile.delete(userId);
     await _settings.delete('${userId}_personalization');
   }
@@ -525,6 +558,8 @@ class StorageService {
         'remind2DaysBefore': getReminderPreferences(userId).remind2DaysBefore,
         'remind1DayBefore': getReminderPreferences(userId).remind1DayBefore,
         'remindDayOf': getReminderPreferences(userId).remindDayOf,
+        'hour': getReminderPreferences(userId).hour,
+        'minute': getReminderPreferences(userId).minute,
       },
       'exportDate': DateTime.now().toIso8601String(),
       'appVersion': AppConstants.appVersion,
