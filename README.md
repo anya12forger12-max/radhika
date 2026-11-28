@@ -1,161 +1,67 @@
-# Radhika 🌸
+# Radhika
 
-**A Cross-Platform Menstrual Health Tracking Application**
+A cross-platform menstrual-cycle tracker that keeps health entries in encrypted on-device storage and uses Firebase only for sign-in.
 
-Radhika is a meticulously engineered Flutter application designed for comprehensive menstrual health tracking, cycle analysis, and wellness guidance. The application serves as a personal health companion for women and menstruating individuals, facilitating precise cycle monitoring, symptom documentation, and evidence-based wellness recommendations.
+Radhika is a Flutter app (version 1.2.32+37) for logging periods and symptoms, exploring cycle patterns, getting estimate-based predictions, and reading educational content. Cycle data lives in AES-encrypted Hive boxes whose key is kept in the platform keystore via `flutter_secure_storage`; Firebase Authentication handles accounts, while there is no Firestore dependency in this app.
 
-## Executive Overview
+## Features
 
-Radhika implements a clean architecture pattern with repository-style data abstraction, Riverpod state management, and Firebase Authentication for secure access control. The application prioritizes user privacy through local data storage via Hive encryption, ensuring that all cycle data, symptoms, predictions, and reminders remain exclusively on the user's device. No health data is transmitted to external servers or synced to cloud infrastructure.
+- **Cycle and symptom logging** — start/end dates, flow intensity, spotting, pain level, mood, energy, sleep, exercise, water intake, free-text notes, and a symptom-only entry mode.
+- **Calendar and history** — month view with cycle markers, a chronological history with favorites, and per-entry detail screens.
+- **Estimates, not diagnoses** — average cycle/period length, next-period estimate, fertile-window and ovulation estimates, a confidence score derived from history size and variance, and a delay flag. See [`docs/SECURITY_ARCHITECTURE.md`](docs/SECURITY_ARCHITECTURE.md) and [`docs/DATA_FLOW.md`](docs/DATA_FLOW.md) for how the data is used.
+- **Local reminders** — configurable notifications three, two, and one day before a period, or on the day, at a chosen time; also supports medication and symptom-logging reminders through `flutter_local_notifications`.
+- **Education and recommendations** — static lessons on menstruation basics, pads, tampons, cups, wellness, and pain management, plus phase-aware recommendation screens.
+- **Reports and export** — cycle statistics, symptom frequency and flow charts via `fl_chart`, and CSV/JSON export through `share_plus`.
+- **Preferences and access** — light/dark/system themes, font scaling, reminder preferences, privacy-policy gate, Firebase email/password and Google sign-in, password reset, and account deletion.
+- **Accessibility-minded UI** — semantic labels, text scaling, touch-target sizing, and theme contrast work are covered in [`docs/FEATURE_INVENTORY.md`](docs/FEATURE_INVENTORY.md) and [`test/unit/theme_accessibility_test.dart`](test/unit/theme_accessibility_test.dart).
+- **Ad support with consent** — an AdMob banner is shown only after the UMP consent service reaches an allowed state.
 
-## Distinctive Features
+## Quick start
 
-### 📊 Advanced Cycle Tracking
+Requirements: a Flutter SDK matching `sdk: ^3.12.2` in [`pubspec.yaml`](pubspec.yaml), plus a Firebase project with Email/Password and Google sign-in enabled.
 
-- **Menstrual Period Logging**: Precise documentation of period start and end dates with configurable flow intensity metrics (quantified on a validated 1-5 scale)
-- **Multivariate Symptom Tracking**: Comprehensive logging of over twenty distinct symptomatology categories including but not limited to: cramping, cephalalgia, mastodynia, backalgia, exhaustion, mood lability, and acne flare-ups
-- **Calendar Integration**: Interactive monthly calendar visualization with cycle marker placement and retrospective analysis
-- **Automatic Cycle Statistics**: Computation of cycle length, period duration, inter-menstrual interval, and luteal phase duration
-- **Predictive Analytics**: Menstruation forecasting with confidence intervals based on historical data accumulation
+```bash
+git clone https://github.com/anya12forger12-max/radhika.git
+cd radhika
 
-### 🔮 Intelligent Predictive Models
+flutter pub get
+flutter run
 
-- **Next Period Prediction**: Algorithmic estimation of subsequent menstruation date with probabilistic confidence scoring
-- **Ovulation Window Estimation**: Fertile window prediction based on cycle regularity and symptothermal indicators
-- **Cycle Health Scoring**: Quantitative assessment of cycle regularity, variability, and predicted gynaecological health status
-- **Delay Analysis**: Evidence-based suggestions for cycle delay scenarios with reference to peer-reviewed literature
+# Checks and release artifacts
+flutter test
+flutter analyze
+flutter build apk --release
+flutter build appbundle --release
+```
 
-### 🔔 Intelligent Reminder Systems
+Add your own Firebase platform configuration (`google-services.json` / `GoogleService-Info.plist`) before building against your project. [`install.sh`](install.sh) runs `flutter pub get`; web builds use [`vercel_build.sh`](vercel_build.sh) and [`vercel.json`](vercel.json). Integration coverage includes [`integration_test/app_smoke_test.dart`](integration_test/app_smoke_test.dart), and published Android artifacts, if any, are listed in [GitHub Releases](https://github.com/anya12forger12-max/radhika/releases).
 
-- **Period Alerts**: Configurable push notifications preceding expected menstruation (adjustable lead time: 1-7 days)
-- **Medication Administration Reminders**: Customizable dosing schedules for prescribed or over-the-counter therapeutics
-- **Symptom Logging Prompts**: Timed reminders for periodic symptom documentation to ensure comprehensive data accumulation
-- **Medication Interaction Alerts**: Pharmacovigilance-informed warnings regarding potential herb-drug or drug-drug interactions
+## Project structure
 
-### 📚 Comprehensive Educational Resource
+```text
+lib/
+├── main.dart / app.dart          # bootstrap and app shell
+├── core/                         # constants, theme, utilities
+├── data/models/                  # encrypted Hive model factories
+├── models/                       # cycle entries, predictions, reminders, profile
+├── providers/                    # auth, cycle, and theme state (Riverpod)
+├── screens/                      # auth, tracking, calendar, education, reports, settings
+├── services/                     # storage, prediction, notifications, ads, auth
+└── widgets/                      # shared widgets and ad banner
+docs/                             # architecture, privacy, security, and audit notes
+test/ integration_test/           # unit, widget, and smoke tests
+```
 
-- **Menstrual Health Encyclopedia**: Curated, evidence-based information on menstrual physiology, cycle disorders, and gynaecological health
-- **Product Guidance**: Detailed comparisons and usage guidelines for menstrual products (pads, tampons, menstrual cups, period panties)
-- **Wellness Recommendations**: Personalized lifestyle and dietary suggestions correlated with cycle phase
-- **Pain Management Protocols**: Structured approaches to dysmenorrhea management with non-pharmacological and pharmacological options
+## Privacy and data flow
 
-### 📈 Advanced Analytics & Reporting
+Cycle, symptom, and preference data is stored in app-private encrypted Hive boxes; the encryption key is generated on-device and stored through `flutter_secure_storage`. Authentication traffic goes to Firebase, crash diagnostics go to Crashlytics, and ads are served by AdMob after consent. No health data is sent to a Firestore backend by this codebase. Read [PRIVACY.md](PRIVACY.md), [PRIVACY_POLICY.md](PRIVACY_POLICY.md), and [TERMS_AND_CONDITIONS.md](TERMS_AND_CONDITIONS.md) for the full policy.
 
-- **Monthly Cycle Summaries**: Comprehensive statistical overviews of cycle regularity, symptom frequency, and severity patterns
-- **Symptom Frequency Charts**: Interactive visualizations of symptom occurrence across cycle phases
-- **Comprehensive Cycle History**: Chronological record with detailed per-entry annotations and media attachment capability
-- **Data Export Functionality**: Secure, GDPR-compliant export of cycle data in standardized formats (CSV, JSON) for external analysis or healthcare provider sharing
+## Medical disclaimer
 
-### 🎨 Aesthetic & Interface Design
+> Radhika provides general cycle information and tracking tools. It is **not** a medical device and does not diagnose, treat, or replace professional medical advice. Predictions are estimates based on your logs. Consult a qualified healthcare provider for medical concerns.
 
-- **Material Design 3 Implementation**: Adherence to Google's design system with dynamic color palettes
-- **Theme System**: Light, Dark, and System-following automatic theme adaptation
-- **Accessibility Compliance**: Full WCAG 2.1 AA compliance including screen reader compatibility (TalkBack/VoiceOver), semantic labeling, minimum 48dp touch targets, dynamic font scaling, high contrast modes, and keyboard navigation support
-- **Animation Framework**: Subtle, purposeful motion design enhancing usability without compromising performance
+## License and credits
 
-### 🔒 Enterprise-Grade Privacy & Security Architecture
+MIT License, Copyright (c) 2026 Radhika — see [`LICENSE`](LICENSE).
 
-- **Local Data Sovereignty**: All health data persists exclusively on the device in encrypted Hive storage; zero cloud synchronization unless explicitly opted
-- **Firebase Authentication**: Secure OAuth2-compliant authentication with Email/Password and Google Sign-In options
-- **Mandatory Privacy Policy Acceptance**: Explicit, informed consent required prior to any data interaction
-- **Data Isolation**: Complete segregation between user datasets; no cross-user data accessibility
-- **Optional Account Deletion**: Secure, irreversible data eradication with verified confirmation protocols
-
-### 🔬 Scientific & Methodological Rigor
-
-- **Evidence-Based Methodology**: All wellness recommendations grounded in peer-reviewed medical literature
-- **Clinically Validated Metrics**: Utilization of validated assessment instruments (e.g., Visual Analog Scale for pain, Modified Menstrual Distress Questionnaire items)
-- **Data Privacy by Design**: Privacy-by-default architecture with granular user control over data sharing preferences
-
-### 📈 Reporting & Export Capabilities
-
-- **Monthly/Yearly Summaries**: Automated generation of cycle statistics and trend analysis
-- **Symptom Frequency Visualizations**: Graphical representations of symptom occurrence and severity trends
-- **Comprehensive Cycle History**: Chronological record with per-entry timestamps, symptom clusters, and predictive notes
-- **Secure Data Export**: Encrypted export functionality with format selection (CSV for spreadsheet analysis, JSON for programmatic use)
-
-### 🖥️ Platform & Technical Specifications
-
-- **Cross-Platform Compatibility**: Native-like experience on iOS, Android, and desktop environments via Flutter framework
-- **Android Version Support**: Android 7.0 (API level 24) and subsequent releases; optimized for Android 14 (API 34) and Android 15 (API 36)
-- **State Management**: Riverpod 2.x reactive provider architecture with notifier pattern
-- **Local Persistence**: Hive 2.x encrypted key-value storage with AES-256 encryption
-- **Notification System**: flutter_local_notifications 5.x with scheduled wake and permission management
-- **Charting Visualization**: fl_chart 0.70.x for interactive graphical representations
-- **Calendar Widget**: table_calendar 3.1.x for month-level cycle visualization
-
-### 🔐 Privacy & Compliance Framework
-
-- **Data Minimization**: Collection limited to essential health metrics required for cycle tracking and prediction
-- **Purpose Limitation**: Data used solely for cycle prediction, symptom tracking, and wellness guidance
-- **Storage Limitation**: Information retained only for the duration necessary for stated purposes
-- **User Rights**: Full rights of access, rectification, and erasure as per global data protection standards
-- **Medical Disclaimer**: Explicit declaration that the application constitutes educational technology, not medical device software
-
-### 📋 Installation & Deployment Requirements
-
-**Prerequisites**:
-- Flutter SDK (stable channel, version 3.22+)
-- Firebase project configuration (Authentication only; Firestore intentionally excluded)
-- Android Studio or VS Code with Flutter extension
-- Administrator permissions for Android SDK installation
-
-**Android Setup**:
-1. Repository cloning via `git clone https://github.com/anya12forger12-max/radhika.git`
-2. Dependency installation via `flutter pub get`
-3. Firebase project creation and Email/Password + Google Sign-In enablement
-4. `google-services.json` placement in `android/app/`
-5. `flutter run` for development or `flutter build apk --release` for production deployment
-
-**Build Artifacts**:
-- Release APK: `build/app/outputs/flutter-apk/app-release.apk`
-- Release AAB: `build/app/outputs/bundle/release/app-release.aab`
-
-### 📲 Direct Mobile Installation (OTA APK Download)
-
-If you want to install the release-signed production version of the Radhika application directly onto an Android device without building it from source code, you can download the compiled asset file straight from your mobile web browser.
-
-**⚡ Quick Setup Instructions:**
-
-1. **Get the Download Link:** Navigate to the [Releases](https://github.com/anya12forger12-max/radhika/releases) section of this repository on your mobile device.
-2. **Download the Installer:** Under the latest verified production tag release, tap the **`app-release.apk`** hyperlink anchor file to download the lightweight package onto your internal device storage.
-3. **Handle System Security Prompts:**
-   - Open the downloaded file from your browser's history or notifications panel.
-   - If Android blocks the package with a notification saying *"For security, your phone is not allowed to install unknown apps from this source,"* tap **Settings** directly in that dialog window.
-   - Toggle the **"Allow from this source"** switch to **ON**.
-4. **Complete Installation:** Go back to the installer, tap **Install**, and the Radhika application will load cleanly onto your phone's main home screen app drawer, with fully functional Firebase Authentication and local Hive storage encryption enabled out of the box.
-
-*Note: The released binaries are cryptographically signed using our official release credentials (`anya-release-key-v2`). They map accurately to our restricted Firebase console configurations, ensuring total runtime stability.*
-
-### 📜 Medical Disclaimer
-
-> **This application provides educational information and cycle tracking functionality only. It is not a medical device, does not diagnose conditions, and is not a substitute for professional medical advice.** Always consult a qualified healthcare provider for medical concerns. The application clearly distinguishes between educational guidance and clinical advice, and never provides diagnoses or treatment recommendations.
-
-### 📜 License
-
-This project is licensed under the MIT License. Full license text available in the `LICENSE` file.
-
-### 🙏 Acknowledgments
-
-- Flutter engineering team for the revolutionary cross-platform framework
-- Dart language design group for the optimized, sound-nullable language
-- All contributors and testers who advanced the application's precision and reliability
-- Medical professionals who reviewed educational content for scientific accuracy
-- Hive encryption library team for local data security implementation
-
----
-
-*Radhika: Empowering informed menstrual health through technology, education, and privacy.*
-
----
-*Last updated: [Current Date]*
-*Version: 1.2.31+36 (as per pubspec.yaml versioning)*
----
-
-## Repository
-
-- **Home:** https://github.com/anya12forger12-max/radhika
-- **License:** MIT (see `LICENSE`)
-- **Issues:** https://github.com/anya12forger12-max/radhika/issues
-- **Security:** See `SECURITY.md` / `.github/SECURITY.md`
-- **Contributing:** See `CONTRIBUTING.md` (or open an issue/PR)
+More documentation: [SECURITY.md](SECURITY.md), [CONTRIBUTING.md](CONTRIBUTING.md), [ONBOARDING.md](ONBOARDING.md), [CHANGELOG.md](CHANGELOG.md), and the [documentation index](docs).
